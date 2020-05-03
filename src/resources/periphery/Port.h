@@ -2,7 +2,7 @@
 #define SRC_RESOURCES_PERIPHERY_PORT_H_
 
 
-#include <stdlib.h>
+#include <stdint.h>
 #include "../Periphery.h"
 
 
@@ -11,6 +11,7 @@ class Pin;
 
 class Port final {
 	friend Pin;
+	friend Periphery;
 
 private:
 	volatile uint8_t pinReg; //PINn
@@ -18,6 +19,8 @@ private:
 	volatile uint8_t portReg; //PORTn
 
 	static uint8_t usage[Periphery::getCapacity<Port>()];
+
+	inline Port() noexcept {}
 
 	void initPins(uint8_t mask);
 	void closePins(uint8_t mask) noexcept;

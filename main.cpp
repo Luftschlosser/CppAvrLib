@@ -3,11 +3,11 @@
 #include "src/resources/Periphery.h"
 #include "src/resources/periphery/Pin.h"
 
-using namespace Periphery;
 
 int main (void) noexcept
 {
-	Pin led(portB, 6);
+	//Pin led(Periphery::portB, 6);
+	Pin led(Periphery::getInstance<Port>('B'), 6);
 
 	led.setOutput();
 

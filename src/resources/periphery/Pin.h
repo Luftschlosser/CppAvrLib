@@ -2,7 +2,7 @@
 #define SRC_RESOURCES_PERIPHERY_PIN_H_
 
 
-#include <stdlib.h>
+#include <stdint.h>
 #include "Port.h"
 
 
