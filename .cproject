@@ -171,6 +171,8 @@
                                     								
                                 </option>
                                 								
+                                <option id="de.innot.avreclipse.cppcompiler.option.optimize.packstruct.1387017883" name="Pack structs (-fpack-struct)" superClass="de.innot.avreclipse.cppcompiler.option.optimize.packstruct" useByScannerDiscovery="false" value="false" valueType="boolean"/>
+                                								
                                 <inputType id="de.innot.avreclipse.cppcompiler.input.1563099746" superClass="de.innot.avreclipse.cppcompiler.input"/>
                                 							
                             </tool>
