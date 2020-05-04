@@ -9,24 +9,24 @@
 class Pin {
 
 private:
-	Port* port;
-	uint8_t mask;
+	Port& port;
+	const uint8_t pin;
 
 public:
-	inline Pin (Port* port, uint8_t pin) noexcept : port(port), mask(0) { mask = (1 << pin); }
+	inline constexpr Pin (Port& port, uint8_t pin) noexcept : port(port), pin(pin) {}
 
-	inline void init() { port->initPins(mask); }
-	inline void close() noexcept { port->closePins(mask); }
-	inline bool isUsed() noexcept { return port->arePinsUsed(mask); }
+	inline void init() { port.initPins(1 << pin); }
+	inline void close() noexcept { port.closePins(1 << pin); }
+	inline bool isUsed() noexcept { return port.arePinsUsed(1 << pin); }
 
-	inline void setOutput() noexcept { port->ddrReg |= mask; }
-	inline void write(bool data) noexcept { if (data) port->portReg |= mask; else port->portReg &= ~mask; }
-	inline void setHigh() noexcept { port->portReg |= mask; }
-	inline void setLow() noexcept { port->portReg &= ~mask; }
-	inline void toggle() noexcept { port->pinReg = mask; }
+	inline void setOutput() noexcept { port.ddrReg |= (1 << pin); }
+	inline void write(bool data) noexcept { if (data) port.portReg |= (1 << pin); else port.portReg &= ~(1 << pin); }
+	inline void setHigh() noexcept { port.portReg |= (1 << pin); }
+	inline void setLow() noexcept { port.portReg &= ~(1 << pin); }
+	inline void toggle() noexcept { port.pinReg |= (1 << pin); }
 
-	inline void setInput() noexcept { port->ddrReg &= ~mask; }
-	inline bool read() noexcept { return port->pinReg & mask; }
+	inline void setInput() noexcept { port.ddrReg &= ~(1 << pin); }
+	inline bool read() noexcept { return port.pinReg & (1 << pin); }
 	inline void setPullup(bool enable) noexcept { write(enable); }
 	inline void enablePullup() noexcept { setHigh(); }
 	inline void disablePullup() noexcept { setLow(); }

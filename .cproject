@@ -165,7 +165,7 @@
                                 								
                                 <option id="de.innot.avreclipse.cppcompiler.option.debug.type.1778105227" name="Debug Info Format" superClass="de.innot.avreclipse.cppcompiler.option.debug.type" useByScannerDiscovery="false" value="de.innot.avreclipse.cppcompiler.option.debug.level.default" valueType="enumerated"/>
                                 								
-                                <option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="de.innot.avreclipse.cppcompiler.option.incpath.819195196" superClass="de.innot.avreclipse.cppcompiler.option.incpath" useByScannerDiscovery="false" valueType="includePath">
+                                <option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="de.innot.avreclipse.cppcompiler.option.incpath.819195196" name="Include Paths (-I)" superClass="de.innot.avreclipse.cppcompiler.option.incpath" useByScannerDiscovery="false" valueType="includePath">
                                     									
                                     <listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}}&quot;"/>
                                     								
