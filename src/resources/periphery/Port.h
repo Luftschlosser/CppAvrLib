@@ -2,9 +2,9 @@
 #define SRC_RESOURCES_PERIPHERY_PORT_H_
 
 
-#include <stdint.h>
+#include <stdlib.h>
 #include "../Periphery.h"
-
+#include <util/atomic.h>
 
 class Pin;
 
@@ -22,14 +22,58 @@ private:
 
 	inline Port() noexcept {}
 
-	void initPins(uint8_t mask);
-	void closePins(uint8_t mask) noexcept;
-	bool arePinsUsed(uint8_t mask) noexcept;
+	inline void initPins(uint8_t mask) {
+	if (Periphery::runtimeAllocationsEnabled) { //TODO: if constexpr, but need newer compiler for C++17
+			uint8_t index = Periphery::getIdentity(this);
+			ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
+			{
+				if (usage[index] & mask) {
+					//throw later (check possible problems with throwing in atomic block)
+				}
+				else {
+					usage[index] |= mask;
+				}
+			}
+		}
+	}
+	inline void closePins(uint8_t mask) noexcept {
+		if (Periphery::runtimeAllocationsEnabled) { //TODO: if constexpr, but need newer compiler for C++17
+				uint8_t index = Periphery::getIdentity(this);
+				usage[index] &= ~mask;
+			}
+	}
+	inline bool arePinsUsed(uint8_t mask) noexcept {
+		uint8_t index = Periphery::getIdentity(this);
+		return (usage[index] & mask) != 0;
+	}
 
 public:
-	void init();
-	void close() noexcept;
-	bool isUsed() noexcept;
+	inline void init() {
+		if (Periphery::runtimeAllocationsEnabled) { //TODO: if constexpr, but need newer compiler for C++17
+			uint8_t index = Periphery::getIdentity(this);
+			ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
+			{
+				if (usage[index] == 0) {
+					usage[index] = 0xFF; //Set all Pins in use
+				}
+				else {
+					//throw later (check possible problems with throwing in atomic block)
+				}
+			}
+		}
+	}
+
+	inline void close() noexcept {
+		if (Periphery::runtimeAllocationsEnabled) { //TODO: if constexpr, but need newer compiler for C++17
+			uint8_t index = Periphery::getIdentity(this);
+			usage[index] = 0;
+		}
+	}
+
+	inline bool isUsed() noexcept {
+		uint8_t index = Periphery::getIdentity(this);
+		return usage[index] != 0;
+	}
 
 	inline void setOutput() noexcept { ddrReg = 0xFF; }
 	inline void writeOutput(uint8_t data) noexcept { portReg = data; }

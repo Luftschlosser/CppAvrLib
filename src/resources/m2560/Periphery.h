@@ -3,8 +3,8 @@
 
 
 #include <avr/io.h>
+#include <stdlib.h>
 
-#include <stdint.h>
 
 //forward-declarations
 class Port;
@@ -34,7 +34,7 @@ public:
 
 
 	//Returns the Index of the specific periphery instance. [0-n]
-	template <typename T> static uint8_t getIdentity(T* periphery) noexcept;
+	template <typename T> static constexpr uint8_t getIdentity(T* periphery) noexcept;
 
 	//Returns the periphery instance with the specified index.
 	template <typename T> inline static constexpr T& getInstance(uint8_t index);
@@ -48,40 +48,52 @@ private:
 };
 
 //template specializations
+template <> inline constexpr uint8_t Periphery::getIdentity<Port>(Port* periphery) noexcept
+{
+	size_t adr = reinterpret_cast<size_t>(periphery);
+	if (adr < 0x100) {
+		return (adr - 0x20) / 0x3;
+	}
+	else {
+		return ((adr - 0x100) / 0x3) + 0x7;
+	}
+}
+
 template <> inline constexpr uint8_t Periphery::getCapacity<Port>() noexcept { return 11; }
-template <> inline constexpr Port& Periphery::getInstance<Port>(uint8_t index) { //Todo: make it return Reference instead of Pointer? -> Page 71: https://aristeia.com/TalkNotes/C++_Embedded_Deutsch.pdf
+
+template <> inline constexpr Port& Periphery::getInstance<Port>(uint8_t index) {
 	if (index >= 11) {
 		//TODO: throw later!
 		index = 10;
 	}
 
 	uint16_t adr = index >= 7 ? ((index - 7) * 3) + 0x100 : (index*3) + 0x20;
-	return *((Port*)adr); //Direct cast for constexpr... TODO: ReinterpretCast
+	return *(reinterpret_cast<Port*>(adr)); //Direct cast for constexpr...
 }
 template <> inline constexpr Port& Periphery::getInstance<Port>(char letter) {
 	/*switch(letter) {
 	case 'A':
-		return *((Port*)PINA); //TODO: ReinterpretCast
+		return *(reinterpret_cast<Port*>(PINA));
 	case 'B':
-		return *((Port*)PINB); //TODO: ReinterpretCast
+		return *(reinterpret_cast<Port*>(PINB));
 	case 'C':
-		return *((Port*)PINC); //TODO: ReinterpretCast
+		return *(reinterpret_cast<Port*>(PINC));
 	case 'D':
-		return *((Port*)PIND); //TODO: ReinterpretCast
+		return *(reinterpret_cast<Port*>(PIND));
 	case 'E':
-		return *((Port*)PINE); //TODO: ReinterpretCast
+		return *(reinterpret_cast<Port*>(PINE));
 	case 'F':
-		return *((Port*)PINF); //TODO: ReinterpretCast
+		return *(reinterpret_cast<Port*>(PINF));
 	case 'G':
-		return *((Port*)PING); //TODO: ReinterpretCast
+		return *(reinterpret_cast<Port*>(PING));
 	case 'H':
-		return *((Port*)PINH); //TODO: ReinterpretCast
+		return *(reinterpret_cast<Port*>(PINH));
 	case 'J':
-		return *((Port*)PINJ); //TODO: ReinterpretCast
+		return *(reinterpret_cast<Port*>(PINJ));
 	case 'K':
-		return *((Port*)PINK); //TODO: ReinterpretCast
+		return *(reinterpret_cast<Port*>(PINK));
 	case 'L':
-		return *((Port*)PINL); //TODO: ReinterpretCast
+		return *(reinterpret_cast<Port*>(PINL));
 	default:
 		//TODO: throw
 		return *((Port*)PINA);
