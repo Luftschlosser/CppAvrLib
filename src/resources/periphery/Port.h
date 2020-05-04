@@ -11,7 +11,6 @@ class Pin;
 
 class Port final {
 	friend Pin;
-	friend Periphery;
 
 private:
 	volatile uint8_t pinReg; //PINn
@@ -20,7 +19,7 @@ private:
 
 	static uint8_t usage[Periphery::getCapacity<Port>()];
 
-	inline Port() noexcept {}
+	Port() = delete; //Prohibit instantiation
 
 	inline void initPins(uint8_t mask) {
 	if (Periphery::runtimeAllocationsEnabled) { //TODO: if constexpr, but need newer compiler for C++17

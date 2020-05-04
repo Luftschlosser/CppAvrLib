@@ -1,17 +1,16 @@
 #include "Periphery.h"
-#include "../../cpp/PlacementNew.h"
 #include "../periphery/Port.h"
 
 //Periphery definition for the ATmega2560
 
-Port* Periphery::portA = new((void*)&PINA) Port();
-Port* Periphery::portB = new((void*)&PINB) Port();
-Port* Periphery::portC = new((void*)&PINC) Port();
-Port* Periphery::portD = new((void*)&PIND) Port();
-Port* Periphery::portE = new((void*)&PINE) Port();
-Port* Periphery::portF = new((void*)&PINF) Port();
-Port* Periphery::portG = new((void*)&PING) Port();
-Port* Periphery::portH = new((void*)&PINH) Port();
-Port* Periphery::portJ = new((void*)&PINJ) Port();
-Port* Periphery::portK = new((void*)&PINK) Port();
-Port* Periphery::portL = new((void*)&PINL) Port();
+Port* Periphery::portA = (reinterpret_cast<Port*>(PINA));
+Port* Periphery::portB = (reinterpret_cast<Port*>(PINB));
+Port* Periphery::portC = (reinterpret_cast<Port*>(PINC));
+Port* Periphery::portD = (reinterpret_cast<Port*>(PIND));
+Port* Periphery::portE = (reinterpret_cast<Port*>(PINE));
+Port* Periphery::portF = (reinterpret_cast<Port*>(PINF));
+Port* Periphery::portG = (reinterpret_cast<Port*>(PING));
+Port* Periphery::portH = (reinterpret_cast<Port*>(PINH));
+Port* Periphery::portJ = (reinterpret_cast<Port*>(PINJ));
+Port* Periphery::portK = (reinterpret_cast<Port*>(PINK));
+Port* Periphery::portL = (reinterpret_cast<Port*>(PINL));

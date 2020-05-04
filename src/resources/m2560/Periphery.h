@@ -98,9 +98,13 @@ template <> inline constexpr Port& Periphery::getInstance<Port>(char letter) {
 		//TODO: throw
 		return *((Port*)PINA);
 	}*/
-	uint8_t index = (uint8_t)(letter >= 'a' ? letter - 'a' : letter - 'A');
-	if (index > 8) { //Port J/K/L
-		index--;
+	uint8_t index = 10;
+	if (letter >= 'A' && letter <= 'H')
+		index = static_cast<uint8_t>(letter - 'A');
+	else if (letter >= 'J' && letter <= 'L')
+		index = static_cast<uint8_t>(letter - 'J') + 8;
+	else {
+		//TODO: throw;
 	}
 	return Periphery::getInstance<Port>(index);
 }
