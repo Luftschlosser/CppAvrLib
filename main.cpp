@@ -15,7 +15,7 @@ int main (void) noexcept
 	const Pin led(Periphery::getInstance<Port>('B'), 6);
 
 	led.init();
-	led.setOutput();
+	led.setMode(Pin::Mode::OUTPUT);
 
     // Main-loop
     while (1)

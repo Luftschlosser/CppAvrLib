@@ -7,25 +7,30 @@
 #include <util/atomic.h>
 
 
+//Forward-Declaration
 class Pin;
 
-
+///MMIO Abstraction of the GPIO Ports
 class Port final {
 	friend Pin;
 
 private:
 
+	///Allocation Flags for all Ports (and Pins) TODO: Inhibit when Periphery::runtimeAllocationsEnabled==false
 	static uint8_t usage[Periphery::getCapacity<Port>()];
 
-	Port() = delete; //Prohibit instantiation
+	///No Constructor to prohibit instantiation
+	Port() = delete;
 
+	///Allows initialization of a subset of Pins (used by friend-classes)
+	///\param mask the bitmask to select the pins to initialize
 	inline void initPins(uint8_t mask) {
 	if (Periphery::runtimeAllocationsEnabled) {
 			uint8_t index = Periphery::getIdentity(this);
 			ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
 			{
 				if (usage[index] & mask) {
-					//throw later (check possible problems with throwing in atomic block)
+					//Todo: throw later (check possible problems with throwing in atomic block)
 				}
 				else {
 					usage[index] |= mask;
@@ -34,6 +39,8 @@ private:
 		}
 	}
 
+	///Allows de-initialization of a subset of Pins (used by friend-classes)
+	///\param mask the bitmask to select the pins to de-initialize
 	inline void closePins(uint8_t mask) noexcept {
 		if (Periphery::runtimeAllocationsEnabled) {
 				uint8_t index = Periphery::getIdentity(this);
@@ -41,6 +48,9 @@ private:
 			}
 	}
 
+	///Allows checking the usage of a subset of Pins (used by friend-classes)
+	///\param mask the bitmask to select the pins to check
+	///\return true if the selected Pins are already in use, else false
 	inline bool arePinsUsed(uint8_t mask) noexcept {
 		uint8_t index = Periphery::getIdentity(this);
 		return (usage[index] & mask) != 0;
@@ -49,10 +59,23 @@ private:
 
 public:
 
+	///The PINn register
 	volatile uint8_t regPIN;
+
+	///The DDRn register
 	volatile uint8_t regDDR;
+
+	///The PORTn register
 	volatile uint8_t regPORT;
 
+	///Enumeration declaration to describe the mode of operation
+	enum Mode : uint8_t {
+		OUTPUT,
+		INPUT,
+		INPUT_PULLUP
+	};
+
+	///Initializes the entire Port
 	inline void init() {
 		if (Periphery::runtimeAllocationsEnabled) {
 			uint8_t index = Periphery::getIdentity(this);
@@ -68,6 +91,7 @@ public:
 		}
 	}
 
+	///De-Initializes the entire Port
 	inline void close() noexcept {
 		if (Periphery::runtimeAllocationsEnabled) {
 			uint8_t index = Periphery::getIdentity(this);
@@ -75,24 +99,41 @@ public:
 		}
 	}
 
+	///checks the usage of the Port
+	///\return true if at least one Pin of the Port is already in use, else false
 	inline bool isUsed() noexcept {
 		uint8_t index = Periphery::getIdentity(this);
 		return usage[index] != 0;
 	}
 
-	inline void setOutput() noexcept { regDDR = 0xFF; }
-	inline void writeOutput(uint8_t data) noexcept { regPORT = data; }
-	inline uint8_t readOutput() noexcept { return regPORT; }
-	inline void toggleOutput() noexcept { regPIN = 0xFF; }
-	inline void toggleOutput(uint8_t toggleMask) noexcept { regPIN = toggleMask; }
+	///Sets the mode of operation for the entire Port
+	///\param mode the mode of operation to configure
+	inline void setMode(Mode mode) noexcept {
+		switch (mode) {
+		case Mode::OUTPUT:
+			regDDR = 0xFF;
+			break;
+		case Mode::INPUT:
+			regDDR = 0x00;
+			regPORT = 0x00;
+			break;
+		case Mode::INPUT_PULLUP:
+			regDDR = 0x00;
+			regPORT = 0xFF;
+			break;
+		}
+	}
 
-	inline void setInput() noexcept { regDDR = 0; }
-	inline uint8_t readInput() noexcept { return regPIN; }
-	inline void writeInputPullups(uint8_t mask) noexcept { regPORT = mask; }
-	inline uint8_t readInputPullups() noexcept { return regPORT; }
+	///Writes data to the Port (in Output mode)
+	///\param data the byte to write to the port
+	inline void write(uint8_t data) noexcept { regPORT = data; }
 
-	inline void writeDataDirections(uint8_t directionMask) noexcept { regDDR = directionMask; }
-	inline uint8_t readDataDirections() noexcept { return regDDR; }
+	///Toggles all Bits of the Port (in Output mode)
+	inline void toggle() noexcept { regPIN = 0xFF; }
+
+	///Reads data from the Port (in Input mode)
+	///return the byte which is currently on the port
+	inline uint8_t read() noexcept { return regPIN; }
 };
 
 
