@@ -3,105 +3,58 @@
 
 
 #include <avr/io.h>
-#include <stdlib.h>
+#include <stdint.h>
+#include "AddressMap.h"
 
 
-//forward-declarations
+//Forward-Declarations
 class Port;
 
-//Periphery declaration for the ATmega2560
+///Periphery declaration for the ATmega2560
 namespace Periphery {
 
-	//set false to disable runtime allocation.
+	///Flag to enable/disable periphery runtime allocations
 	static constexpr bool runtimeAllocationsEnabled = true;
 
 
 	//TODO: Inhibit Warnings with some trick
-	static Port& portA = *(reinterpret_cast<Port*>(PINA));
-	static Port& portB = *(reinterpret_cast<Port*>(PINB));
-	static Port& portC = *(reinterpret_cast<Port*>(PINC));
-	static Port& portD = *(reinterpret_cast<Port*>(PIND));
-	static Port& portE = *(reinterpret_cast<Port*>(PINE));
-	static Port& portF = *(reinterpret_cast<Port*>(PINF));
-	static Port& portG = *(reinterpret_cast<Port*>(PING));
-	static Port& portH = *(reinterpret_cast<Port*>(PINH));
-	static Port& portJ = *(reinterpret_cast<Port*>(PINJ));
-	static Port& portK = *(reinterpret_cast<Port*>(PINK));
-	static Port& portL = *(reinterpret_cast<Port*>(PINL));
+	static Port& portA = *(reinterpret_cast<Port*>(ADR_PORTA));
+	static Port& portB = *(reinterpret_cast<Port*>(ADR_PORTB));
+	static Port& portC = *(reinterpret_cast<Port*>(ADR_PORTC));
+	static Port& portD = *(reinterpret_cast<Port*>(ADR_PORTD));
+	static Port& portE = *(reinterpret_cast<Port*>(ADR_PORTE));
+	static Port& portF = *(reinterpret_cast<Port*>(ADR_PORTF));
+	static Port& portG = *(reinterpret_cast<Port*>(ADR_PORTG));
+	static Port& portH = *(reinterpret_cast<Port*>(ADR_PORTH));
+	static Port& portJ = *(reinterpret_cast<Port*>(ADR_PORTJ));
+	static Port& portK = *(reinterpret_cast<Port*>(ADR_PORTK));
+	static Port& portL = *(reinterpret_cast<Port*>(ADR_PORTL));
 
 
-	//Returns the Index of the specific periphery instance. [0-n]
-	template <typename T> static constexpr uint8_t getIdentity(T* periphery) noexcept;
-
-	template <> inline constexpr uint8_t getIdentity<Port>(Port* periphery) noexcept
-	{
-		size_t adr = reinterpret_cast<size_t>(periphery);
-		if (adr < 0x100) {
-			return (adr - 0x20) / 0x3;
-		}
-		else {
-			return ((adr - 0x100) / 0x3) + 0x7;
-		}
+	///Get the Index of a given periphery instance.
+	///\param periphery A pointer to the periphery instance
+	///\return The index of the periphery [0-n]
+	template <typename T> inline uint8_t getIdentity(T* periphery) noexcept {
+		return AddressMap::pointerToIndex<T>(reinterpret_cast<intptr_t>(periphery));
 	}
 
-
-	//Returns the periphery instance with the specified index.
-	template <typename T> inline static constexpr T& getInstance(uint8_t index);
-	template <typename T> inline static constexpr T& getInstance(char letter);
-
-	template <> inline constexpr Port& getInstance<Port>(uint8_t index) {
-		if (index >= 11) {
-			//TODO: throw later!
-			index = 10;
-		}
-
-		uint16_t adr = index >= 7 ? ((index - 7) * 3) + 0x100 : (index*3) + 0x20;
-		return *(reinterpret_cast<Port*>(adr)); //Direct cast for constexpr...
+	///Access a specific periphery instance.
+	///\param index The index [0-n] of the periphery to access
+	///\return A reference to the periphery instance
+	template <typename T> inline T& getInstance(uint8_t index) {
+		return *(reinterpret_cast<T*>(AddressMap::indexToPointer<T>(index)));
 	}
 
-	template <> inline constexpr Port& getInstance<Port>(char letter) {
-		/*switch(letter) {
-		case 'A':
-			return *(reinterpret_cast<Port*>(PINA));
-		case 'B':
-			return *(reinterpret_cast<Port*>(PINB));
-		case 'C':
-			return *(reinterpret_cast<Port*>(PINC));
-		case 'D':
-			return *(reinterpret_cast<Port*>(PIND));
-		case 'E':
-			return *(reinterpret_cast<Port*>(PINE));
-		case 'F':
-			return *(reinterpret_cast<Port*>(PINF));
-		case 'G':
-			return *(reinterpret_cast<Port*>(PING));
-		case 'H':
-			return *(reinterpret_cast<Port*>(PINH));
-		case 'J':
-			return *(reinterpret_cast<Port*>(PINJ));
-		case 'K':
-			return *(reinterpret_cast<Port*>(PINK));
-		case 'L':
-			return *(reinterpret_cast<Port*>(PINL));
-		default:
-			//TODO: throw
-			return *((Port*)PINA);
-		}*/
-		uint8_t index = 10;
-		if (letter >= 'A' && letter <= 'H')
-			index = static_cast<uint8_t>(letter - 'A');
-		else if (letter >= 'J' && letter <= 'L')
-			index = static_cast<uint8_t>(letter - 'J') + 8;
-		else {
-			//TODO: throw;
-		}
-		return Periphery::getInstance<Port>(index);
+	///Access a specific periphery instance.
+	///\param index The letter [A-Z] associated with the periphery to access
+	///\return A reference to the periphery instance
+	template <typename T> inline T& getInstance(char letter) {
+		return *(reinterpret_cast<T*>(AddressMap::indexToPointer<T>(letter)));
 	}
 
-
-	//Returns the total number of instances of the specified periphery type. [0-n]
-	template <typename T> inline static constexpr uint8_t getCapacity() noexcept;
-
+	///Get the total number of instances of a periphery type.
+	///\return The total number of instances of the template-specified type [0-n]
+	template <typename T> inline constexpr uint8_t getCapacity() noexcept;
 	template <> inline constexpr uint8_t getCapacity<Port>() noexcept { return 11; }
 }
 

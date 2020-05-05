@@ -2,13 +2,14 @@
 #define SRC_RESOURCES_PERIPHERY_PORT_H_
 
 
-#include <stdlib.h>
+#include <stdint.h>
 #include "../Periphery.h"
 #include <util/atomic.h>
 
 
-//Forward-Declaration
+//Forward-Declarations
 class Pin;
+
 
 ///MMIO Abstraction of the GPIO Ports
 class Port final {
