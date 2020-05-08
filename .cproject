@@ -157,7 +157,7 @@
                                 								
                                 <option id="de.innot.avreclipse.cppcompiler.option.optimize.767487656" name="Optimization Level" superClass="de.innot.avreclipse.cppcompiler.option.optimize" useByScannerDiscovery="false" value="de.innot.avreclipse.cppcompiler.optimize.size" valueType="enumerated"/>
                                 								
-                                <option id="de.innot.avreclipse.cppcompiler.option.otherflags.1832540643" name="Other flags" superClass="de.innot.avreclipse.cppcompiler.option.otherflags" useByScannerDiscovery="false" value="-std=c++17" valueType="string"/>
+                                <option id="de.innot.avreclipse.cppcompiler.option.otherflags.1832540643" name="Other flags" superClass="de.innot.avreclipse.cppcompiler.option.otherflags" useByScannerDiscovery="false" value="-std=c++17 -fplugin=/home/developer/workspace/GCC-Plugins/AVR-Flash-Vtable/avr-flash-vtbl.so" valueType="string"/>
                                 								
                                 <option id="de.innot.avreclipse.cppcompiler.option.optimize.functionsections.1362971207" name="Each function in its own section (-ffunction-sections)" superClass="de.innot.avreclipse.cppcompiler.option.optimize.functionsections" useByScannerDiscovery="false" value="true" valueType="boolean"/>
                                 								

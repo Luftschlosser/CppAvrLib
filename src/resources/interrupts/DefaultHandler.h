@@ -1,15 +1,16 @@
 #ifndef SRC_RESOURCES_INTERRUPTS_DEFAULTHANDLER_H_
 #define SRC_RESOURCES_INTERRUPTS_DEFAULTHANDLER_H_
 
-#include "IrqListener.h"
+#include "Listener.h"
 
 namespace DefaultHandler {
 
 	//Default-Function to call when no callback is registered
 	inline void nothing() noexcept {}
 
-	//Default-IrqListener to trigger when no IrqListener is registered
-	class NoListener final : public IrqListener {
+
+	//Default-IrqListener to trigger when no Listener is registered
+	class NoListener final : public Listener {
 
 	private:
 
@@ -17,9 +18,9 @@ namespace DefaultHandler {
 		inline ~NoListener() noexcept {}
 
 	public:
-		inline static IrqListener* getInstance() noexcept {
+		inline static Listener& getInstance() noexcept {
 			static NoListener instance;
-			return (IrqListener*)&instance;
+			return instance;
 		}
 		virtual inline void trigger() noexcept {}
 	};

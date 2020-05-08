@@ -19,8 +19,10 @@ int main (void) noexcept
 {
 
 	Usart& usart = Periphery::usart0;
-	InterruptSource* rxIrq = usart.accessRxInterruptSource();
-	rxIrq->registerCallback(&callback);
+	EventSource& rxIrq = usart.accessRxInterruptSource();
+	rxIrq.registerCallback(&callback);
+
+	//rxIrq = Interrupt::getInstance();
 
 	//Pin led(Periphery::portB, 6);
 	//Pin led(Periphery::getInstance<Port>(x()), 6);

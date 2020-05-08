@@ -128,8 +128,9 @@ public:
 		return usage & (1 << index);
 	}
 
-	inline InterruptSource* accessRxInterruptSource() noexcept {
-		return InterruptUsart0Rx::Manager::getInstance(); //TODO: return correct instance for this identity
+	inline EventSource& accessRxInterruptSource() noexcept {
+		static Interrupt irq(USART0_RX_vect_num);
+		return irq; //TODO: return correct instance for this identity
 	}
 };
 
