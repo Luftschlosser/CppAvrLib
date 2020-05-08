@@ -69,7 +69,7 @@ public:
 	///The PORTn register
 	volatile uint8_t regPORT;
 
-	///Enumeration declaration to describe the mode of operation
+	///Enumeration to describe the mode of operation
 	enum Mode : uint8_t {
 		OUTPUT,
 		INPUT,

@@ -181,6 +181,8 @@
                             							
                             <tool id="de.innot.avreclipse.tool.cpplinker.app.debug.1738337810" name="AVR C++ Linker" superClass="de.innot.avreclipse.tool.cpplinker.app.debug">
                                 								
+                                <option id="de.innot.avreclipse.cpplinker.option.otherlinkargs.1235932927" name="Other Arguments" superClass="de.innot.avreclipse.cpplinker.option.otherlinkargs" useByScannerDiscovery="false" value="" valueType="string"/>
+                                								
                                 <inputType id="de.innot.avreclipse.tool.cpplinker.input.686523718" name="OBJ Files" superClass="de.innot.avreclipse.tool.cpplinker.input">
                                     									
                                     <additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>

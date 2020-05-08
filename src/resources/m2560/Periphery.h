@@ -7,9 +7,6 @@
 #include "AddressMap.h"
 
 
-//Forward-Declarations
-class Port;
-
 ///Periphery declaration for the ATmega2560
 namespace Periphery {
 
@@ -17,7 +14,6 @@ namespace Periphery {
 	static constexpr bool runtimeAllocationsEnabled = true;
 
 
-	//TODO: Inhibit Warnings with some trick
 	static Port& portA = *(reinterpret_cast<Port*>(ADR_PORTA));
 	static Port& portB = *(reinterpret_cast<Port*>(ADR_PORTB));
 	static Port& portC = *(reinterpret_cast<Port*>(ADR_PORTC));
@@ -29,6 +25,7 @@ namespace Periphery {
 	static Port& portJ = *(reinterpret_cast<Port*>(ADR_PORTJ));
 	static Port& portK = *(reinterpret_cast<Port*>(ADR_PORTK));
 	static Port& portL = *(reinterpret_cast<Port*>(ADR_PORTL));
+	static Usart& usart0 = *(reinterpret_cast<Usart*>(ADR_USART0));
 
 
 	///Get the Index of a given periphery instance.
@@ -56,6 +53,7 @@ namespace Periphery {
 	///\return The total number of instances of the template-specified type [0-n]
 	template <typename T> inline constexpr uint8_t getCapacity() noexcept;
 	template <> inline constexpr uint8_t getCapacity<Port>() noexcept { return 11; }
+	template <> inline constexpr uint8_t getCapacity<Usart>() noexcept { return 4; }
 }
 
 #endif /* SRC_RESOURCES_M2560_PERIPHERY_H_ */
