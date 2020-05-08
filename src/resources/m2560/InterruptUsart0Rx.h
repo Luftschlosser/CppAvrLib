@@ -13,12 +13,6 @@
 
 namespace InterruptUsart0Rx {
 
-	//Type declaration for universal target pointer
-	typedef union {
-		void (*callback)();
-		IrqListener* listener;
-	} TargetPointer;
-
 	class Manager final : public InterruptSource {
 
 	private:
@@ -26,15 +20,15 @@ namespace InterruptUsart0Rx {
 		inline ~Manager() noexcept {}
 
 	public:
-		static TargetPointer target;
+		static InterruptSource::TargetPointer target;
 		static bool callback;
 
 		inline static InterruptSource* getInstance() noexcept {
 			static Manager instance;
 			return (InterruptSource*)&instance;
 		}
-		virtual void registerCallback(void (*callback)());
-		virtual void registerListener(IrqListener* listener);
+		virtual void registerCallback(callback_t callback) noexcept;
+		virtual void registerListener(IrqListener* listener) noexcept;
 	};
 }
 
@@ -49,13 +43,13 @@ namespace InterruptUsart0Rx {
 		inline ~Manager() noexcept {}
 
 	public:
-		static void (*callback)();
+		static callback_t callback;
 
 		inline static InterruptSource* getInstance() noexcept {
 			static Manager instance;
 			return (InterruptSource*)&instance;
 		}
-		virtual void registerCallback(void (*callback)());
+		virtual void registerCallback(callback_t callback) noexcept;
 		virtual void registerListener(IrqListener* listener);
 	};
 }
@@ -77,8 +71,8 @@ namespace InterruptUsart0Rx {
 			static Manager instance;
 			return (InterruptSource*)&instance;
 		}
-		virtual void registerCallback(void (*callback)());
-		virtual void registerListener(IrqListener* listener);
+		virtual void registerCallback(callback_t callback);
+		virtual void registerListener(IrqListener* listener) noexcept;
 	};
 }
 
@@ -97,7 +91,7 @@ namespace InterruptUsart0Rx {
 			static Manager instance;
 			return (InterruptSource*)&instance;
 		}
-		virtual void registerCallback(void (*callback)());
+		virtual void registerCallback(callback_t callback);
 		virtual void registerListener(IrqListener* listener);
 	};
 }

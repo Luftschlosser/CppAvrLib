@@ -1,41 +1,20 @@
 #include <avr/interrupt.h>
-#include <util/atomic.h>
 #include "InterruptUsart0Rx.h"
-#include "../interrupts/DefaultHandler.h"
 
 
 using namespace InterruptUsart0Rx;
 
 #if ISRTYPE_USART0_RX == UNIVERSAL
 
-TargetPointer Manager::target = {&DefaultHandler::nothing};
+InterruptSource::TargetPointer Manager::target = {&DefaultHandler::nothing};
 bool Manager::callback = true;
 
-void Manager::registerCallback(void (*callback)()) {
-	ATOMIC_BLOCK(ATOMIC_RESTORESTATE){
-		Manager::callback = true;
-		if (callback == nullptr) {
-			Manager::target.callback = &DefaultHandler::nothing;
-			//TODO: throw
-		}
-		else {
-			Manager::target.callback = callback;
-		}
-	}
+void Manager::registerCallback(callback_t callback) noexcept {
+	InterruptSource::registerCallback(callback, &Manager::target, &Manager::callback);
 }
 
-void Manager::registerListener(IrqListener* listener) {
-	ATOMIC_BLOCK(ATOMIC_RESTORESTATE){
-		if (listener == nullptr) {
-			Manager::callback = true;
-			Manager::target.callback = &DefaultHandler::nothing;
-			//TODO: throw
-		}
-		else {
-			Manager::callback = false;
-			Manager::target.listener = listener;
-		}
-	}
+void Manager::registerListener(IrqListener* listener) noexcept {
+	InterruptSource::registerListener(listener, &Manager::target, &Manager::callback);
 }
 
 ISR(USART0_RX_vect) {
@@ -49,18 +28,10 @@ ISR(USART0_RX_vect) {
 
 #elif ISRTYPE_USART0_RX == CALLBACK
 
-void (*Manager::callback)() = &DefaultHandler::nothing;
+InterruptSource::callback_t Manager::callback = &DefaultHandler::nothing;
 
-void Manager::registerCallback(void (*callback)()) {
-	ATOMIC_BLOCK(ATOMIC_RESTORESTATE){
-		if (callback == nullptr) {
-			Manager::callback = &DefaultHandler::nothing;
-			//TODO: throw
-		}
-		else {
-			Manager::callback = callback;
-		}
-	}
+void Manager::registerCallback(callback_t callback) noexcept {
+	InterruptSource::registerCallback(callback, &Manager::callback);
 }
 
 void Manager::registerListener(IrqListener* listener) {
@@ -79,16 +50,8 @@ void Manager::registerCallback(void (*callback)()) {
 	//TODO: throw
 }
 
-void Manager::registerListener(IrqListener* listener) {
-	ATOMIC_BLOCK(ATOMIC_RESTORESTATE){
-		if (listener == nullptr) {
-			Manager::listener = DefaultHandler::NoListener::getInstance();
-			//TODO: throw
-		}
-		else {
-			Manager::listener = listener;
-		}
-	}
+void Manager::registerListener(IrqListener* listener) noexcept {
+	InterruptSource::registerListener(listener, &Manager::listener);
 }
 
 ISR(USART0_RX_vect) {
