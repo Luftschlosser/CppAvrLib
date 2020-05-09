@@ -18,7 +18,7 @@ protected:
 	//Type declaration for universal target pointer
 	typedef union {
 		Callback callback;
-		Listener& listener;
+		Listener* listener;
 	} TargetPointer;
 
 	inline ~EventSource() noexcept {}

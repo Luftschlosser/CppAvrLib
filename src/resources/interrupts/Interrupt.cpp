@@ -21,7 +21,7 @@ void Interrupt::registerCallback(Callback callback) noexcept {
 void Interrupt::registerListener(Listener& listener) noexcept {
 	ATOMIC_BLOCK(ATOMIC_RESTORESTATE){
 		this->target.callbackType = false;
-		this->target.pointer.listener = listener;
+		this->target.pointer.listener = &listener;
 	}
 }
 

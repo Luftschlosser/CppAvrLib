@@ -6,25 +6,37 @@
 
 #include "src/resources/Interrupts.h"
 
+const Pin led(Periphery::getInstance<Port>('B'), 6);
 
-char __attribute__ ((noinline)) x() {
-	return 'B';
+void on() {
+	led.setHigh();
 }
 
-void callback() {
-	//do something
-}
+class Off final : public Listener {
+private:
+	const Pin& pin;
+public:
+	inline Off(const Pin& pin) : pin(pin) {}
+	virtual void trigger() noexcept {
+		pin.setLow();
+	}
+};
 
 int main (void) noexcept
 {
-
+	/*
 	Usart& usart = Periphery::usart0;
 	EventSource& rxIrq = usart.accessRxInterruptSource();
-	rxIrq.registerCallback(&callback);
+	rxIrq.registerCallback(&on);*/
 
-	//Pin led(Periphery::portB, 6);
-	//Pin led(Periphery::getInstance<Port>(x()), 6);
-	const Pin led(Periphery::getInstance<Port>('B'), 6);
+	//Testing callback
+	Interrupt irq1 = Interrupt::Create<1>();
+	irq1.registerCallback(&on);
+
+	//Testing Listener
+	Off off(led);
+	Interrupt irq2 = Interrupt::Create<2>();
+	irq2.registerListener(off);
 
 	led.init();
 	led.setMode(Pin::Mode::OUTPUT);
@@ -32,7 +44,9 @@ int main (void) noexcept
     // Main-loop
     while (1)
     {
-        led.toggle();
+    	Interrupt::invoke<1>();
+        _delay_ms(500);
+        Interrupt::invoke<2>();
         _delay_ms(500);
     }
 }

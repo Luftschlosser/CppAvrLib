@@ -21,13 +21,10 @@ private:
 		bool callbackType;
 	} TargetData;
 
-	template <uint8_t vectorNumber> class Target final {
-	public:
-		inline static TargetData& getInstance(){
-			static TargetData target = {{&DefaultHandler::nothing}, true};
-			return target;
-		}
-	};
+	template <uint8_t vectorNumber> inline static TargetData& getTarget(){
+		static TargetData target = {{&DefaultHandler::nothing}, true};
+		return target;
+	}
 
 	TargetData& target;
 
@@ -35,18 +32,18 @@ private:
 
 public:
 
-	template <uint8_t vectorNumber> static inline Interrupt Instantiate() { return Interrupt(Target<vectorNumber>::getInstance());}
+	template <uint8_t vectorNumber> static inline Interrupt Create() { return Interrupt(getTarget<vectorNumber>());}
 	inline ~Interrupt() noexcept {}
 
 	virtual void registerCallback(Callback callback) noexcept;
 	virtual void registerListener(Listener& listener) noexcept;
 
 	template <uint8_t vectorNumber> static inline void invoke() noexcept {
-		if (Target<vectorNumber>::getInstance().callbackType) {
-			Target<vectorNumber>::getInstance().pointer.callback();
+		if (getTarget<vectorNumber>().callbackType) {
+			getTarget<vectorNumber>().pointer.callback();
 		}
 		else {
-			Target<vectorNumber>::getInstance().pointer.listener.trigger();
+			getTarget<vectorNumber>().pointer.listener->trigger();
 		}
 	}
 };

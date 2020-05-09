@@ -129,7 +129,7 @@ public:
 	}
 
 	inline EventSource& accessRxInterruptSource() noexcept {
-		static Interrupt irq = Interrupt::Instantiate<USART0_RX_vect_num>();
+		static Interrupt irq = Interrupt::Create<USART0_RX_vect_num>();
 		return irq; //TODO: return correct instance for this identity
 	}
 };
