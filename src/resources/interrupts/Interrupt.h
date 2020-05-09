@@ -7,6 +7,8 @@
 #include "Listener.h"
 #include "InterruptConfiguration.h"
 
+#include "DefaultHandler.h"
+
 
 #if INTERRUPTTYPE == UNIVERSAL
 
@@ -14,26 +16,37 @@ class Interrupt final : public EventSource {
 
 private:
 
-	static EventSource::TargetPointer targets[_VECTORS_SIZE / 4];
-	static bool targetsCallbackType[_VECTORS_SIZE / 4];
+	typedef struct {
+		EventSource::TargetPointer pointer;
+		bool callbackType;
+	} TargetData;
 
-	uint8_t vectorNumber;
+	template <uint8_t vectorNumber> class Target final {
+	public:
+		inline static TargetData& getInstance(){
+			static TargetData target = {{&DefaultHandler::nothing}, true};
+			return target;
+		}
+	};
+
+	TargetData& target;
+
+	inline Interrupt(TargetData& target) noexcept : target(target) {}
 
 public:
 
-	constexpr Interrupt(uint8_t vectorNumber) noexcept : vectorNumber(vectorNumber - 1) {}
+	template <uint8_t vectorNumber> static inline Interrupt Instantiate() { return Interrupt(Target<vectorNumber>::getInstance());}
 	inline ~Interrupt() noexcept {}
 
 	virtual void registerCallback(Callback callback) noexcept;
 	virtual void registerListener(Listener& listener) noexcept;
 
-	static inline void invoke(uint8_t vectorNumber) noexcept {
-		vectorNumber--; //Array Access, Vector 1 -> Index 0
-		if (Interrupt::targetsCallbackType[vectorNumber]) {
-			Interrupt::targets[vectorNumber].callback();
+	template <uint8_t vectorNumber> static inline void invoke() noexcept {
+		if (Target<vectorNumber>::getInstance().callbackType) {
+			Target<vectorNumber>::getInstance().pointer.callback();
 		}
 		else {
-			Interrupt::targets[vectorNumber].listener.trigger();
+			Target<vectorNumber>::getInstance().pointer.listener.trigger();
 		}
 	}
 };

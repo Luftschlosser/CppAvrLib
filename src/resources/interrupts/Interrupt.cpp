@@ -5,25 +5,23 @@
 
 #if INTERRUPTTYPE == UNIVERSAL
 
-EventSource::TargetPointer Interrupt::targets[] = {&DefaultHandler::nothing};
-bool Interrupt::targetsCallbackType[] = {true};
 
 void Interrupt::registerCallback(Callback callback) noexcept {
 	ATOMIC_BLOCK(ATOMIC_RESTORESTATE){
-		Interrupt::targetsCallbackType[this->vectorNumber] = true;
-		if (callback == nullptr) {
-			Interrupt::targets[this->vectorNumber].callback = &DefaultHandler::nothing;
+		this->target.callbackType = true;
+		if (callback == nullptr) { //Todo: check if actually possible
+			this->target.pointer.callback = &DefaultHandler::nothing;
 		}
 		else {
-			Interrupt::targets[this->vectorNumber].callback = callback;
+			this->target.pointer.callback = callback;
 		}
 	}
 }
 
 void Interrupt::registerListener(Listener& listener) noexcept {
 	ATOMIC_BLOCK(ATOMIC_RESTORESTATE){
-		Interrupt::targetsCallbackType[this->vectorNumber] = false;
-		Interrupt::targets[this->vectorNumber].listener = listener;
+		this->target.callbackType = false;
+		this->target.pointer.listener = listener;
 	}
 }
 
