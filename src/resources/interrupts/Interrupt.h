@@ -3,21 +3,28 @@
 
 
 #include <avr/io.h>
-#include "EventSource.h"
-#include "Listener.h"
 #include "InterruptConfiguration.h"
-
 #include "DefaultHandler.h"
+#include "InterruptListener.h"
 
 
 #if INTERRUPTTYPE == UNIVERSAL
 
-class Interrupt final : public EventSource {
+class Interrupt final {
 
 private:
 
+	//Type declaration for callback
+	typedef void(*Callback)(void);
+
+	//Type declaration for universal target pointer
+	typedef union {
+		Callback callback;
+		InterruptListener* listener;
+	} TargetPointer;
+
 	typedef struct {
-		EventSource::TargetPointer pointer;
+		TargetPointer pointer;
 		bool callbackType;
 	} TargetData;
 
@@ -35,8 +42,8 @@ public:
 	template <uint8_t vectorNumber> static inline Interrupt Create() { return Interrupt(getTarget<vectorNumber>());}
 	inline ~Interrupt() noexcept {}
 
-	virtual void registerCallback(Callback callback) noexcept;
-	virtual void registerListener(Listener& listener) noexcept;
+	void registerCallback(Callback callback) noexcept;
+	void registerListener(InterruptListener& listener) noexcept;
 
 	template <uint8_t vectorNumber> static inline void invoke() noexcept {
 		if (getTarget<vectorNumber>().callbackType) {
@@ -50,9 +57,12 @@ public:
 
 #elif INTERRUPTTYPE == CALLBACK
 
-class Interrupt final : public EventSource {
+class Interrupt final {
 
 private:
+
+	//Type declaration for callback
+	typedef void(*Callback)(void);
 
 	template <uint8_t vectorNumber> inline static Callback& getTarget(){
 		static Callback target = &DefaultHandler::nothing;
@@ -68,8 +78,7 @@ public:
 	template <uint8_t vectorNumber> static inline Interrupt Create() { return Interrupt(getTarget<vectorNumber>());}
 	inline ~Interrupt() noexcept {}
 
-	virtual void registerCallback(Callback callback) noexcept;
-	virtual void registerListener(Listener& listener);
+	void registerCallback(Callback callback) noexcept;
 
 	template <uint8_t vectorNumber> static inline void invoke() noexcept {
 		getTarget<vectorNumber>()();
@@ -78,30 +87,29 @@ public:
 
 #elif INTERRUPTTYPE == TRIGGER
 
-class Interrupt final : public EventSource {
+class Interrupt final {
 
 private:
 
-	template <uint8_t vectorNumber> inline static Listener*& getTarget(){
+	template <uint8_t vectorNumber> inline static InterruptListener*& getTarget(){
 #if DEFAULT_TRIGGER_BEHAVIOR == INSERT_CHECK
-		static Listener* target = nullptr;
+		static InterruptListener* target = nullptr;
 #elif DEFAULT_TRIGGER_BEHAVIOR == EMPTY_LISTENER
-		static Listener* target = &DefaultHandler::NoListener::getInstance();
+		static InterruptListener* target = &DefaultHandler::NoListener::getInstance();
 #endif
 		return target;
 	}
 
-	Listener*& target;
+	InterruptListener*& target;
 
-	inline Interrupt(Listener*& target) noexcept : target(target) {}
+	inline Interrupt(InterruptListener*& target) noexcept : target(target) {}
 
 public:
 
 	template <uint8_t vectorNumber> static inline Interrupt Create() { return Interrupt(getTarget<vectorNumber>());}
 	inline ~Interrupt() noexcept {}
 
-	virtual void registerCallback(Callback callback) noexcept;
-	virtual void registerListener(Listener& listener) noexcept;
+	void registerListener(InterruptListener& listener) noexcept;
 
 	template <uint8_t vectorNumber> static inline void invoke() noexcept {
 #if DEFAULT_TRIGGER_BEHAVIOR == INSERT_CHECK
@@ -116,7 +124,7 @@ public:
 
 #else
 
-class Interrupt final : public EventSource {
+class Interrupt final {
 private:
 	constexpr Interrupt() noexcept {}
 
@@ -124,9 +132,6 @@ public:
 
 	template <uint8_t vectorNumber> static inline constexpr Interrupt Create() { return Interrupt();}
 	inline ~Interrupt() noexcept {}
-
-	virtual void registerCallback(Callback callback);
-	virtual void registerListener(Listener& listener);
 
 	template <uint8_t vectorNumber> static inline void invoke() noexcept { }
 };

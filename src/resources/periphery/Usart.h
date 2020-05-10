@@ -128,7 +128,7 @@ public:
 		return usage & (1 << index);
 	}
 
-	inline EventSource& accessRxInterruptSource() noexcept {
+	inline Interrupt& accessRxInterruptSource() noexcept {
 		static Interrupt irq = Interrupt::Create<USART0_RX_vect_num>();
 		return irq; //TODO: return correct instance for this identity
 	}

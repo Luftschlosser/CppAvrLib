@@ -1,6 +1,5 @@
 #include <util/atomic.h>
 #include "Interrupt.h"
-#include "DefaultHandler.h"
 
 
 #if INTERRUPTTYPE == UNIVERSAL
@@ -8,7 +7,7 @@
 void Interrupt::registerCallback(Callback callback) noexcept {
 	ATOMIC_BLOCK(ATOMIC_RESTORESTATE){
 		this->target.callbackType = true;
-		if (callback == nullptr) { //Todo: check if actually possible
+		if (callback == nullptr) {
 			this->target.pointer.callback = &DefaultHandler::nothing;
 		}
 		else {
@@ -17,7 +16,7 @@ void Interrupt::registerCallback(Callback callback) noexcept {
 	}
 }
 
-void Interrupt::registerListener(Listener& listener) noexcept {
+void Interrupt::registerListener(InterruptListener& listener) noexcept {
 	ATOMIC_BLOCK(ATOMIC_RESTORESTATE){
 		this->target.callbackType = false;
 		this->target.pointer.listener = &listener;
@@ -37,30 +36,12 @@ void Interrupt::registerCallback(Callback callback) noexcept {
 	}
 }
 
-void Interrupt::registerListener(Listener& listener) {
-	//TODO: throw
-}
-
 #elif INTERRUPTTYPE == TRIGGER
 
-void Interrupt::registerCallback(Callback callback) {
-	//TODO: throw
-}
-
-void Interrupt::registerListener(Listener& listener) noexcept {
+void Interrupt::registerListener(InterruptListener& listener) noexcept {
 	ATOMIC_BLOCK(ATOMIC_RESTORESTATE){
 		this->target = &listener;
 	}
-}
-
-#else
-
-void Interrupt::registerCallback(Callback callback) {
-	//TODO: throw
-}
-
-void Interrupt::registerListener(Listener& listener) {
-	//TODO: throw
 }
 
 #endif

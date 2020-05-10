@@ -1,7 +1,7 @@
 #ifndef SRC_RESOURCES_INTERRUPTS_DEFAULTHANDLER_H_
 #define SRC_RESOURCES_INTERRUPTS_DEFAULTHANDLER_H_
 
-#include "Listener.h"
+#include "InterruptListener.h"
 
 namespace DefaultHandler {
 
@@ -10,7 +10,7 @@ namespace DefaultHandler {
 
 
 	//Default-IrqListener to trigger when no Listener is registered
-	class NoListener final : public Listener {
+	class NoListener final : public InterruptListener {
 
 	private:
 
@@ -18,7 +18,7 @@ namespace DefaultHandler {
 		inline ~NoListener() noexcept {}
 
 	public:
-		inline static Listener& getInstance() noexcept {
+		inline static InterruptListener& getInstance() noexcept {
 			static NoListener instance;
 			return instance;
 		}

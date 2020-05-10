@@ -22,13 +22,13 @@
 //_____________________________________________
 //CONFIGURATION:
 
-//Configuration of general Interrupt-Implementation
+//Configuration of general Interrupt-Implementation [NONE / UNIVERSAL / CALLBACK / TRIGGER]
 #define INTERRUPTTYPE UNIVERSAL
 
-//Configuration of Default-Implementation for uninitialized Listeners when using Interrupt-Type "Trigger"
-#define DEFAULT_TRIGGER_BEHAVIOR EMPTY_LISTENER
+//Configuration of Default-Implementation for uninitialized Listeners when using Interrupt-Type "Trigger" [INSERT_CHECK / EMPTY_LISTENER]
+#define DEFAULT_TRIGGER_BEHAVIOR INSERT_CHECK
 
-//Implementation Type configuration for each Interrupt source
+//Implementation Type configuration for each Interrupt source [NONE / BLOCK / NOBLOCK]
 #define ISRTYPE_USART0_RX BLOCK
 #define ISRTYPE_USART0_TX BLOCK
 #define ISRTYPE_USART0_UDRE BLOCK

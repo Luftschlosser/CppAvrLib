@@ -12,7 +12,7 @@ void on() {
 	led.setHigh();
 }
 
-class Off final : public Listener {
+class Off final : public InterruptListener {
 private:
 	const Pin& pin;
 public:
