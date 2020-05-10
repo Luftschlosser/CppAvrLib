@@ -53,18 +53,26 @@ public:
 class Interrupt final : public EventSource {
 
 private:
-	static EventSource::Callback targets[_VECTORS_SIZE / 4];
-	uint8_t vectorNumber;
+
+	template <uint8_t vectorNumber> inline static Callback& getTarget(){
+		static Callback target = &DefaultHandler::nothing;
+		return target;
+	}
+
+	Callback& target;
+
+	inline Interrupt(Callback& target) noexcept : target(target) {}
 
 public:
-	constexpr Interrupt(uint8_t vectorNumber) noexcept : vectorNumber(vectorNumber - 1) {}
+
+	template <uint8_t vectorNumber> static inline Interrupt Create() { return Interrupt(getTarget<vectorNumber>());}
 	inline ~Interrupt() noexcept {}
+
 	virtual void registerCallback(Callback callback) noexcept;
 	virtual void registerListener(Listener& listener);
 
-	static inline void invoke(uint8_t vectorNumber) noexcept {
-		vectorNumber--; //Array Access, Vector 1 -> Index 0
-		Interrupt::targets[vectorNumber]();
+	template <uint8_t vectorNumber> static inline void invoke() noexcept {
+		getTarget<vectorNumber>()();
 	}
 };
 
@@ -73,32 +81,54 @@ public:
 class Interrupt final : public EventSource {
 
 private:
-	static Listener* targets[_VECTORS_SIZE / 4];
-	uint8_t vectorNumber;
+
+	template <uint8_t vectorNumber> inline static Listener*& getTarget(){
+#if DEFAULT_TRIGGER_BEHAVIOR == INSERT_CHECK
+		static Listener* target = nullptr;
+#elif DEFAULT_TRIGGER_BEHAVIOR == EMPTY_LISTENER
+		static Listener* target = &DefaultHandler::NoListener::getInstance();
+#endif
+		return target;
+	}
+
+	Listener*& target;
+
+	inline Interrupt(Listener*& target) noexcept : target(target) {}
 
 public:
-	constexpr Interrupt(uint8_t vectorNumber) noexcept : vectorNumber(vectorNumber - 1) {}
+
+	template <uint8_t vectorNumber> static inline Interrupt Create() { return Interrupt(getTarget<vectorNumber>());}
 	inline ~Interrupt() noexcept {}
-	virtual void registerCallback(Callback callback);
+
+	virtual void registerCallback(Callback callback) noexcept;
 	virtual void registerListener(Listener& listener) noexcept;
 
-	static inline void invoke(uint8_t vectorNumber) noexcept {
-		vectorNumber--; //Array Access, Vector 1 -> Index 0
-		Interrupt::targets[vectorNumber]->trigger();
+	template <uint8_t vectorNumber> static inline void invoke() noexcept {
+#if DEFAULT_TRIGGER_BEHAVIOR == INSERT_CHECK
+		if (getTarget<vectorNumber>() != nullptr) {
+			getTarget<vectorNumber>()->trigger();
+		}
+#elif DEFAULT_TRIGGER_BEHAVIOR == EMPTY_LISTENER
+		getTarget<vectorNumber>()->trigger();
+#endif
 	}
 };
 
 #else
 
 class Interrupt final : public EventSource {
+private:
+	constexpr Interrupt() noexcept {}
 
 public:
-	constexpr Interrupt(uint8_t vectorNumber) noexcept {}
+
+	template <uint8_t vectorNumber> static inline constexpr Interrupt Create() { return Interrupt();}
 	inline ~Interrupt() noexcept {}
+
 	virtual void registerCallback(Callback callback);
 	virtual void registerListener(Listener& listener);
 
-	static inline void invoke(uint8_t vectorNumber) noexcept { }
+	template <uint8_t vectorNumber> static inline void invoke() noexcept { }
 };
 
 #endif

@@ -1,24 +1,34 @@
 #ifndef SRC_RESOURCES_INTERRUPTS_INTERRUPTCONFIGURATION_H_
 #define SRC_RESOURCES_INTERRUPTS_INTERRUPTCONFIGURATION_H_
 
+//_____________________________________________
+//TYPES:
 
 //Types of Interrupt-Class-Implementations
+#define NONE 0
 #define UNIVERSAL 1 //Implementation supports both C-Style Callback and Object oriented Trigger-Interface
 #define CALLBACK 2 //Implementation supports only C-Style Callback
 #define TRIGGER 3 //Implementation supports only Object oriented Trigger-Interface
 
 //Types of ISR-Routine-Implementations
+#define NONE 0
 #define BLOCK 1
 #define NOBLOCK 2
 
-//Implementation Type "no implementation" - Usable as ISR-Routine-Implementation-Type and as Interrupt-Class-Implementation-Type
-#define NONE 0
+//Types of Default-Implementations for uninitialized Listeners when using Interrupt-Type "Trigger"
+#define INSERT_CHECK 0
+#define EMPTY_LISTENER 1
 
+//_____________________________________________
+//CONFIGURATION:
 
-//Type of general Interrupt-Implementation
+//Configuration of general Interrupt-Implementation
 #define INTERRUPTTYPE UNIVERSAL
 
-//Implementation Type specification for each Interrupt source
+//Configuration of Default-Implementation for uninitialized Listeners when using Interrupt-Type "Trigger"
+#define DEFAULT_TRIGGER_BEHAVIOR EMPTY_LISTENER
+
+//Implementation Type configuration for each Interrupt source
 #define ISRTYPE_USART0_RX BLOCK
 #define ISRTYPE_USART0_TX BLOCK
 #define ISRTYPE_USART0_UDRE BLOCK

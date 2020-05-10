@@ -5,7 +5,6 @@
 
 #if INTERRUPTTYPE == UNIVERSAL
 
-
 void Interrupt::registerCallback(Callback callback) noexcept {
 	ATOMIC_BLOCK(ATOMIC_RESTORESTATE){
 		this->target.callbackType = true;
@@ -27,15 +26,13 @@ void Interrupt::registerListener(Listener& listener) noexcept {
 
 #elif INTERRUPTTYPE == CALLBACK
 
-EventSource::Callback Interrupt::targets[] = {&DefaultHandler::nothing};
-
 void Interrupt::registerCallback(Callback callback) noexcept {
 	ATOMIC_BLOCK(ATOMIC_RESTORESTATE){
 		if (callback == nullptr) {
-			Interrupt::targets[this->vectorNumber] = &DefaultHandler::nothing;
+			this->target = &DefaultHandler::nothing;
 		}
 		else {
-			Interrupt::targets[this->vectorNumber] = callback;
+			this->target = callback;
 		}
 	}
 }
@@ -46,15 +43,13 @@ void Interrupt::registerListener(Listener& listener) {
 
 #elif INTERRUPTTYPE == TRIGGER
 
-Listener* Interrupt::targets[] = { &DefaultHandler::NoListener::getInstance() };
-
 void Interrupt::registerCallback(Callback callback) {
 	//TODO: throw
 }
 
 void Interrupt::registerListener(Listener& listener) noexcept {
 	ATOMIC_BLOCK(ATOMIC_RESTORESTATE){
-		Interrupt::targets[this->vectorNumber] = &listener;
+		this->target = &listener;
 	}
 }
 
