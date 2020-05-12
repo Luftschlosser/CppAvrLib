@@ -3,8 +3,9 @@
 
 
 #include <avr/io.h>
+
+#include "DefaultInterruptHandler.h"
 #include "InterruptConfiguration.h"
-#include "DefaultHandler.h"
 #include "InterruptListener.h"
 
 

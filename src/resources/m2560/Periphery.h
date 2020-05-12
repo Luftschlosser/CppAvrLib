@@ -26,6 +26,9 @@ namespace Periphery {
 	static Port& portK = *(reinterpret_cast<Port*>(ADR_PORTK));
 	static Port& portL = *(reinterpret_cast<Port*>(ADR_PORTL));
 	static Usart& usart0 = *(reinterpret_cast<Usart*>(ADR_USART0));
+	static Usart& usart1 = *(reinterpret_cast<Usart*>(ADR_USART1));
+	static Usart& usart2 = *(reinterpret_cast<Usart*>(ADR_USART2));
+	static Usart& usart3 = *(reinterpret_cast<Usart*>(ADR_USART3));
 
 
 	///Get the Index of a given periphery instance.

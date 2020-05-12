@@ -2,6 +2,9 @@
 #define SRC_RESOURCES_INTERRUPTS_H_
 
 #include "interrupts/Interrupt.h"
-#include "interrupts/InterruptListener.h"
+
+#if defined(__AVR_ATmega2560__)
+	#include "./m2560/Interrupts.h"
+#endif
 
 #endif /* SRC_RESOURCES_INTERRUPTS_H_ */

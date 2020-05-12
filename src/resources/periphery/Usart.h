@@ -23,8 +23,8 @@ private:
 public:
 
 	///The UCSRnA register
-	volatile union unionUCSRA {
-		volatile struct structUCSRA {
+	union UCSRA {
+		struct FIELDS {
 			volatile uint8_t flagMPCM : 1; //Multi-Processor communication Mode
 			volatile uint8_t flagU2X : 1; //Double async transmission speed
 			volatile const uint8_t  flagUPE : 1; //Parity Error
@@ -38,25 +38,58 @@ public:
 	} regUCSRA;
 
 	///The UCSRnB register
-	volatile struct UCSRB {
-		volatile uint8_t dataTXB8 : 1; //Transmit Data Bit 8
-		volatile const uint8_t dataRXB8 : 1; //Receive Data Bit 8
-		volatile uint8_t flagUCSZ2 : 1; //Character size (Bit 2)
-		volatile uint8_t flagTXEN : 1; //Transmitter enable
-		volatile uint8_t flagRXEN : 1; //Receiver enable
-		volatile uint8_t flagUDRIE : 1; //Data-Register-Empty Interrupt enable
-		volatile uint8_t flagTXCIE : 1; //TX-Complete Interrupt enable
-		volatile uint8_t flagRXCIE : 1; //RX-Complete Interrupt enable
+	union UCSRB {
+		struct FIELDS {
+			volatile uint8_t flagTXB8 : 1; //Transmit Data Bit 8
+			volatile const uint8_t flagRXB8 : 1; //Receive Data Bit 8
+			volatile uint8_t flagUCSZ2 : 1; //Character size (Bit 2)
+			volatile uint8_t flagTXEN : 1; //Transmitter enable
+			volatile uint8_t flagRXEN : 1; //Receiver enable
+			volatile uint8_t flagUDRIE : 1; //Data-Register-Empty Interrupt enable
+			volatile uint8_t flagTXCIE : 1; //TX-Complete Interrupt enable
+			volatile uint8_t flagRXCIE : 1; //RX-Complete Interrupt enable
+		} fields;
+		volatile uint8_t reg;
 	} regUCSRB;
 
 	///The UCSRnC register
-	volatile struct UCSRC {
-		volatile uint8_t flagUCPOL : 1; //Clock Polarity
-		volatile uint8_t dataUCSZ : 2; //Character size (Bit 0-1)
-		volatile uint8_t flagUSBS : 1; //Stop bit select
-		volatile uint8_t dataUPM : 2; //Parity Mode
-		volatile uint8_t dataUMSEL : 2; //Usart Mode select
-	} regUCSRC;
+	union UCSRC {
+		struct FIELDS {
+			volatile uint8_t flagUCPOL : 1; //Clock Polarity
+			volatile uint8_t dataUCSZ : 2; //Character size (Bit 0-1)
+			volatile uint8_t flagUSBS : 1; //Stop bit select
+			volatile uint8_t dataUPM : 2; //Parity Mode
+			volatile uint8_t dataUMSEL : 2; //Usart Mode select
+
+			///Enumeration to describe the clock polarity
+			enum ClockPolarityUCPOL : uint8_t {
+				RISING = 0x00,
+				FALLING = 0x01
+			};
+
+			///Enumeration to describe the number of stopbits
+			enum StopBitsUSBS : uint8_t {
+				ONE = 0x00,
+				TWO = 0x01
+			};
+
+			///Enumeration to describe the parity-check mode
+			enum ParityModeUPM : uint8_t {
+				DISABLED = 0x00,
+				EVEN = 0x02,
+				ODD = 0x03
+			};
+
+			///Enumeration to describe the basic mode of operation
+			enum UsartModeUMSEL : uint8_t {
+				ASYNC = 0x00,
+				SYNC = 0x01,
+				MASTERSPI = 0x03
+			};
+		} fields;
+		volatile uint8_t reg;
+	}
+	regUCSRC;
 
 private:
 
@@ -71,31 +104,6 @@ public:
 	///The UDRn register
 	volatile uint8_t regUDR; //data
 
-	///Enumeration to describe the basic mode of operation
-	enum UsartMode : uint8_t {
-		ASYNC = 0x00,
-		SYNC = 0x01,
-		MASTERSPI = 0x03
-	};
-
-	///Enumeration to describe the parity-check mode
-	enum ParityMode : uint8_t {
-		DISABLED = 0x00,
-		EVEN = 0x02,
-		ODD = 0x03
-	};
-
-	///Enumeration to describe the number of stopbits
-	enum StopBits : uint8_t {
-		ONE = 0x00,
-		TWO = 0x01
-	};
-
-	///Enumeration to describe the clock polarity
-	enum ClockPolarity : uint8_t {
-		RISING = 0x00,
-		FALLING = 0x01
-	};
 
 	///Initializes the Usart
 	inline void init() {
@@ -103,8 +111,8 @@ public:
 			uint8_t index = Periphery::getIdentity(this);
 			ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
 			{
-				if (usage & (1 << index)) {
-					usage |= (1 << index);
+				if (Usart::usage & (1 << index)) {
+					Usart::usage |= (1 << index);
 				}
 				else {
 					//Todo: throw later (check possible problems with throwing in atomic block)
@@ -117,7 +125,7 @@ public:
 	inline void close() noexcept {
 		if (Periphery::runtimeAllocationsEnabled) {
 			uint8_t index = Periphery::getIdentity(this);
-			usage &= ~(1 << index);
+			Usart::usage &= ~(1 << index);
 		}
 	}
 
@@ -125,12 +133,138 @@ public:
 	///\return true if it is already in use, else false
 	inline bool isUsed() noexcept {
 		uint8_t index = Periphery::getIdentity(this);
-		return usage & (1 << index);
+		return Usart::usage & (1 << index);
 	}
 
-	inline Interrupt& accessRxInterruptSource() noexcept {
-		static Interrupt irq = Interrupt::Create<USART0_RX_vect_num>();
-		return irq; //TODO: return correct instance for this identity
+
+	///Checks if there is unread data in the receive buffer
+	inline bool isReceiveComplete() noexcept { return this->regUCSRA.fields.flagRXC == 1; }
+
+	///Checks if the transmit is completed (shift register emptied and no new data in transmit buffer)
+	inline bool isTransmitComplete() noexcept { return this->regUCSRA.fields.flagTXC == 1; }
+
+	///Clears the transmit-complete flag
+	inline void clearTransmitComplete() noexcept { this->regUCSRA.fields.flagTXC = 1; }
+
+	///Checks if the data register (transmit buffer) is empty and ready to receive new data
+	inline bool isDataRegisterEmpty() noexcept { return this->regUCSRA.fields.flagUDRE == 1; }
+
+	///Checks if ANY error occured (Frame error / Data overrun error / Parity error)
+	inline bool hasError() noexcept { return this->regUCSRA.reg & 0x1C; /*mask 0b00011100*/ }
+
+	///Checks if a Frame Error occured
+	inline bool hasFrameError() noexcept { return this->regUCSRA.fields.flagFE == 1; }
+
+	///Checks if a Data OverRun Error occured
+	inline bool hasDataOverRunError() noexcept { return this->regUCSRA.fields.flagDOR == 1; }
+
+	///Checks if a Parity Error occured
+	inline bool hasParityError() noexcept { return this->regUCSRA.fields.flagUPE == 1; }
+
+	///Doubles the transmission speed in Async-Mode
+	inline void enableDoubleAsyncSpeed() noexcept { this->regUCSRA.fields.flagU2X = 1; }
+
+	///Resets the transmission speed in Async-Mode to normal (not double)
+	inline void disableDoubleAsyncSpeed() noexcept { this->regUCSRA.fields.flagU2X = 0; }
+
+	///Enable Multi-Processor Communciation Mode
+	inline void enableMultiProcessorCommunicationMode() noexcept { this->regUCSRA.fields.flagMPCM = 1; }
+
+	///Disable Multi-Processor Communciation Mode
+	inline void disableMultiProcessorCommunicationMode() noexcept { this->regUCSRA.fields.flagMPCM = 0; }
+
+	///Enables the RX-Complete Interrupt
+	inline void enableRXCompleteInterrupt() noexcept { this->regUCSRB.fields.flagRXCIE = 1; }
+
+	///Disables the RX-Complete Interrupt
+	inline void disableRXCompleteInterrupt() noexcept { this->regUCSRB.fields.flagRXCIE = 0; }
+
+	///Enables the TX-Complete Interrupt
+	inline void enableTXCompleteInterrupt() noexcept { this->regUCSRB.fields.flagTXCIE = 1; }
+
+	///Disables the TX-Complete Interrupt
+	inline void disableTXCompleteInterrupt() noexcept { this->regUCSRB.fields.flagTXCIE = 0; }
+
+	///Enables the Data-Register-Empty Interrupt
+	inline void enableDataRegisterEmptyInterrupt() noexcept { this->regUCSRB.fields.flagUDRIE = 1; }
+
+	///Disables the Data-Register-Empty Interrupt
+	inline void disableDataRegisterEmptyInterrupt() noexcept { this->regUCSRB.fields.flagUDRIE = 0; }
+
+	///Enables the Receiver
+	inline void enableReceiver() noexcept { this->regUCSRB.fields.flagRXEN = 1; }
+
+	///Disables the Receiver
+	inline void disableReceiver() noexcept { this->regUCSRB.fields.flagRXEN = 0; }
+
+	///Enables the Transmitter
+	inline void enableTransmitter() noexcept { this->regUCSRB.fields.flagTXEN = 1; }
+
+	///Disables the Transmitter
+	inline void disableTransmitter() noexcept { this->regUCSRB.fields.flagTXEN = 0; }
+
+	///Reads the ninth data bit
+	inline bool getNinthDataBit() noexcept { return this->regUCSRB.fields.flagRXB8 == 1; }
+
+	///Writes the ninth data bit
+	inline void setNinthDataBit(bool data) noexcept { data ? this->regUCSRB.fields.flagTXB8 = 1 : this->regUCSRB.fields.flagTXB8 = 0; }
+
+	///Sets the Mode of Operation [ ASYNC / SYNC / MASTERSPI ]
+	inline void setUartMode(UCSRC::FIELDS::UsartModeUMSEL mode) noexcept { this->regUCSRC.fields.dataUMSEL = mode; }
+
+	///Sets the Parity Mode [ DISABLED / EVEN / ODD ]
+	inline void setParityMode(UCSRC::FIELDS::ParityModeUPM mode) noexcept { this->regUCSRC.fields.dataUPM = mode; }
+
+	///Sets the number of Stopbits [ ONE / TWO ]
+	inline void setStopBits(UCSRC::FIELDS::StopBitsUSBS mode) noexcept { this->regUCSRC.fields.flagUSBS = mode; }
+
+	///Sets the character size [5-9]
+	inline void setCharacterSize(const uint8_t size) noexcept {
+		if (size >= 5 && size <= 8) {
+			this->regUCSRB.fields.flagUCSZ2 = 0;
+			this->regUCSRC.fields.dataUCSZ = size - 5;
+		}
+		else if (size == 9) {
+			this->regUCSRC.fields.dataUCSZ = 0x3;
+			this->regUCSRB.fields.flagUCSZ2 = 1;
+		}
+	}
+
+	///Sets the clock polarity [ RISING / FALLING ]
+	inline void setClockPolarity(UCSRC::FIELDS::ClockPolarityUCPOL mode) noexcept { this->regUCSRC.fields.flagUCPOL = mode; }
+
+	///Sets the baudrate
+	inline void setBaudrate(uint16_t baudrate) noexcept { this->regUBRR = baudrate; }
+
+	///Read the data in the receive buffer (first 8 Bits, use "getNinthDataBit()" for the ninth Bit)
+	inline char read() noexcept { return this->regUDR; }
+
+	///Write data to the transmit buffer (first 8 Bits, use "setNinthDataBit()" for the ninth Bit)
+	inline void write(char data) noexcept { this->regUDR = data; }
+
+	///Writes data to the transmit buffer (up to nine Bits)
+	inline void write(uint16_t data) noexcept {
+		uint8_t first = data;
+		uint8_t last = data >> 8;
+		this->regUDR = first;
+		if (last & 0x1) {
+			this->regUCSRB.fields.flagTXB8 = 1;
+		}
+	}
+
+	///Returns the Interrupt-Object for this Usart's RX-Complete Interrupt
+	inline Interrupt& accessRxCompleteInterrupt() noexcept {
+		return Interrupts::accessUsartRxInterrupt(Periphery::getIdentity(this));
+	}
+
+	///Returns the Interrupt-Object for this Usart's TX-Complete Interrupt
+	inline Interrupt& accessTxCompleteInterrupt() noexcept {
+		return Interrupts::accessUsartTxInterrupt(Periphery::getIdentity(this));
+	}
+
+	///Returns the Interrupt-Object for this Usart's Data-Register-Empty Interrupt
+	inline Interrupt& accessDataRegisterEmptyInterrupt() noexcept {
+		return Interrupts::accessUsartUdreInterrupt(Periphery::getIdentity(this));
 	}
 };
 

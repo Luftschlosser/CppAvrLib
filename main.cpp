@@ -12,31 +12,70 @@ void on() {
 	led.setHigh();
 }
 
-class Off final : public InterruptListener {
+class Log final : private InterruptListener {
 private:
-	const Pin& pin;
+	Usart& usart;
+	volatile bool ready;
+	const char* msg;
+
+	virtual inline void trigger() noexcept {
+		if (*++msg != 0) {
+			usart.write(*msg);
+		}
+		else {
+			usart.disableDataRegisterEmptyInterrupt();
+			while (!usart.isTransmitComplete());
+			usart.clearTransmitComplete();
+			ready = true;
+
+		}
+	}
 public:
-	inline Off(const Pin& pin) : pin(pin) {}
-	virtual void trigger() noexcept {
-		pin.setLow();
+	inline Log(Usart& usart) noexcept : usart(usart), ready (true), msg(nullptr) {
+		usart.init();
+		usart.regUBRR = 103; //Baud 9600 @ 16MHz
+		usart.regUCSRC.reg = 3 << 1; //Async,No Parity,1 Stopbit,8 bit character size
+		usart.accessDataRegisterEmptyInterrupt().registerListener(*this);
+		usart.enableTransmitter();
+	}
+
+	inline ~Log() {}
+
+	inline void write(const char* s) noexcept {
+		if (*s != 0){
+			while (!ready);
+			ready = false;
+			msg = s;
+			usart.enableDataRegisterEmptyInterrupt();
+			usart.write(*msg);
+		}
+	}
+
+	inline void write(const char c) noexcept {
+		while (!ready);
+		usart.write(c);
+		while (!usart.isTransmitComplete());
+		led.setLow();
+		usart.clearTransmitComplete();
+	}
+
+	inline void write(uint8_t num) noexcept {
+		write(static_cast<char>((num / 100) + '0'));
+		write(static_cast<char>(((num % 100) / 10) + '0'));
+		write(static_cast<char>((num % 10) + '0'));
+	}
+
+	inline void writeBinary(uint8_t num) noexcept {
+		for (int8_t x = 7; x >= 0; x--) {
+			write(static_cast<char>(((num >> x) & 1) + '0'));
+		}
 	}
 };
 
 int main (void) noexcept
 {
-	/*
-	Usart& usart = Periphery::usart0;
-	EventSource& rxIrq = usart.accessRxInterruptSource();
-	rxIrq.registerCallback(&on);*/
-
-	//Testing callback
-	Interrupt irq1 = Interrupt::Create<1>();
-	irq1.registerCallback(&on);
-
-	//Testing Listener
-	Off off(led);
-	Interrupt irq2 = Interrupt::Create<2>();
-	irq2.registerListener(off);
+	sei();
+	Log log(Periphery::usart0);
 
 	led.init();
 	led.setMode(Pin::Mode::OUTPUT);
@@ -44,9 +83,10 @@ int main (void) noexcept
     // Main-loop
     while (1)
     {
-    	Interrupt::invoke<1>();
-        _delay_ms(500);
-        Interrupt::invoke<2>();
-        _delay_ms(500);
+		_delay_ms(1000);
+		led.setHigh();
+		log.write("\r\nHello World!");
+		_delay_ms(1000);
+		led.setLow();
     }
 }
