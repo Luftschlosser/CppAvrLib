@@ -3,9 +3,8 @@
 
 
 #include <stdint.h>
-#include "../Periphery.h"
 #include <util/atomic.h>
-
+#include "../Periphery.h"
 #include "../Interrupts.h"
 
 

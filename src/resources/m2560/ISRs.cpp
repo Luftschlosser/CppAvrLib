@@ -2,11 +2,7 @@
 #include "../interrupts/InterruptConfiguration.h"
 #include "../interrupts/Interrupt.h"
 
-//Program memory consumption per ISR: [Implementation]
-	//[UNIVERSAL]:	118 Byte
-	//[CALLBACK]:	 86 Byte
-	//[TRIGGER]:	102 Byte
-	//Empty ISR-Routine: 82 Byte
+//Empty ISR-Routine: 82 Byte
 
 
 //___________________________________

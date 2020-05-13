@@ -12,13 +12,13 @@ void on() {
 	led.setHigh();
 }
 
-class Log final : private InterruptListener {
+class Log final {
 private:
 	Usart& usart;
 	volatile bool ready;
 	const char* msg;
 
-	virtual inline void trigger() noexcept {
+	inline void dataRegisterEmptyTrigger() noexcept {
 		if (*++msg != 0) {
 			usart.write(*msg);
 		}
@@ -27,7 +27,6 @@ private:
 			while (!usart.isTransmitComplete());
 			usart.clearTransmitComplete();
 			ready = true;
-
 		}
 	}
 public:
@@ -35,7 +34,7 @@ public:
 		usart.init();
 		usart.regUBRR = 103; //Baud 9600 @ 16MHz
 		usart.regUCSRC.reg = 3 << 1; //Async,No Parity,1 Stopbit,8 bit character size
-		usart.accessDataRegisterEmptyInterrupt().registerListener(*this);
+		usart.accessDataRegisterEmptyInterrupt().registerMethod<Log, &Log::dataRegisterEmptyTrigger>(*this);
 		usart.enableTransmitter();
 	}
 
