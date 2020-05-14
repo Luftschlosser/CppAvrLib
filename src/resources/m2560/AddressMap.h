@@ -17,15 +17,21 @@
 #define ADR_PORTJ 0x103
 #define ADR_PORTK 0x106
 #define ADR_PORTL 0x109
+
 #define ADR_USART0 0xC0
 #define ADR_USART1 0xC8
 #define ADR_USART2 0xD0
 #define ADR_USART3 0x130
 
+#define ADR_GPIOR0 0x3E
+#define ADR_GPIOR1 0x4A
+#define ADR_GPIOR2 0x4B
+
 
 //Forward-Declarations
 class Port;
 class Usart;
+class GeneralPurposeRegister;
 
 
 ///Functions for bidirectional pointer<->index evaluations of the MMIO-Periphery for the ATmega2560
@@ -49,6 +55,15 @@ namespace AddressMap {
 		}
 		else {
 			return 3;
+		}
+	}
+	template <> inline constexpr uint8_t pointerToIndex<GeneralPurposeRegister>(intptr_t ptr) noexcept
+	{
+		if (ptr == 0x3E) {
+			return 0;
+		}
+		else { // 1,2
+			return ptr - 0x49;
 		}
 	}
 
@@ -99,6 +114,13 @@ namespace AddressMap {
 			index = 0;
 		}
 		return index == 3 ? ADR_USART3 : 0xC0 + (index * 0x08);
+	}
+	template <> inline constexpr intptr_t indexToPointer<GeneralPurposeRegister>(uint8_t index) {
+		if (index > 2) {
+			//TODO: throw
+			index = 0;
+		}
+		return index == 0 ? ADR_GPIOR0 : (0x49 + index);
 	}
 }
 

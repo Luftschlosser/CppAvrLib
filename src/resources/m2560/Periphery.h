@@ -25,10 +25,15 @@ namespace Periphery {
 	static Port& portJ = *(reinterpret_cast<Port*>(ADR_PORTJ));
 	static Port& portK = *(reinterpret_cast<Port*>(ADR_PORTK));
 	static Port& portL = *(reinterpret_cast<Port*>(ADR_PORTL));
+
 	static Usart& usart0 = *(reinterpret_cast<Usart*>(ADR_USART0));
 	static Usart& usart1 = *(reinterpret_cast<Usart*>(ADR_USART1));
 	static Usart& usart2 = *(reinterpret_cast<Usart*>(ADR_USART2));
 	static Usart& usart3 = *(reinterpret_cast<Usart*>(ADR_USART3));
+
+	static GeneralPurposeRegister& gpior0 = *(reinterpret_cast<GeneralPurposeRegister*>(ADR_GPIOR0));
+	static GeneralPurposeRegister& gpior1 = *(reinterpret_cast<GeneralPurposeRegister*>(ADR_GPIOR1));
+	static GeneralPurposeRegister& gpior2 = *(reinterpret_cast<GeneralPurposeRegister*>(ADR_GPIOR2));
 
 
 	///Get the Index of a given periphery instance.
@@ -57,6 +62,7 @@ namespace Periphery {
 	template <typename T> inline constexpr uint8_t getCapacity() noexcept;
 	template <> inline constexpr uint8_t getCapacity<Port>() noexcept { return 11; }
 	template <> inline constexpr uint8_t getCapacity<Usart>() noexcept { return 4; }
+	template <> inline constexpr uint8_t getCapacity<GeneralPurposeRegister>() noexcept { return 3; }
 }
 
 #endif /* SRC_RESOURCES_M2560_PERIPHERY_H_ */
