@@ -8,7 +8,7 @@
 
 
 ///Instances of this class are an abstract representation of an interrupt source.
-///Handlers can be registered at runtime, but only the last registered handler will be invoked when an interrupt occures!
+///Handlers can be registered at runtime, but only the last registered handler will be invoked when an interrupt occurs!
 class Interrupt final {
 
 private:

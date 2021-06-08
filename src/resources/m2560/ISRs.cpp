@@ -6,6 +6,137 @@
 
 
 //___________________________________
+//External Interrupts
+
+#if ISRTYPE_EXT_INT0 != NONE
+#if ISRTYPE_EXT_INT0 == BLOCK
+
+ISR(INT0_vect, ISR_BLOCK) {
+	Interrupt::invoke<INT0_vect_num>();
+}
+
+#elif ISRTYPE_EXT_INT0 == NOBLOCK
+
+ISR(INT0_vect, ISR_NOBLOCK) {
+	Interrupt::invoke<INT0_vect_num>();
+}
+
+#endif
+#endif
+
+#if ISRTYPE_EXT_INT1 != NONE
+#if ISRTYPE_EXT_INT1 == BLOCK
+
+ISR(INT1_vect, ISR_BLOCK) {
+	Interrupt::invoke<INT1_vect_num>();
+}
+
+#elif ISRTYPE_EXT_INT1 == NOBLOCK
+
+ISR(INT1_vect, ISR_NOBLOCK) {
+	Interrupt::invoke<INT1_vect_num>();
+}
+
+#endif
+#endif
+
+#if ISRTYPE_EXT_INT2 != NONE
+#if ISRTYPE_EXT_INT2 == BLOCK
+
+ISR(INT2_vect, ISR_BLOCK) {
+	Interrupt::invoke<INT2_vect_num>();
+}
+
+#elif ISRTYPE_EXT_INT2 == NOBLOCK
+
+ISR(INT2_vect, ISR_NOBLOCK) {
+	Interrupt::invoke<INT2_vect_num>();
+}
+
+#endif
+#endif
+
+#if ISRTYPE_EXT_INT3 != NONE
+#if ISRTYPE_EXT_INT3 == BLOCK
+
+ISR(INT3_vect, ISR_BLOCK) {
+	Interrupt::invoke<INT3_vect_num>();
+}
+
+#elif ISRTYPE_EXT_INT3 == NOBLOCK
+
+ISR(INT3_vect, ISR_NOBLOCK) {
+	Interrupt::invoke<INT3_vect_num>();
+}
+
+#endif
+#endif
+
+#if ISRTYPE_EXT_INT4 != NONE
+#if ISRTYPE_EXT_INT4 == BLOCK
+
+ISR(INT4_vect, ISR_BLOCK) {
+	Interrupt::invoke<INT4_vect_num>();
+}
+
+#elif ISRTYPE_EXT_INT4 == NOBLOCK
+
+ISR(INT4_vect, ISR_NOBLOCK) {
+	Interrupt::invoke<INT4_vect_num>();
+}
+
+#endif
+#endif
+
+#if ISRTYPE_EXT_INT5 != NONE
+#if ISRTYPE_EXT_INT5 == BLOCK
+
+ISR(INT5_vect, ISR_BLOCK) {
+	Interrupt::invoke<INT5_vect_num>();
+}
+
+#elif ISRTYPE_EXT_INT5 == NOBLOCK
+
+ISR(INT5_vect, ISR_NOBLOCK) {
+	Interrupt::invoke<INT5_vect_num>();
+}
+
+#endif
+#endif
+
+#if ISRTYPE_EXT_INT6 != NONE
+#if ISRTYPE_EXT_INT6 == BLOCK
+
+ISR(INT6_vect, ISR_BLOCK) {
+	Interrupt::invoke<INT6_vect_num>();
+}
+
+#elif ISRTYPE_EXT_INT6 == NOBLOCK
+
+ISR(INT6_vect, ISR_NOBLOCK) {
+	Interrupt::invoke<INT6_vect_num>();
+}
+
+#endif
+#endif
+
+#if ISRTYPE_EXT_INT7 != NONE
+#if ISRTYPE_EXT_INT7 == BLOCK
+
+ISR(INT7_vect, ISR_BLOCK) {
+	Interrupt::invoke<INT7_vect_num>();
+}
+
+#elif ISRTYPE_EXT_INT7 == NOBLOCK
+
+ISR(INT7_vect, ISR_NOBLOCK) {
+	Interrupt::invoke<INT7_vect_num>();
+}
+
+#endif
+#endif
+
+//___________________________________
 //Usart RX
 
 //USART0_RX

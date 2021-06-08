@@ -11,7 +11,7 @@
 class GeneralPurposeFlag;
 
 
-///MMIO Abstraction of the General Purpose IO Registers
+///MMIO Abstraction of the General Purpose IO Registers. Can be accessed really fast (faster than a Byte in memory).
 class GeneralPurposeRegister final {
 	friend GeneralPurposeFlag;
 

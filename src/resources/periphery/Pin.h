@@ -40,6 +40,14 @@ public:
 	///\return true if the Pin is already in use, else false
 	inline bool isUsed() const noexcept { return port.arePinsUsed(1 << pin); }
 
+	///Returns the Pin number of this pin within the port
+	///\returns [0-7]
+	inline uint8_t getPinNumber() const noexcept { return pin; }
+
+	///Returns the Port-index of this Pin
+	///\returns [0-n]
+	inline uint8_t getPortIndex() const noexcept { return Periphery::getIdentity<Port>(&port); }
+
 	///Sets the mode of operation for the Pin
 	///\param mode the mode of operation to configure
 	inline void setMode(const Mode mode) const noexcept {

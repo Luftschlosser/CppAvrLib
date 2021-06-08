@@ -5,8 +5,8 @@
 #include <stdint.h>
 #include "GeneralPurposeRegister.h"
 
-///Abstraction of one Bit of a GeneralPurposeRegister. Can be Accessed really fast when using a const Instance.
-class GeneralPurposeFlag {
+///Abstraction of one Bit of a GeneralPurposeRegister. Can be accessed really fast when using a const Instance.
+class GeneralPurposeFlag final {
 
 private:
 

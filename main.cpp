@@ -3,14 +3,11 @@
 #include "src/resources/Periphery.h"
 #include "src/resources/periphery/Pin.h"
 #include "src/resources/periphery/Usart.h"
+#include "src/resources/periphery/InterruptPin.h"
 
 #include "src/resources/Interrupts.h"
 
-const Pin led(Periphery::getInstance<Port>('B'), 6);
-
-void on() {
-	led.setHigh();
-}
+const Pin led(Periphery::getInstance<Port, 'B'>(), 6);
 
 class Log final {
 private:
@@ -71,21 +68,33 @@ public:
 	}
 };
 
+void toggle() {
+	led.toggle();
+}
+
 int main (void) noexcept
 {
 	sei();
-	Log log(Periphery::usart0);
+	Log log(Periphery::getInstance<Usart, 0>());
 
 	led.init();
 	led.setMode(Pin::Mode::OUTPUT);
+	led.setHigh();
+
+	InterruptPin& t = Periphery::getInstance<InterruptPin, 0>();
+	t.setInterruptMode(InterruptPin::InterruptSenseMode::FALLING_EDGE);
+	t.accessInterrupt().registerFunction<&toggle>();
+	t.enableInterrupt();
 
     // Main-loop
     while (1)
     {
-		_delay_ms(1000);
+    	/*
+		_delay_ms(500);
 		led.setHigh();
 		log.write("\r\nHello World!");
-		_delay_ms(1000);
+		_delay_ms(500);
 		led.setLow();
+		*/
     }
 }

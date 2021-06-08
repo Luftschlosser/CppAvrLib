@@ -27,6 +27,10 @@
 #define ADR_GPIOR1 0x4A
 #define ADR_GPIOR2 0x4B
 
+#define ADR_EICRA 0x69
+#define ADR_EIFR 0x3C
+#define ADR_EIMSK 0x3D
+
 
 //Forward-Declarations
 class Port;
@@ -67,9 +71,9 @@ namespace AddressMap {
 		}
 	}
 
-	///Associated-Character -> Address for the template-specified type
-	template <typename T> inline constexpr intptr_t indexToPointer(char index);
-	template <> inline constexpr intptr_t indexToPointer<Port>(char index) {
+	///index -> Address for the template-specified type
+	template <typename T> inline constexpr intptr_t indexToPointer(unsigned char index);
+	template <> inline constexpr intptr_t indexToPointer<Port>(unsigned char index) {
 		switch(index) {
 		case 'A':
 			return ADR_PORTA;
@@ -98,24 +102,14 @@ namespace AddressMap {
 			return ADR_PORTA;
 		}
 	}
-
-	///Index -> Address for the template-specified type
-	template <typename T> inline constexpr intptr_t indexToPointer(uint8_t index);
-	template <> inline constexpr intptr_t indexToPointer<Port>(uint8_t index) {
-		if (index >= 11) {
-			//TODO: throw
-			index = 10;
-		}
-		return index >= 7 ? ((index - 7) * 3) + 0x100 : (index * 3) + 0x20;
-	}
-	template <> inline constexpr intptr_t indexToPointer<Usart>(uint8_t index) {
+	template <> inline constexpr intptr_t indexToPointer<Usart>(unsigned char index) {
 		if (index > 3) {
 			//TODO: throw
 			index = 0;
 		}
 		return index == 3 ? ADR_USART3 : 0xC0 + (index * 0x08);
 	}
-	template <> inline constexpr intptr_t indexToPointer<GeneralPurposeRegister>(uint8_t index) {
+	template <> inline constexpr intptr_t indexToPointer<GeneralPurposeRegister>(unsigned char index) {
 		if (index > 2) {
 			//TODO: throw
 			index = 0;
