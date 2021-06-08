@@ -8,54 +8,43 @@
 ///Interrupt declaration for the ATmega2560
 namespace Interrupts {
 
-	static Interrupt externalInterrupt0 = Interrupt::Create<INT0_vect_num>();
-	static Interrupt externalInterrupt1 = Interrupt::Create<INT1_vect_num>();
-	static Interrupt externalInterrupt2 = Interrupt::Create<INT2_vect_num>();
-	static Interrupt externalInterrupt3 = Interrupt::Create<INT3_vect_num>();
-	static Interrupt externalInterrupt4 = Interrupt::Create<INT4_vect_num>();
-	static Interrupt externalInterrupt5 = Interrupt::Create<INT5_vect_num>();
-	static Interrupt externalInterrupt6 = Interrupt::Create<INT6_vect_num>();
-	static Interrupt externalInterrupt7 = Interrupt::Create<INT7_vect_num>();
+	static Interrupt externalInterrupt0 = Interrupt::GetInstance<INT0_vect_num>();
+	static Interrupt externalInterrupt1 = Interrupt::GetInstance<INT1_vect_num>();
+	static Interrupt externalInterrupt2 = Interrupt::GetInstance<INT2_vect_num>();
+	static Interrupt externalInterrupt3 = Interrupt::GetInstance<INT3_vect_num>();
+	static Interrupt externalInterrupt4 = Interrupt::GetInstance<INT4_vect_num>();
+	static Interrupt externalInterrupt5 = Interrupt::GetInstance<INT5_vect_num>();
+	static Interrupt externalInterrupt6 = Interrupt::GetInstance<INT6_vect_num>();
+	static Interrupt externalInterrupt7 = Interrupt::GetInstance<INT7_vect_num>();
 
-	static Interrupt usartRxIrq0 = Interrupt::Create<USART0_RX_vect_num>();
-	static Interrupt usartRxIrq1 = Interrupt::Create<USART1_RX_vect_num>();
-	static Interrupt usartRxIrq2 = Interrupt::Create<USART2_RX_vect_num>();
-	static Interrupt usartRxIrq3 = Interrupt::Create<USART3_RX_vect_num>();
+	static Interrupt usartRxIrq0 = Interrupt::GetInstance<USART0_RX_vect_num>();
+	static Interrupt usartRxIrq1 = Interrupt::GetInstance<USART1_RX_vect_num>();
+	static Interrupt usartRxIrq2 = Interrupt::GetInstance<USART2_RX_vect_num>();
+	static Interrupt usartRxIrq3 = Interrupt::GetInstance<USART3_RX_vect_num>();
 
-	static Interrupt usartTxIrq0 = Interrupt::Create<USART0_TX_vect_num>();
-	static Interrupt usartTxIrq1 = Interrupt::Create<USART1_TX_vect_num>();
-	static Interrupt usartTxIrq2 = Interrupt::Create<USART2_TX_vect_num>();
-	static Interrupt usartTxIrq3 = Interrupt::Create<USART3_TX_vect_num>();
+	static Interrupt usartTxIrq0 = Interrupt::GetInstance<USART0_TX_vect_num>();
+	static Interrupt usartTxIrq1 = Interrupt::GetInstance<USART1_TX_vect_num>();
+	static Interrupt usartTxIrq2 = Interrupt::GetInstance<USART2_TX_vect_num>();
+	static Interrupt usartTxIrq3 = Interrupt::GetInstance<USART3_TX_vect_num>();
 
-	static Interrupt usartUdreIrq0 = Interrupt::Create<USART0_UDRE_vect_num>();
-	static Interrupt usartUdreIrq1 = Interrupt::Create<USART1_UDRE_vect_num>();
-	static Interrupt usartUdreIrq2 = Interrupt::Create<USART2_UDRE_vect_num>();
-	static Interrupt usartUdreIrq3 = Interrupt::Create<USART3_UDRE_vect_num>();
+	static Interrupt usartUdreIrq0 = Interrupt::GetInstance<USART0_UDRE_vect_num>();
+	static Interrupt usartUdreIrq1 = Interrupt::GetInstance<USART1_UDRE_vect_num>();
+	static Interrupt usartUdreIrq2 = Interrupt::GetInstance<USART2_UDRE_vect_num>();
+	static Interrupt usartUdreIrq3 = Interrupt::GetInstance<USART3_UDRE_vect_num>();
 
 
 	///Access the Interrupt object for the external Interrupt with the given index
 	///\param index the index of the external Interrupt
 	///\return A reference to the Interrupt object
-	inline constexpr Interrupt& accessExternalInterrupt(uint8_t index) noexcept {
-		switch (index) {
-		case 0:
-			return externalInterrupt0;
-		case 1:
-			return externalInterrupt1;
-		case 2:
-			return externalInterrupt2;
-		case 3:
-			return externalInterrupt3;
-		case 4:
-			return externalInterrupt4;
-		case 5:
-			return externalInterrupt5;
-		case 6:
-			return externalInterrupt6;
-		default: //case 7:
-			return externalInterrupt7;
-		}
-	}
+	template <uint8_t Index> inline constexpr Interrupt& accessExternalInterrupt() noexcept;
+	template <> inline constexpr Interrupt& accessExternalInterrupt<0>() noexcept { return externalInterrupt0; }
+	template <> inline constexpr Interrupt& accessExternalInterrupt<1>() noexcept { return externalInterrupt1; }
+	template <> inline constexpr Interrupt& accessExternalInterrupt<2>() noexcept { return externalInterrupt2; }
+	template <> inline constexpr Interrupt& accessExternalInterrupt<3>() noexcept { return externalInterrupt3; }
+	template <> inline constexpr Interrupt& accessExternalInterrupt<4>() noexcept { return externalInterrupt4; }
+	template <> inline constexpr Interrupt& accessExternalInterrupt<5>() noexcept { return externalInterrupt5; }
+	template <> inline constexpr Interrupt& accessExternalInterrupt<6>() noexcept { return externalInterrupt6; }
+	template <> inline constexpr Interrupt& accessExternalInterrupt<7>() noexcept { return externalInterrupt7; }
 
 	///Access the Usart RX-Interrupt object for the Usart device with the given index
 	///\param index the index of the Usart [0-3]

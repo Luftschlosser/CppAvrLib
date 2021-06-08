@@ -70,6 +70,7 @@ public:
 
 void toggle() {
 	led.toggle();
+	_delay_ms(1000);
 }
 
 int main (void) noexcept
@@ -82,7 +83,9 @@ int main (void) noexcept
 	led.setHigh();
 
 	InterruptPin& t = Periphery::getInstance<InterruptPin, 0>();
-	t.setInterruptMode(InterruptPin::InterruptSenseMode::FALLING_EDGE);
+	t.init();
+	t.setMode(Pin::Mode::INPUT);
+	t.setInterruptMode(InterruptPin::InterruptSenseMode::TOGGLE);
 	t.accessInterrupt().registerFunction<&toggle>();
 	t.enableInterrupt();
 
