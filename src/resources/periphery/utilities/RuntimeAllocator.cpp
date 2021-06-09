@@ -7,73 +7,58 @@ static uint8_t portUsage[Periphery::getCapacity<Port>()] = {}; //Initialize with
 static uint8_t usartUsage = 0;
 static uint8_t gpiorUsage[Periphery::getCapacity<GeneralPurposeRegister>()] = {}; //Initialize with 0's
 
+
+inline bool allocateByte(uint8_t& byte) noexcept {
+	bool success = false;
+	ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
+	{
+		if (byte == 0) {
+			byte = 0xFF; //Set all Bits in use
+			success = true;
+		}
+	}
+	return success;
+}
+
+inline bool allocateBit(uint8_t& byte, uint8_t bit) noexcept {
+	bool success = false;
+	uint8_t mask = 1 << bit;
+	ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
+	{
+		if (! (byte & mask)) {
+			byte |= mask;
+			success = true;
+		}
+	}
+	return success;
+}
+
+
 //-------------------------------------------------------------------------------------------
 
 bool RuntimeAllocator::allocate(const Port* object) noexcept {
 	uint8_t index = AddressMap::getIdentity(object);
-	bool success = false;
-	ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
-	{
-		if (portUsage[index] == 0) {
-			portUsage[index] = 0xFF; //Set all Pins in use
-			success = true;
-		}
-	}
-	return success;
+	return allocateByte(portUsage[index]);
 }
 
 bool RuntimeAllocator::allocate(const Pin* object) noexcept { //Allocates part of underlying Port
 	uint8_t index = AddressMap::getIdentity(&(object->port));
-	uint8_t mask = 1 << object->getPinNumber();
-	bool success = false;
-	ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
-	{
-		if (! (portUsage[index] & mask)) {
-			portUsage[index] |= mask;
-			success = true;
-		}
-	}
-	return success;
+	return allocateBit(portUsage[index], object->getPinNumber());
 }
 
 bool RuntimeAllocator::allocate(const Usart* object) noexcept {
 	uint8_t index = AddressMap::getIdentity(object);
-	bool success = false;
-	ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
-	{
-		if (usartUsage & (1 << index)) {
-			usartUsage |= (1 << index);
-			success = true;
-		}
-	}
-	return success;
+	return allocateBit(usartUsage, index);
 }
 
 bool RuntimeAllocator::allocate(const GeneralPurposeRegister* object) noexcept {
 	uint8_t index = AddressMap::getIdentity(object);
-	bool success = false;
-	ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
-	{
-		if (gpiorUsage[index] == 0) {
-			gpiorUsage[index] = 0xFF; //Set all Bits in use
-			success = true;
-		}
-	}
-	return success;
+	return allocateByte(gpiorUsage[index]);
 }
 
 bool RuntimeAllocator::allocate(const GeneralPurposeFlag* object) noexcept { //Allocates part of underlying GeneralPurposeRegister
 	uint8_t index = AddressMap::getIdentity(&(object->gpior));
-	uint8_t mask = 1 << object->getBitNumber();
-	bool success = false;
-	ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
-	{
-		if (! (gpiorUsage[index] & mask)) {
-			gpiorUsage[index] |= mask;
-			success = true;
-		}
-	}
-	return success;
+	return allocateBit(gpiorUsage[index], object->getBitNumber());
 }
 
 //-------------------------------------------------------------------------------------------
