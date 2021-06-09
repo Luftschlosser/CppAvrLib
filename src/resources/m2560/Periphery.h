@@ -18,7 +18,6 @@
 ///Periphery declaration for the ATmega2560
 namespace Periphery {
 
-	/*
 	//Memory mapped objects
 	static Port& portA = *(reinterpret_cast<Port*>(ADR_PORTA));
 	static Port& portB = *(reinterpret_cast<Port*>(ADR_PORTB));
@@ -40,10 +39,9 @@ namespace Periphery {
 	static GeneralPurposeRegister& gpior0 = *(reinterpret_cast<GeneralPurposeRegister*>(ADR_GPIOR0));
 	static GeneralPurposeRegister& gpior1 = *(reinterpret_cast<GeneralPurposeRegister*>(ADR_GPIOR1));
 	static GeneralPurposeRegister& gpior2 = *(reinterpret_cast<GeneralPurposeRegister*>(ADR_GPIOR2));
-	*/
 
 
-	//mmio
+	//Access to MMIO Periphery
 	template <unsigned char Index> inline Port& getPort() noexcept {
 		return *(reinterpret_cast<Port*>(AddressMap::getPortAdress<Index>()));
 	}
@@ -54,7 +52,7 @@ namespace Periphery {
 		return *(reinterpret_cast<GeneralPurposeRegister*>(AddressMap::getGeneralPurposeRegisterAdress<Index>()));
 	}
 
-	//secondary
+	//Access to secondary Periphery
 	template <unsigned char PortIndex, uint8_t PinIndex> inline Pin getPin() noexcept {
 		return Pin(getPort<PortIndex>(), PinIndex);
 	}
