@@ -3,7 +3,7 @@
 #include "src/resources/Periphery.h"
 #include "src/resources/Interrupts.h"
 
-const Pin led(Periphery::getInstance<Port, 'B'>(), 6);
+const Pin led(Periphery::getPort<'B'>(), 6);
 
 class Log final {
 private:
@@ -72,13 +72,13 @@ void toggle() {
 int main (void) noexcept
 {
 	sei();
-	Log log(Periphery::getInstance<Usart, 0>(), Interrupts::accessUsartUdreInterrupt<0>());
+	Log log(Periphery::getUsart<0>(), Interrupts::accessUsartUdreInterrupt<0>());
 
 	led.init();
 	led.setMode(Pin::Mode::OUTPUT);
 	led.setHigh();
 
-	InterruptPin& t = Periphery::getInstance<InterruptPin, 0>();
+	InterruptPin& t = Periphery::getInterruptPin<0>();
 	t.init();
 	t.setMode(Pin::Mode::INPUT);
 	t.setInterruptMode(InterruptPin::InterruptSenseMode::TOGGLE);
