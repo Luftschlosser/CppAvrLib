@@ -3,10 +3,15 @@
 
 
 #include <stdint.h>
-#include "Port.h"
+#include "../Port.h"
+#include "../../Configuration.h"
+#include "../utilities/RuntimeAllocator.h"
 
 ///Abstraction of one Pin of a Port
 class Pin {
+	friend bool RuntimeAllocator::allocate(const Pin* object); //Allows Allocator access to port
+	friend void RuntimeAllocator::deallocate(const Pin* object); //Allows Deallocator access to port
+	friend bool RuntimeAllocator::isAllocated(const Pin* object); //Allows isAllocated access to port
 
 private:
 
@@ -31,22 +36,35 @@ public:
 	inline constexpr Pin (Port& port, uint8_t pin) noexcept : port(port), pin(pin) {}
 
 	///Initializes the Pin
-	inline void init() const { port.initPins(1 << pin); }
+	inline void init() const {
+		if (Configuration::runtimeAllocationsEnabled) {
+			if (! RuntimeAllocator::allocate(this)) {
+				//TODO throw
+			}
+		}
+	}
 
 	///De-Initializes the Pin
-	inline void close() const noexcept { port.closePins(1 << pin); }
+	inline void close() const noexcept {
+		if (Configuration::runtimeAllocationsEnabled) {
+			RuntimeAllocator::deallocate(this);
+		}
+	}
 
 	///checks the usage of the Pin
 	///\return true if the Pin is already in use, else false
-	inline bool isUsed() const noexcept { return port.arePinsUsed(1 << pin); }
+	inline bool isUsed() const noexcept {
+		if (Configuration::runtimeAllocationsEnabled) {
+			return RuntimeAllocator::isAllocated(this);
+		}
+		else {
+			return false;
+		}
+	}
 
 	///Returns the Pin number of this pin within the port
 	///\returns [0-7]
 	inline uint8_t getPinNumber() const noexcept { return pin; }
-
-	///Returns the Port-index of this Pin
-	///\returns [0-n]
-	inline uint8_t getPortIndex() const noexcept { return Periphery::getIdentity<Port>(&port); }
 
 	///Sets the mode of operation for the Pin
 	///\param mode the mode of operation to configure

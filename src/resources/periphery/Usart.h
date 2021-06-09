@@ -3,18 +3,14 @@
 
 
 #include <stdint.h>
-#include <util/atomic.h>
-#include "../Periphery.h"
-#include "../Interrupts.h"
+#include "../Configuration.h"
+#include "utilities/RuntimeAllocator.h"
 
 
 ///MMIO Abstraction of the USARTs
 class Usart final {
 
 private:
-
-	///Allocation Flags for all Usarts TODO: Inhibit when Periphery::runtimeAllocationsEnabled==false
-	static uint8_t usage;
 
 	///No Constructor to prohibit instantiation
 	Usart() = delete;
@@ -105,34 +101,30 @@ public:
 
 
 	///Initializes the Usart
-	inline void init() {
-		if (Periphery::runtimeAllocationsEnabled) {
-			uint8_t index = Periphery::getIdentity(this);
-			ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
-			{
-				if (Usart::usage & (1 << index)) {
-					Usart::usage |= (1 << index);
-				}
-				else {
-					//Todo: throw later (check possible problems with throwing in atomic block)
-				}
+	inline void init() const {
+		if (Configuration::runtimeAllocationsEnabled) {
+			if (! RuntimeAllocator::allocate(this)) {
+				//TODO throw
 			}
 		}
 	}
 
 	///De-Initializes the Usart
-	inline void close() noexcept {
-		if (Periphery::runtimeAllocationsEnabled) {
-			uint8_t index = Periphery::getIdentity(this);
-			Usart::usage &= ~(1 << index);
+	inline void close() const noexcept {
+		if (Configuration::runtimeAllocationsEnabled) {
+			RuntimeAllocator::deallocate(this);
 		}
 	}
 
 	///checks the usage of the Usart
 	///\return true if it is already in use, else false
-	inline bool isUsed() noexcept {
-		uint8_t index = Periphery::getIdentity(this);
-		return Usart::usage & (1 << index);
+	inline bool isUsed() const noexcept {
+		if (Configuration::runtimeAllocationsEnabled) {
+			return RuntimeAllocator::isAllocated(this);
+		}
+		else {
+			return false;
+		}
 	}
 
 
@@ -249,21 +241,6 @@ public:
 		if (last & 0x1) {
 			this->regUCSRB.fields.flagTXB8 = 1;
 		}
-	}
-
-	///Returns the Interrupt-Object for this Usart's RX-Complete Interrupt
-	inline Interrupt& accessRxCompleteInterrupt() noexcept {
-		return Interrupts::accessUsartRxInterrupt(Periphery::getIdentity(this));
-	}
-
-	///Returns the Interrupt-Object for this Usart's TX-Complete Interrupt
-	inline Interrupt& accessTxCompleteInterrupt() noexcept {
-		return Interrupts::accessUsartTxInterrupt(Periphery::getIdentity(this));
-	}
-
-	///Returns the Interrupt-Object for this Usart's Data-Register-Empty Interrupt
-	inline Interrupt& accessDataRegisterEmptyInterrupt() noexcept {
-		return Interrupts::accessUsartUdreInterrupt(Periphery::getIdentity(this));
 	}
 };
 

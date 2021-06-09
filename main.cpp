@@ -1,10 +1,6 @@
 #include <util/delay.h>
 
 #include "src/resources/Periphery.h"
-#include "src/resources/periphery/Pin.h"
-#include "src/resources/periphery/Usart.h"
-#include "src/resources/periphery/InterruptPin.h"
-
 #include "src/resources/Interrupts.h"
 
 const Pin led(Periphery::getInstance<Port, 'B'>(), 6);
@@ -27,11 +23,11 @@ private:
 		}
 	}
 public:
-	inline Log(Usart& usart) noexcept : usart(usart), ready (true), msg(nullptr) {
+	inline Log(Usart& usart, Interrupt& udre) noexcept : usart(usart), ready (true), msg(nullptr) {
 		usart.init();
 		usart.regUBRR = 103; //Baud 9600 @ 16MHz
 		usart.regUCSRC.reg = 3 << 1; //Async,No Parity,1 Stopbit,8 bit character size
-		usart.accessDataRegisterEmptyInterrupt().registerMethod<Log, &Log::dataRegisterEmptyTrigger>(*this);
+		udre.registerMethod<Log, &Log::dataRegisterEmptyTrigger>(*this);
 		usart.enableTransmitter();
 	}
 
@@ -76,7 +72,7 @@ void toggle() {
 int main (void) noexcept
 {
 	sei();
-	Log log(Periphery::getInstance<Usart, 0>());
+	Log log(Periphery::getInstance<Usart, 0>(), Interrupts::accessUsartUdreInterrupt<0>());
 
 	led.init();
 	led.setMode(Pin::Mode::OUTPUT);
@@ -86,7 +82,7 @@ int main (void) noexcept
 	t.init();
 	t.setMode(Pin::Mode::INPUT);
 	t.setInterruptMode(InterruptPin::InterruptSenseMode::TOGGLE);
-	t.accessInterrupt().registerFunction<&toggle>();
+	Interrupts::accessExternalInterrupt<0>().registerFunction<&toggle>();
 	t.enableInterrupt();
 
     // Main-loop

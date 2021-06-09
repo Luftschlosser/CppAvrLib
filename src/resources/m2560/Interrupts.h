@@ -2,9 +2,6 @@
 #define SRC_RESOURCES_M2560_INTERRUPTS_H_
 
 
-#include "../interrupts/Interrupt.h"
-
-
 ///Interrupt declaration for the ATmega2560
 namespace Interrupts {
 
@@ -34,7 +31,7 @@ namespace Interrupts {
 
 
 	///Access the Interrupt object for the external Interrupt with the given index
-	///\param index the index of the external Interrupt
+	///\param index the index of the external Interrupt [0-7]
 	///\return A reference to the Interrupt object
 	template <uint8_t Index> inline constexpr Interrupt& accessExternalInterrupt() noexcept;
 	template <> inline constexpr Interrupt& accessExternalInterrupt<0>() noexcept { return externalInterrupt0; }
@@ -49,50 +46,29 @@ namespace Interrupts {
 	///Access the Usart RX-Interrupt object for the Usart device with the given index
 	///\param index the index of the Usart [0-3]
 	///\return A reference to the Interrupt object
-	inline constexpr Interrupt& accessUsartRxInterrupt(uint8_t index) noexcept {
-		switch (index) {
-		case 0:
-			return usartRxIrq0;
-		case 1:
-			return usartRxIrq1;
-		case 2:
-			return usartRxIrq2;
-		default: //case 3:
-			return usartRxIrq3;
-		}
-	}
+	template <uint8_t Index> inline constexpr Interrupt& accessUsartRxInterrupt() noexcept;
+	template <> inline constexpr Interrupt& accessUsartRxInterrupt<0>() noexcept { return usartRxIrq0; }
+	template <> inline constexpr Interrupt& accessUsartRxInterrupt<1>() noexcept { return usartRxIrq1; }
+	template <> inline constexpr Interrupt& accessUsartRxInterrupt<2>() noexcept { return usartRxIrq2; }
+	template <> inline constexpr Interrupt& accessUsartRxInterrupt<3>() noexcept { return usartRxIrq3; }
 
 	///Access the Usart TX-Interrupt object for the Usart device with the given index
 	///\param index the index of the Usart [0-3]
 	///\return A reference to the Interrupt object
-	inline constexpr Interrupt& accessUsartTxInterrupt(uint8_t index) noexcept {
-		switch (index) {
-		case 0:
-			return usartTxIrq0;
-		case 1:
-			return usartTxIrq1;
-		case 2:
-			return usartTxIrq2;
-		default: //case 3:
-			return usartTxIrq3;
-		}
-	}
+	template <uint8_t Index> inline constexpr Interrupt& accessUsartTxInterrupt() noexcept;
+	template <> inline constexpr Interrupt& accessUsartTxInterrupt<0>() noexcept { return usartTxIrq0; }
+	template <> inline constexpr Interrupt& accessUsartTxInterrupt<1>() noexcept { return usartTxIrq1; }
+	template <> inline constexpr Interrupt& accessUsartTxInterrupt<2>() noexcept { return usartTxIrq2; }
+	template <> inline constexpr Interrupt& accessUsartTxInterrupt<3>() noexcept { return usartTxIrq3; }
 
 	///Access the Usart UDRE-Interrupt object for the Usart device with the given index
 	///\param index the index of the Usart [0-3]
 	///\return A reference to the Interrupt object
-	inline constexpr Interrupt& accessUsartUdreInterrupt(uint8_t index) noexcept {
-		switch (index) {
-		case 0:
-			return usartUdreIrq0;
-		case 1:
-			return usartUdreIrq1;
-		case 2:
-			return usartUdreIrq2;
-		default: //case 3:
-			return usartUdreIrq3;
-		}
-	}
+	template <uint8_t Index> inline constexpr Interrupt& accessUsartUdreInterrupt() noexcept;
+	template <> inline constexpr Interrupt& accessUsartUdreInterrupt<0>() noexcept { return usartUdreIrq0; }
+	template <> inline constexpr Interrupt& accessUsartUdreInterrupt<1>() noexcept { return usartUdreIrq1; }
+	template <> inline constexpr Interrupt& accessUsartUdreInterrupt<2>() noexcept { return usartUdreIrq2; }
+	template <> inline constexpr Interrupt& accessUsartUdreInterrupt<3>() noexcept { return usartUdreIrq3; }
 }
 
 

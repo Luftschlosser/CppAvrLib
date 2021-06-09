@@ -1,8 +1,18 @@
-#ifndef SRC_RESOURCES_INTERRUPTS_INTERRUPTCONFIGURATION_H_
-#define SRC_RESOURCES_INTERRUPTS_INTERRUPTCONFIGURATION_H_
+#ifndef SRC_RESOURCES_CONFIGURATION_H_
+#define SRC_RESOURCES_CONFIGURATION_H_
 
 //_____________________________________________
-//TYPES:
+//BEHAVIOR:
+
+namespace Configuration {
+
+	///Flag to enable/disable periphery runtime allocations
+	static constexpr bool runtimeAllocationsEnabled = true;
+
+}
+
+//_____________________________________________
+//INTERRUPT-TYPES:
 
 //Types of ISR-Routine-Implementations
 #define NONE 0
@@ -10,7 +20,7 @@
 #define NOBLOCK 2
 
 //_____________________________________________
-//CONFIGURATION:
+//INTERRUPT-CONFIGURATION:
 
 //Implementation Type configuration for each Interrupt source [NONE / BLOCK / NOBLOCK]
 #define ISRTYPE_EXT_INT0 BLOCK
@@ -36,4 +46,4 @@
 #define ISRTYPE_USART3_UDRE NONE
 
 
-#endif /* SRC_RESOURCES_INTERRUPTS_INTERRUPTCONFIGURATION_H_ */
+#endif /* SRC_RESOURCES_CONFIGURATION_H_ */

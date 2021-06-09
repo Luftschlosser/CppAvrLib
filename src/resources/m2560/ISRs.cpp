@@ -1,5 +1,5 @@
 #include <avr/interrupt.h>
-#include "../interrupts/InterruptConfiguration.h"
+#include "../Configuration.h"
 #include "../interrupts/Interrupt.h"
 
 //Empty ISR-Routine: 82 Byte

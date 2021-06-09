@@ -6,16 +6,17 @@
 #include <stdint.h>
 #include "AddressMap.h"
 
+#include "../periphery/Port.h"
+#include "../periphery/Usart.h"
+#include "../periphery/GeneralPurposeRegister.h"
 
-//Forward-Declarations
-class InterruptPin;
+#include "../periphery/secondary/InterruptPin.h"
+#include "../periphery/secondary/Pin.h"
+#include "../periphery/secondary/GeneralPurposeFlag.h"
 
 
 ///Periphery declaration for the ATmega2560
 namespace Periphery {
-
-	///Flag to enable/disable periphery runtime allocations
-	static constexpr bool runtimeAllocationsEnabled = true;
 
 	/*
 	//Memory mapped objects
@@ -41,28 +42,44 @@ namespace Periphery {
 	static GeneralPurposeRegister& gpior2 = *(reinterpret_cast<GeneralPurposeRegister*>(ADR_GPIOR2));
 	*/
 
-
-	///Get the Index of a given periphery instance.
-	///\param periphery A pointer to the periphery instance
-	///\return The index of the periphery [0-n]
-	template <typename T> inline uint8_t getIdentity(T* periphery) noexcept {
-		return AddressMap::pointerToIndex<T>(reinterpret_cast<intptr_t>(periphery));
-	}
-
 	///Access a specific periphery instance.
 	///\param index The index ['0-n' or 'A-Z' for Ports] of the periphery to access
 	///\return A reference to the periphery instance
-	template <typename T, unsigned char Index> inline T& getInstance() {
-		return *(reinterpret_cast<T*>(AddressMap::indexToPointer<T>(Index)));
+	template <typename T, unsigned char Index> inline T& getInstance() noexcept {
+		return *(reinterpret_cast<T*>(AddressMap::getAdress<T, Index>()));
 	}
-	template <> InterruptPin& getInstance<InterruptPin, 0>();
-	template <> InterruptPin& getInstance<InterruptPin, 1>();
-	template <> InterruptPin& getInstance<InterruptPin, 2>();
-	template <> InterruptPin& getInstance<InterruptPin, 3>();
-	template <> InterruptPin& getInstance<InterruptPin, 4>();
-	template <> InterruptPin& getInstance<InterruptPin, 5>();
-	template <> InterruptPin& getInstance<InterruptPin, 6>();
-	template <> InterruptPin& getInstance<InterruptPin, 7>();
+	template <> inline InterruptPin& getInstance<InterruptPin, 0>() noexcept {
+		static InterruptPin iPin = InterruptPin(Periphery::getInstance<Port, 'B'>(), 0, 0);
+		return iPin;
+	}
+	template <> inline InterruptPin& getInstance<InterruptPin, 1>() noexcept {
+		static InterruptPin iPin = InterruptPin(Periphery::getInstance<Port, 'B'>(), 1, 1);
+		return iPin;
+	}
+	template <> inline InterruptPin& getInstance<InterruptPin, 2>() noexcept {
+		static InterruptPin iPin = InterruptPin(Periphery::getInstance<Port, 'B'>(), 2, 2);
+		return iPin;
+	}
+	template <> inline InterruptPin& getInstance<InterruptPin, 3>() noexcept {
+		static InterruptPin iPin = InterruptPin(Periphery::getInstance<Port, 'B'>(), 3, 3);
+		return iPin;
+	}
+	template <> inline InterruptPin& getInstance<InterruptPin, 4>() noexcept {
+		static InterruptPin iPin = InterruptPin(Periphery::getInstance<Port, 'B'>(), 4, 4);
+		return iPin;
+	}
+	template <> inline InterruptPin& getInstance<InterruptPin, 5>() noexcept {
+		static InterruptPin iPin = InterruptPin(Periphery::getInstance<Port, 'B'>(), 5, 5);
+		return iPin;
+	}
+	template <> inline InterruptPin& getInstance<InterruptPin, 6>() noexcept {
+		static InterruptPin iPin = InterruptPin(Periphery::getInstance<Port, 'B'>(), 6, 6);
+		return iPin;
+	}
+	template <> inline InterruptPin& getInstance<InterruptPin, 7>() noexcept {
+		static InterruptPin iPin = InterruptPin(Periphery::getInstance<Port, 'B'>(), 7, 7);
+		return iPin;
+	}
 
 	///Get the total number of instances of a periphery type.
 	///\return The total number of instances of the template-specified type [0-n]

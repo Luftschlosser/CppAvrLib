@@ -2,61 +2,17 @@
 #define SRC_RESOURCES_PERIPHERY_PORT_H_
 
 
-#include <stdint.h>
-#include "../Periphery.h"
-#include <util/atomic.h>
-
-
-//Forward-Declarations
-class Pin;
+#include "../Configuration.h"
+#include "utilities/RuntimeAllocator.h"
 
 
 ///MMIO Abstraction of the GPIO Ports
 class Port final {
-	friend Pin;
 
 private:
 
-	///Allocation Flags for all Ports (and Pins) TODO: Inhibit when Periphery::runtimeAllocationsEnabled==false
-	static uint8_t usage[Periphery::getCapacity<Port>()];
-
 	///No Constructor to prohibit instantiation
 	Port() = delete;
-
-	///Allows initialization of a subset of Pins (used by friend-classes)
-	///\param mask the bitmask to select the pins to initialize
-	inline void initPins(uint8_t mask) {
-	if (Periphery::runtimeAllocationsEnabled) {
-			uint8_t index = Periphery::getIdentity(this);
-			ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
-			{
-				if (usage[index] & mask) {
-					//Todo: throw later (check possible problems with throwing in atomic block)
-				}
-				else {
-					usage[index] |= mask;
-				}
-			}
-		}
-	}
-
-	///Allows de-initialization of a subset of Pins (used by friend-classes)
-	///\param mask the bitmask to select the pins to de-initialize
-	inline void closePins(uint8_t mask) noexcept {
-		if (Periphery::runtimeAllocationsEnabled) {
-				uint8_t index = Periphery::getIdentity(this);
-				usage[index] &= ~mask;
-			}
-	}
-
-	///Allows checking the usage of a subset of Pins (used by friend-classes)
-	///\param mask the bitmask to select the pins to check
-	///\return true if the selected Pins are already in use, else false
-	inline bool arePinsUsed(uint8_t mask) noexcept {
-		uint8_t index = Periphery::getIdentity(this);
-		return (usage[index] & mask) != 0;
-	}
-
 
 public:
 
@@ -77,34 +33,30 @@ public:
 	};
 
 	///Initializes the entire Port
-	inline void init() {
-		if (Periphery::runtimeAllocationsEnabled) {
-			uint8_t index = Periphery::getIdentity(this);
-			ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
-			{
-				if (usage[index] == 0) {
-					usage[index] = 0xFF; //Set all Pins in use
-				}
-				else {
-					//Todo: throw later (check possible problems with throwing in atomic block)
-				}
+	inline void init() const {
+		if (Configuration::runtimeAllocationsEnabled) {
+			if (! RuntimeAllocator::allocate(this)) {
+				//TODO throw
 			}
 		}
 	}
 
 	///De-Initializes the entire Port
-	inline void close() noexcept {
-		if (Periphery::runtimeAllocationsEnabled) {
-			uint8_t index = Periphery::getIdentity(this);
-			usage[index] = 0;
+	inline void close() const noexcept {
+		if (Configuration::runtimeAllocationsEnabled) {
+			RuntimeAllocator::deallocate(this);
 		}
 	}
 
 	///checks the usage of the Port
 	///\return true if at least one Pin of the Port is already in use, else false
-	inline bool isUsed() noexcept {
-		uint8_t index = Periphery::getIdentity(this);
-		return usage[index] != 0;
+	inline bool isUsed() const noexcept {
+		if (Configuration::runtimeAllocationsEnabled) {
+			return RuntimeAllocator::isAllocated(this);
+		}
+		else {
+			return false;
+		}
 	}
 
 	///Sets the mode of operation for the entire Port
@@ -134,7 +86,7 @@ public:
 
 	///Reads data from the Port (in Input mode)
 	///return the byte which is currently on the port
-	inline uint8_t read() noexcept { return regPIN; }
+	inline uint8_t read() const noexcept { return regPIN; }
 };
 
 

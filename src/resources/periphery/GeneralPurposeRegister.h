@@ -2,9 +2,8 @@
 #define SRC_RESOURCES_PERIPHERY_GENERALPURPOSEREGISTER_H_
 
 
-#include <stdint.h>
-#include <util/atomic.h>
-#include "../Periphery.h"
+#include "../Configuration.h"
+#include "utilities/RuntimeAllocator.h"
 
 
 //Forward-Declarations
@@ -17,45 +16,8 @@ class GeneralPurposeRegister final {
 
 private:
 
-	///Allocation Flags for all General Purpose IO Registers (And single Bits) TODO: Inhibit when Periphery::runtimeAllocationsEnabled==false
-	static uint8_t usage[Periphery::getCapacity<GeneralPurposeRegister>()];
-
 	///No Constructor to prohibit instantiation
 	GeneralPurposeRegister() = delete;
-
-	///Allows initialization of a subset of Bits (used by friend-classes)
-	///\param mask the bitmask to select the Bits to initialize
-	inline void initBits(uint8_t mask) {
-	if (Periphery::runtimeAllocationsEnabled) {
-			uint8_t index = Periphery::getIdentity(this);
-			ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
-			{
-				if (usage[index] & mask) {
-					//Todo: throw later (check possible problems with throwing in atomic block)
-				}
-				else {
-					usage[index] |= mask;
-				}
-			}
-		}
-	}
-
-	///Allows de-initialization of a subset of Bits (used by friend-classes)
-	///\param mask the bitmask to select the Bitss to de-initialize
-	inline void closeBits(uint8_t mask) noexcept {
-		if (Periphery::runtimeAllocationsEnabled) {
-				uint8_t index = Periphery::getIdentity(this);
-				usage[index] &= ~mask;
-			}
-	}
-
-	///Allows checking the usage of a subset of Bits (used by friend-classes)
-	///\param mask the bitmask to select the Bits to check
-	///\return true if the selected Bits are already in use, else false
-	inline bool areBitsUsed(uint8_t mask) noexcept {
-		uint8_t index = Periphery::getIdentity(this);
-		return (usage[index] & mask) != 0;
-	}
 
 public:
 
@@ -63,34 +25,30 @@ public:
 	volatile uint8_t regGPIOR;
 
 	///Initializes the GeneralPurposeRegister
-	inline void init() {
-		if (Periphery::runtimeAllocationsEnabled) {
-			uint8_t index = Periphery::getIdentity(this);
-			ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
-			{
-				if (usage[index]) {
-					usage[index] = 0xFF;
-				}
-				else {
-					//Todo: throw later (check possible problems with throwing in atomic block)
-				}
+	inline void init() const {
+		if (Configuration::runtimeAllocationsEnabled) {
+			if (! RuntimeAllocator::allocate(this)) {
+				//TODO throw
 			}
 		}
 	}
 
 	///De-Initializes the GeneralPurposeRegister
-	inline void close() noexcept {
-		if (Periphery::runtimeAllocationsEnabled) {
-			uint8_t index = Periphery::getIdentity(this);
-			usage[index] = 0;
+	inline void close() const noexcept {
+		if (Configuration::runtimeAllocationsEnabled) {
+			RuntimeAllocator::deallocate(this);
 		}
 	}
 
 	///checks the usage of the GeneralPurposeRegister
 	///\return true if it is already in use, else false
-	inline bool isUsed() noexcept {
-		uint8_t index = Periphery::getIdentity(this);
-		return usage[index] != 0;
+	inline bool isUsed() const noexcept {
+		if (Configuration::runtimeAllocationsEnabled) {
+			return RuntimeAllocator::isAllocated(this);
+		}
+		else {
+			return false;
+		}
 	}
 
 	///Writes data to the GeneralPurposeRegister
@@ -99,7 +57,7 @@ public:
 
 	///Reads data from the GeneralPurposeRegister
 	///return the byte which is currently on the GeneralPurposeRegister
-	inline uint8_t read() noexcept { return regGPIOR; }
+	inline uint8_t read() const noexcept { return regGPIOR; }
 };
 
 

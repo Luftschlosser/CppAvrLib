@@ -3,10 +3,15 @@
 
 
 #include <stdint.h>
-#include "GeneralPurposeRegister.h"
+#include "../GeneralPurposeRegister.h"
+#include "../../Configuration.h"
+#include "../utilities/RuntimeAllocator.h"
 
 ///Abstraction of one Bit of a GeneralPurposeRegister. Can be accessed really fast when using a const Instance.
 class GeneralPurposeFlag final {
+	friend bool RuntimeAllocator::allocate(const GeneralPurposeFlag* object); //Allows Allocator access to GeneralPurposeRegister
+	friend void RuntimeAllocator::deallocate(const GeneralPurposeFlag* object); //Allows Deallocator access to GeneralPurposeRegister
+	friend bool RuntimeAllocator::isAllocated(const GeneralPurposeFlag* object); //Allows isAllocated access to GeneralPurposeRegister
 
 private:
 
@@ -23,15 +28,36 @@ public:
 	///\param bit The Bit of the GeneralPurposeRegister which is represented by this GeneralPurposeFlag
 	inline constexpr GeneralPurposeFlag (GeneralPurposeRegister& gpioRegister, uint8_t bit) noexcept : gpior(gpioRegister), bit(bit) {}
 
+	///Returns the Bit number of this bit within the GeneralPuposeRegister
+	///\returns [0-7]
+	inline uint8_t getBitNumber() const noexcept { return bit; }
+
 	///Initializes the GeneralPurposeFlag
-	inline void init() const { gpior.initBits(1 << bit); }
+	inline void init() const {
+		if (Configuration::runtimeAllocationsEnabled) {
+			if (! RuntimeAllocator::allocate(this)) {
+				//TODO throw
+			}
+		}
+	}
 
 	///De-Initializes the GeneralPurposeFlag
-	inline void close() const noexcept { gpior.closeBits(1 << bit); }
+	inline void close() const noexcept {
+		if (Configuration::runtimeAllocationsEnabled) {
+			RuntimeAllocator::deallocate(this);
+		}
+	}
 
 	///checks the usage of the GeneralPurposeFlag
 	///\return true if the GeneralPurposeFlag is already in use, else false
-	inline bool isUsed() const noexcept { return gpior.areBitsUsed(1 << bit); }
+	inline bool isUsed() const noexcept {
+		if (Configuration::runtimeAllocationsEnabled) {
+			return RuntimeAllocator::isAllocated(this);
+		}
+		else {
+			return false;
+		}
+	}
 
 	///Writes a given Bit to the Flag
 	///\param data the boolean value to write

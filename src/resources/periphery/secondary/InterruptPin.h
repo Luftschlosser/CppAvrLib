@@ -3,12 +3,17 @@
 
 
 #include "Pin.h"
-#include "../Interrupts.h"
+
+
+//Forward-Declarations
+namespace Periphery {
+	template <typename T, unsigned char Index> inline T& getInstance();
+}
 
 
 //Wraps external PCINT interrupt
 class InterruptPin final : public Pin {
-	template <typename T, uint8_t Index> friend T& Periphery::getInstance(); //Allows Constructor-Access for Factory-Function
+	template <typename T, unsigned char Index> friend T& Periphery::getInstance(); //Allows Constructor-Access for Factory-Function
 
 private:
 
@@ -18,11 +23,13 @@ private:
 	static constexpr intptr_t regEIMSK = ADR_EIMSK;
 	static constexpr intptr_t regEICRA = ADR_EICRA;
 
+
 	///Constructor (can produce const instances when used with const parameters)
 	///\param port The Port this InterruptPin is part of
 	///\param pin The Pin of the Port which is represented by this InterruptPin
 	///\param interruptNumber The number of the associated external interrupt. [0-7]
-	inline constexpr InterruptPin (Port& port, uint8_t pin, uint8_t interruptNumber) noexcept : Pin(port,pin), interruptNumber(interruptNumber) {}
+	inline constexpr InterruptPin (Port& port, uint8_t pin, uint8_t interruptNumber) noexcept :
+			Pin(port,pin), interruptNumber(interruptNumber) {}
 
 public:
 
@@ -44,11 +51,6 @@ public:
 	inline void disableInterrupt() const noexcept { *reinterpret_cast<uint8_t*>(regEIMSK) &= ~(1 << interruptNumber); }
 
 	inline void clearInterrupt() const noexcept { *reinterpret_cast<uint8_t*>(regEIFR) |= (1 << interruptNumber); }
-
-	///Returns the Interrupt-Object for this InterruptPin
-	inline Interrupt& accessInterrupt() const noexcept {
-		return Interrupts::accessExternalInterrupt(interruptNumber);
-	}
 };
 
 

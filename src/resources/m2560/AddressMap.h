@@ -41,10 +41,11 @@ class GeneralPurposeRegister;
 ///Functions for bidirectional pointer<->index evaluations of the MMIO-Periphery for the ATmega2560
 namespace AddressMap {
 
-	///Address -> Index for the template-specified type
-	template <typename T> inline constexpr uint8_t pointerToIndex(intptr_t ptr) noexcept;
-	template <> inline constexpr uint8_t pointerToIndex<Port>(intptr_t ptr) noexcept
-	{
+	///Get the Index of a given periphery instance.
+	///\param periphery A pointer to the periphery instance
+	///\return The index of the periphery [0-n]
+	inline uint8_t getIdentity(const Port* periphery) noexcept {
+		const intptr_t ptr = reinterpret_cast<intptr_t>(periphery);
 		if (ptr < 0x100) {
 			return (ptr - 0x20) / 0x3;
 		}
@@ -52,8 +53,8 @@ namespace AddressMap {
 			return ((ptr - 0x100) / 0x3) + 0x7;
 		}
 	}
-	template <> inline constexpr uint8_t pointerToIndex<Usart>(intptr_t ptr) noexcept
-	{
+	inline uint8_t getIdentity(const Usart* periphery) noexcept {
+		const intptr_t ptr = reinterpret_cast<intptr_t>(periphery);
 		if (ptr < 0xFF) {
 			return (ptr - 0xC0) / 0x08;
 		}
@@ -61,8 +62,8 @@ namespace AddressMap {
 			return 3;
 		}
 	}
-	template <> inline constexpr uint8_t pointerToIndex<GeneralPurposeRegister>(intptr_t ptr) noexcept
-	{
+	inline uint8_t getIdentity(const GeneralPurposeRegister* periphery) noexcept {
+		const intptr_t ptr = reinterpret_cast<intptr_t>(periphery);
 		if (ptr == 0x3E) {
 			return 0;
 		}
@@ -72,50 +73,28 @@ namespace AddressMap {
 	}
 
 	///index -> Address for the template-specified type
-	template <typename T> inline constexpr intptr_t indexToPointer(unsigned char index);
-	template <> inline constexpr intptr_t indexToPointer<Port>(unsigned char index) {
-		switch(index) {
-		case 'A':
-			return ADR_PORTA;
-		case 'B':
-			return ADR_PORTB;
-		case 'C':
-			return ADR_PORTC;
-		case 'D':
-			return ADR_PORTD;
-		case 'E':
-			return ADR_PORTE;
-		case 'F':
-			return ADR_PORTF;
-		case 'G':
-			return ADR_PORTG;
-		case 'H':
-			return ADR_PORTH;
-		case 'J':
-			return ADR_PORTJ;
-		case 'K':
-			return ADR_PORTK;
-		case 'L':
-			return ADR_PORTL;
-		default:
-			//TODO: throw
-			return ADR_PORTA;
-		}
-	}
-	template <> inline constexpr intptr_t indexToPointer<Usart>(unsigned char index) {
-		if (index > 3) {
-			//TODO: throw
-			index = 0;
-		}
-		return index == 3 ? ADR_USART3 : 0xC0 + (index * 0x08);
-	}
-	template <> inline constexpr intptr_t indexToPointer<GeneralPurposeRegister>(unsigned char index) {
-		if (index > 2) {
-			//TODO: throw
-			index = 0;
-		}
-		return index == 0 ? ADR_GPIOR0 : (0x49 + index);
-	}
+	template <typename T, unsigned char Index> inline constexpr intptr_t getAdress() noexcept;
+
+	template <> inline constexpr intptr_t getAdress<Port, 'A'>() noexcept { return ADR_PORTA; }
+	template <> inline constexpr intptr_t getAdress<Port, 'B'>() noexcept { return ADR_PORTB; }
+	template <> inline constexpr intptr_t getAdress<Port, 'C'>() noexcept { return ADR_PORTC; }
+	template <> inline constexpr intptr_t getAdress<Port, 'D'>() noexcept { return ADR_PORTD; }
+	template <> inline constexpr intptr_t getAdress<Port, 'E'>() noexcept { return ADR_PORTE; }
+	template <> inline constexpr intptr_t getAdress<Port, 'F'>() noexcept { return ADR_PORTF; }
+	template <> inline constexpr intptr_t getAdress<Port, 'G'>() noexcept { return ADR_PORTG; }
+	template <> inline constexpr intptr_t getAdress<Port, 'H'>() noexcept { return ADR_PORTH; }
+	template <> inline constexpr intptr_t getAdress<Port, 'J'>() noexcept { return ADR_PORTJ; }
+	template <> inline constexpr intptr_t getAdress<Port, 'K'>() noexcept { return ADR_PORTK; }
+	template <> inline constexpr intptr_t getAdress<Port, 'L'>() noexcept { return ADR_PORTL; }
+
+	template <> inline constexpr intptr_t getAdress<Usart, 0>() noexcept { return ADR_USART0; }
+	template <> inline constexpr intptr_t getAdress<Usart, 1>() noexcept { return ADR_USART1; }
+	template <> inline constexpr intptr_t getAdress<Usart, 2>() noexcept { return ADR_USART2; }
+	template <> inline constexpr intptr_t getAdress<Usart, 3>() noexcept { return ADR_USART3; }
+
+	template <> inline constexpr intptr_t getAdress<GeneralPurposeRegister, 0>() noexcept { return ADR_GPIOR0; }
+	template <> inline constexpr intptr_t getAdress<GeneralPurposeRegister, 1>() noexcept { return ADR_GPIOR1; }
+	template <> inline constexpr intptr_t getAdress<GeneralPurposeRegister, 2>() noexcept { return ADR_GPIOR2; }
 }
 
 #endif /* SRC_RESOURCES_M2560_ADDRESSMAP_H_ */

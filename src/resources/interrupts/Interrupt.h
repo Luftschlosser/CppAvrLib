@@ -2,9 +2,7 @@
 #define SRC_RESOURCES_INTERRUPTS_INTERRUPT_H_
 
 
-#include <avr/io.h>
 #include <util/atomic.h>
-#include "InterruptConfiguration.h"
 
 
 ///Instances of this class are an abstract representation of an interrupt source.
