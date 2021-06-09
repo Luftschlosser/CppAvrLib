@@ -43,6 +43,7 @@ namespace Periphery {
 	*/
 
 
+	//mmio
 	template <unsigned char Index> inline Port& getPort() noexcept {
 		return *(reinterpret_cast<Port*>(AddressMap::getPortAdress<Index>()));
 	}
@@ -53,17 +54,15 @@ namespace Periphery {
 		return *(reinterpret_cast<GeneralPurposeRegister*>(AddressMap::getGeneralPurposeRegisterAdress<Index>()));
 	}
 
-	template <unsigned char PortIndex, uint8_t PinIndex> inline Pin& getPin() noexcept {
-		static Pin pin(getPort<PortIndex>(), PinIndex);
-		return pin;
+	//secondary
+	template <unsigned char PortIndex, uint8_t PinIndex> inline Pin getPin() noexcept {
+		return Pin(getPort<PortIndex>(), PinIndex);
 	}
-	template <uint8_t Index> inline InterruptPin& getInterruptPin() noexcept {
-		static InterruptPin iPin(Periphery::getPort<'B'>(), Index, Index);
-		return iPin;
+	template <uint8_t Index> inline InterruptPin getInterruptPin() noexcept {
+		return InterruptPin(Periphery::getPort<'B'>(), Index, Index);
 	}
-	template <unsigned char RegisterIndex, uint8_t BitIndex> inline GeneralPurposeFlag& getGeneralPurposeFlag() noexcept {
-		static GeneralPurposeFlag flag(getGeneralPurposeRegister<RegisterIndex>(), BitIndex);
-		return flag;
+	template <unsigned char RegisterIndex, uint8_t BitIndex> inline GeneralPurposeFlag getGeneralPurposeFlag() noexcept {
+		return GeneralPurposeFlag(getGeneralPurposeRegister<RegisterIndex>(), BitIndex);
 	}
 
 	///Get the total number of instances of a periphery type.

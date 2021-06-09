@@ -8,13 +8,13 @@
 //Forward-Declarations
 class InterruptPin;
 namespace Periphery {
-	template <uint8_t Index> inline InterruptPin& getInterruptPin();
+	template <uint8_t Index> inline InterruptPin getInterruptPin();
 }
 
 
 //Wraps external PCINT interrupt
 class InterruptPin final : public Pin {
-	template <uint8_t Index> friend inline InterruptPin& Periphery::getInterruptPin(); //Allows Constructor-Access for Factory-Function
+	template <uint8_t Index> friend inline InterruptPin Periphery::getInterruptPin(); //Allows Constructor-Access for Factory-Function
 
 private:
 
