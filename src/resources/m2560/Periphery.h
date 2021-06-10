@@ -57,7 +57,12 @@ namespace Periphery {
 		return Pin(getPort<PortIndex>(), PinIndex);
 	}
 	template <uint8_t Index> inline InterruptPin getInterruptPin() noexcept {
-		return InterruptPin(Periphery::getPort<'B'>(), Index, Index);
+		if (Index < 4) {
+			return InterruptPin(Periphery::getPort<'D'>(), Index, Index);
+		}
+		else {
+			return InterruptPin(Periphery::getPort<'E'>(), Index, Index);
+		}
 	}
 	template <unsigned char RegisterIndex, uint8_t BitIndex> inline GeneralPurposeFlag getGeneralPurposeFlag() noexcept {
 		return GeneralPurposeFlag(getGeneralPurposeRegister<RegisterIndex>(), BitIndex);
