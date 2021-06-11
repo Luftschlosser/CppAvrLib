@@ -31,6 +31,16 @@
 #define ADR_EIFR 0x3C
 #define ADR_EIMSK 0x3D
 
+#define ADR_TIMER0 0x44
+#define ADR_TIMER1 0x80
+#define ADR_TIMER2 0xB0
+#define ADR_TIMER3 0x90
+#define ADR_TIMER4 0xA0
+#define ADR_TIMER5 0x120
+#define ADR_TIFR 0x35
+#define ADR_TIMSK 0x6E
+#define ADR_GTCCR 0x43
+
 
 //Forward-Declarations
 class Port;
@@ -96,6 +106,10 @@ namespace AddressMap {
 	template <> inline constexpr intptr_t getGeneralPurposeRegisterAdress<0>() noexcept { return ADR_GPIOR0; }
 	template <> inline constexpr intptr_t getGeneralPurposeRegisterAdress<1>() noexcept { return ADR_GPIOR1; }
 	template <> inline constexpr intptr_t getGeneralPurposeRegisterAdress<2>() noexcept { return ADR_GPIOR2; }
+
+
+	inline constexpr intptr_t getRegisterTIFR(uint8_t index) noexcept { return ADR_TIFR + index; }
+	inline constexpr intptr_t getRegisterTIMSK(uint8_t index) noexcept { return ADR_TIMSK + index; }
 }
 
 #endif /* SRC_RESOURCES_M2560_ADDRESSMAP_H_ */

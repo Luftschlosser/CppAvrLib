@@ -9,6 +9,7 @@
 #include "../periphery/Port.h"
 #include "../periphery/Usart.h"
 #include "../periphery/GeneralPurposeRegister.h"
+#include "../periphery/Timer8bit.h"
 
 #include "../periphery/secondary/InterruptPin.h"
 #include "../periphery/secondary/Pin.h"
