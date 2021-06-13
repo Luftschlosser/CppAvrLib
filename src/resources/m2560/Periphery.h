@@ -52,6 +52,10 @@ namespace Periphery {
 	template <uint8_t Index> inline GeneralPurposeRegister& getGeneralPurposeRegister() noexcept {
 		return *(reinterpret_cast<GeneralPurposeRegister*>(AddressMap::getGeneralPurposeRegisterAdress<Index>()));
 	}
+	template <uint8_t Index> inline Timer8bit getTimer8bit() noexcept {
+		Timer8bit::Registers& registers = *(reinterpret_cast<Timer8bit::Registers*>(AddressMap::getTimer8bitAdress<Index>()));
+		return Timer8bit(registers, Index, (Index == 0 ? 0 : 1));
+	}
 
 	//Access to secondary Periphery
 	template <unsigned char PortIndex, uint8_t PinIndex> inline Pin getPin() noexcept {
@@ -69,6 +73,33 @@ namespace Periphery {
 		return GeneralPurposeFlag(getGeneralPurposeRegister<RegisterIndex>(), BitIndex);
 	}
 
+	//Access Pins for alternate Port functions
+	template <char Channel> inline Pin getTimer8bitCompareOutputPin(uint8_t timerIndex) noexcept;
+	template <> inline Pin getTimer8bitCompareOutputPin<'A'>(uint8_t timerIndex) noexcept {
+		if (timerIndex == 0) {
+			return Pin(getPort<'B'>(), 7);
+		}
+		else { //timerIndex == 2 (only other 8bit Timer on this µC)
+			return Pin(getPort<'B'>(), 4);
+		}
+	}
+	template <> inline Pin getTimer8bitCompareOutputPin<'B'>(uint8_t timerIndex) noexcept {
+		if (timerIndex == 0) {
+			return Pin(getPort<'G'>(), 5);
+		}
+		else { //timerIndex == 2 (only other 8bit Timer on this µC)
+			return Pin(getPort<'H'>(), 6);
+		}
+	}
+	inline Pin getTimer8bitExternalClockPin(uint8_t timerIndex) noexcept {
+		if (timerIndex == 0) { //timerIndex == 0 -> This one has a synchronous external clock input. (T0)
+			return Pin(getPort<'D'>(),7);
+		}
+		else { //timerIndex == 2 (only other 8bit Timer on this µC) -> This one has an asynchronous external clock input. (TOSC1)
+			return Pin(getPort<'G'>(),4);
+		}
+	}
+
 	///Get the total number of instances of a periphery type.
 	///\return The total number of instances of the template-specified type [0-n]
 	template <typename T> inline constexpr uint8_t getCapacity() noexcept;
@@ -78,6 +109,7 @@ namespace Periphery {
 	template <> inline constexpr uint8_t getCapacity<Pin>() noexcept { return 8 * getCapacity<Port>(); }
 	template <> inline constexpr uint8_t getCapacity<InterruptPin>() noexcept { return 8; }
 	template <> inline constexpr uint8_t getCapacity<GeneralPurposeFlag>() noexcept { return 8 * getCapacity<GeneralPurposeRegister>(); }
+	template <> inline constexpr uint8_t getCapacity<Timer8bit>() noexcept { return 2; }
 }
 
 #endif /* SRC_RESOURCES_M2560_PERIPHERY_H_ */

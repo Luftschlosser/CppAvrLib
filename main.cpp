@@ -85,6 +85,15 @@ int main (void) noexcept
 	Interrupts::getExternalInterrupt<0>().registerFunction<&toggle>();
 	t.enableInterrupt();
 
+	Timer8bit t0 = Periphery::getTimer8bit<0>();
+	t0.init();
+	t0.setWaveformGenerationMode(Timer8bit::WaveformGenerationMode::PWM_FAST_0XFF);
+	t0.setOutputCompareValue<'A'>(4);
+	t0.setOutputCompareValue<'B'>(16);
+	t0.setCompareOutputMode<'A'>(Timer8bit::CompareOutputMode::SET);
+	t0.setCompareOutputMode<'B'>(Timer8bit::CompareOutputMode::SET);
+	t0.setClockSelect(Timer8bit::ClockSelect::PRESCALE_1024);
+
     // Main-loop
     while (1)
     {

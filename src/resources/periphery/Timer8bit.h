@@ -5,20 +5,32 @@
 #include <stdint.h>
 #include "../Configuration.h"
 #include "utilities/RuntimeAllocator.h"
-#include "../AddressMap.h"
+#include "secondary/Pin.h"
 #include <util/atomic.h>
 
 
-//TODO: allocate Pins when used by Timer! -> or(?) -> provide getters for respective pins
 //TODO: implement GTCCR functionalities (synchronisation)
 
 
 //Forward Declarations
 class Timer8bitAsync;
+namespace Periphery {
+	template <uint8_t Index> inline Timer8bit getTimer8bit() noexcept;
+	template <char Channel> inline Pin getTimer8bitCompareOutputPin(uint8_t timerIndex) noexcept;
+	inline Pin getTimer8bitExternalClockPin(uint8_t timerIndex) noexcept;
+}
+namespace AddressMap {
+	inline constexpr intptr_t getRegisterTIFR(uint8_t index) noexcept;
+	inline constexpr intptr_t getRegisterTIMSK(uint8_t index) noexcept;
+}
 
 
 ///Abstraction of the 8bit Timers
 class Timer8bit {
+	template <uint8_t Index> friend inline Timer8bit Periphery::getTimer8bit() noexcept;
+	friend bool RuntimeAllocator::allocate(const Timer8bit* object) noexcept;
+	friend void RuntimeAllocator::deallocate(const Timer8bit* object) noexcept;
+	friend bool RuntimeAllocator::isAllocated(const Timer8bit* object) noexcept;
 
 public:
 
@@ -142,7 +154,32 @@ public:
 	///Destructor
 	inline ~Timer8bit() noexcept = default;
 
-	//TODO: init, close, isUsed...
+	///Initializes the Timer
+	inline void init() const {
+		if (Configuration::runtimeAllocationsEnabled) {
+			if (! RuntimeAllocator::allocate(this)) {
+				//TODO throw
+			}
+		}
+	}
+
+	///De-Initializes the Timer
+	inline void close() const noexcept {
+		if (Configuration::runtimeAllocationsEnabled) {
+			RuntimeAllocator::deallocate(this);
+		}
+	}
+
+	///checks the usage of the Timer
+	///\return true if it is already in use, else false
+	inline bool isUsed() const noexcept {
+		if (Configuration::runtimeAllocationsEnabled) {
+			return RuntimeAllocator::isAllocated(this);
+		}
+		else {
+			return false;
+		}
+	}
 
 	///Checks if this Timer8bit object happens to be an asynchronous timer (not the current mode, only the capability)
 	inline bool isAsyncTimer() const noexcept {
@@ -154,8 +191,19 @@ public:
 		return Timer8bit::ChannelCount;
 	}
 
+	///Gets the Pin connected to this Timer's compare output on the template-parameter specified channel.
+	template <char Channel> inline Pin getCompareOutputPin() const noexcept {
+		return Periphery::getTimer8bitCompareOutputPin<Channel>(this->timerIndex);
+	}
+
+	///Gets the Pin connected to this Timer's external clock input. Will not be auto-allocated by the Timer when used as clock source,
+	///as it can be used as clock-input even when configured as output pin. This enables clock-generation via Software!
+	inline Pin getExternalClockInputPin() const noexcept {
+		return Periphery::getTimer8bitExternalClockPin(this->timerIndex);
+	}
+
 	///Sets the Compare Output Mode of the the template-parameter specified channel.
-	///(Pin must be set to 'Output' mode in order to enable the output driver!) //TODO: allocate pin / set pin to output mode
+	///(Pin must be set to 'Output' mode in order to enable the output driver!)
 	template <char Channel> inline void setCompareOutputMode(CompareOutputMode mode) const noexcept;
 
 	///Sets the Waveform Generation Mode (Caution: Can start Timer!)
@@ -172,7 +220,7 @@ public:
 	///Forces an Output Compare on the template-parameter specified channel.
 	template <char Channel> inline void forceOutputCompare() const noexcept;
 
-	///Selects the Clock / Prescalar for this clock
+	///Selects the Clock / Prescalar for this clock (Caution: Can start Timer!)
 	inline void setClockSelect(ClockSelect mode) const {
 		if (isAsyncTimer()) {
 			switch (mode) {
@@ -272,9 +320,49 @@ public:
 
 //Implementations of Member-Specializations
 template <> inline void Timer8bit::setCompareOutputMode<'A'>(CompareOutputMode mode) const noexcept {
+	if (Configuration::autoPinAllocationEnabled || Configuration::autoPinConfigurationEnabled) {
+		Pin out = this->getCompareOutputPin<'A'>();
+		uint8_t currentMode = this->registers.regTCCRA.fields.dataCOMA;
+		if (currentMode == CompareOutputMode::DISCONNECTED && mode != CompareOutputMode::DISCONNECTED) {
+			if (Configuration::autoPinAllocationEnabled) {
+				out.init(); //TODO: Deal with possible exception!
+			}
+			if (Configuration::autoPinConfigurationEnabled) {
+				out.setMode(Pin::Mode::OUTPUT);
+			}
+		}
+		else if (currentMode != CompareOutputMode::DISCONNECTED && mode == CompareOutputMode::DISCONNECTED) {
+			if (Configuration::autoPinAllocationEnabled) {
+				out.close();
+			}
+			if (Configuration::autoPinConfigurationEnabled) {
+				out.setMode(Pin::Mode::INPUT);
+			}
+		}
+	}
 	this->registers.regTCCRA.fields.dataCOMA = mode;
 }
 template <> inline void Timer8bit::setCompareOutputMode<'B'>(CompareOutputMode mode) const noexcept {
+	if (Configuration::autoPinAllocationEnabled || Configuration::autoPinConfigurationEnabled) {
+		Pin out = this->getCompareOutputPin<'B'>();
+		uint8_t currentMode = this->registers.regTCCRA.fields.dataCOMB;
+		if (currentMode == CompareOutputMode::DISCONNECTED && mode != CompareOutputMode::DISCONNECTED) {
+			if (Configuration::autoPinAllocationEnabled) {
+				out.init(); //TODO: Deal with possible exception!
+			}
+			if (Configuration::autoPinConfigurationEnabled) {
+				out.setMode(Pin::Mode::OUTPUT);
+			}
+		}
+		else if (currentMode != CompareOutputMode::DISCONNECTED && mode == CompareOutputMode::DISCONNECTED) {
+			if (Configuration::autoPinAllocationEnabled) {
+				out.close();
+			}
+			if (Configuration::autoPinConfigurationEnabled) {
+				out.setMode(Pin::Mode::INPUT);
+			}
+		}
+	}
 	this->registers.regTCCRA.fields.dataCOMB = mode;
 }
 template <> inline void Timer8bit::forceOutputCompare<'A'>() const noexcept {

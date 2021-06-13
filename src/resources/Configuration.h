@@ -7,6 +7,14 @@ namespace Configuration {
 	///Flag to enable/disable periphery runtime allocations
 	static constexpr bool runtimeAllocationsEnabled = true;
 
+	///Flag to enable/disable automatic runtime allocation of Pins used by other periphery via alternate Port functions.
+	static constexpr bool autoPinAllocationEnabled = true;
+
+	///Flag to enable/disable automatic Data-Direction Configuration of Pins used by other periphery via alternate Port functions.
+	static constexpr bool autoPinConfigurationEnabled = true;
+
+	//TODO: Errorhandling config: None/Exceptions/Errorhandling/
+
 	//Flags to enable/disable Interrupt-Instantiations (change "ISR.cpp" to remove ISR-routines completely)
 	static constexpr bool enableInterrupt_EXT_INT0 		= true;
 	static constexpr bool enableInterrupt_EXT_INT1 		= false;
@@ -28,6 +36,7 @@ namespace Configuration {
 	static constexpr bool enableInterrupt_USART3_RX 	= false;
 	static constexpr bool enableInterrupt_USART3_TX 	= false;
 	static constexpr bool enableInterrupt_USART3_UDRE 	= false;
+	//TODO_ Timer interrupts
 }
 
 

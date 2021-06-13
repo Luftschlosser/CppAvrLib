@@ -107,6 +107,10 @@ namespace AddressMap {
 	template <> inline constexpr intptr_t getGeneralPurposeRegisterAdress<1>() noexcept { return ADR_GPIOR1; }
 	template <> inline constexpr intptr_t getGeneralPurposeRegisterAdress<2>() noexcept { return ADR_GPIOR2; }
 
+	template <uint8_t Index> inline constexpr intptr_t getTimer8bitAdress() noexcept;
+	template <> inline constexpr intptr_t getTimer8bitAdress<0>() noexcept { return ADR_TIMER0; }
+	template <> inline constexpr intptr_t getTimer8bitAdress<2>() noexcept { return ADR_TIMER2; }
+
 
 	inline constexpr intptr_t getRegisterTIFR(uint8_t index) noexcept { return ADR_TIFR + index; }
 	inline constexpr intptr_t getRegisterTIMSK(uint8_t index) noexcept { return ADR_TIMSK + index; }
