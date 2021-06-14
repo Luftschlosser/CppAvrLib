@@ -36,7 +36,12 @@ namespace Configuration {
 	static constexpr bool enableInterrupt_USART3_RX 	= false;
 	static constexpr bool enableInterrupt_USART3_TX 	= false;
 	static constexpr bool enableInterrupt_USART3_UDRE 	= false;
-	//TODO_ Timer interrupts
+	static constexpr bool enableInterrupt_TIMER0_OC_A	= true;
+	static constexpr bool enableInterrupt_TIMER0_OC_B	= true;
+	static constexpr bool enableInterrupt_TIMER0_OVF	= true;
+	static constexpr bool enableInterrupt_TIMER2_OC_A	= false;
+	static constexpr bool enableInterrupt_TIMER2_OC_B	= false;
+	static constexpr bool enableInterrupt_TIMER2_OVF	= false;
 }
 
 

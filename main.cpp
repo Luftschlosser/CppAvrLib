@@ -4,6 +4,7 @@
 #include "src/resources/Interrupts.h"
 
 const Pin led = Periphery::getPin<'B', 6>();
+const Timer8bit timer = Periphery::getTimer8bit<0>();
 
 class Log final {
 private:
@@ -66,7 +67,13 @@ public:
 
 void toggle() {
 	led.toggle();
-	_delay_ms(1000);
+}
+
+void incPwm() {
+	static uint8_t value = 0;
+	value++;
+	timer.setOutputCompareValue<'A'>(value);
+	timer.setOutputCompareValue<'B'>(0xFF-value);
 }
 
 int main (void) noexcept
@@ -85,14 +92,16 @@ int main (void) noexcept
 	Interrupts::getExternalInterrupt<0>().registerFunction<&toggle>();
 	t.enableInterrupt();
 
-	Timer8bit t0 = Periphery::getTimer8bit<0>();
-	t0.init();
-	t0.setWaveformGenerationMode(Timer8bit::WaveformGenerationMode::PWM_FAST_0XFF);
-	t0.setOutputCompareValue<'A'>(4);
-	t0.setOutputCompareValue<'B'>(16);
-	t0.setCompareOutputMode<'A'>(Timer8bit::CompareOutputMode::SET);
-	t0.setCompareOutputMode<'B'>(Timer8bit::CompareOutputMode::SET);
-	t0.setClockSelect(Timer8bit::ClockSelect::PRESCALE_1024);
+	timer.init();
+	Interrupt tov = Interrupts::getTimerOvfInterrupt<0>();
+	tov.registerFunction<&incPwm>();
+	timer.enableTimerOverflowInterrupt();
+	timer.setWaveformGenerationMode(Timer8bit::WaveformGenerationMode::PWM_FAST_0XFF);
+	timer.setOutputCompareValue<'A'>(0);
+	timer.setOutputCompareValue<'B'>(0);
+	timer.setCompareOutputMode<'A'>(Timer8bit::CompareOutputMode::CLEAR);
+	timer.setCompareOutputMode<'B'>(Timer8bit::CompareOutputMode::CLEAR);
+	timer.setClockSelect(Timer8bit::ClockSelect::PRESCALE_1024);
 
     // Main-loop
     while (1)

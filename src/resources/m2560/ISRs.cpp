@@ -41,6 +41,13 @@
 #define ISRTYPE_USART3_TX 	BLOCK
 #define ISRTYPE_USART3_UDRE	BLOCK
 
+#define ISRTYPE_TIMER0_OCA	BLOCK
+#define ISRTYPE_TIMER0_OCB	BLOCK
+#define ISRTYPE_TIMER0_OVF	BLOCK
+#define ISRTYPE_TIMER2_OCA	BLOCK
+#define ISRTYPE_TIMER2_OCB	BLOCK
+#define ISRTYPE_TIMER2_OVF	BLOCK
+
 
 //___________________________________
 //External Interrupts
@@ -423,6 +430,126 @@ ISR(USART3_UDRE_vect, ISR_BLOCK) {
 ISR(USART3_UDRE_vect, ISR_NOBLOCK) {
 	if (Configuration::enableInterrupt_USART3_UDRE)
 		Interrupt::invoke<USART3_UDRE_vect_num>();
+}
+
+#endif
+#endif
+
+//___________________________________
+//Timer	OC
+
+//TIMER0 OCA
+#if ISRTYPE_TIMER0_OCA != NONE
+#if ISRTYPE_TIMER0_OCA == BLOCK
+
+ISR(TIMER0_COMPA_vect, ISR_BLOCK) {
+	if (Configuration::enableInterrupt_TIMER0_OC_A)
+		Interrupt::invoke<TIMER0_COMPA_vect_num>();
+}
+
+#elif ISRTYPE_TIMER0_OCA == NOBLOCK
+
+ISR(TIMER0_COMPA_vect, ISR_NOBLOCK) {
+	if (Configuration::enableInterrupt_TIMER0_OC_A)
+		Interrupt::invoke<TIMER0_COMPA_vect_num>();
+}
+
+#endif
+#endif
+
+//TIMER0 OCB
+#if ISRTYPE_TIMER0_OCB != NONE
+#if ISRTYPE_TIMER0_OCB == BLOCK
+
+ISR(TIMER0_COMPB_vect, ISR_BLOCK) {
+	if (Configuration::enableInterrupt_TIMER0_OC_B)
+		Interrupt::invoke<TIMER0_COMPB_vect_num>();
+}
+
+#elif ISRTYPE_TIMER0_OCB == NOBLOCK
+
+ISR(TIMER0_COMPB_vect, ISR_NOBLOCK) {
+	if (Configuration::enableInterrupt_TIMER0_OC_B)
+		Interrupt::invoke<TIMER0_COMPB_vect_num>();
+}
+
+#endif
+#endif
+
+//TIMER2 OCA
+#if ISRTYPE_TIMER2_OCA != NONE
+#if ISRTYPE_TIMER2_OCA == BLOCK
+
+ISR(TIMER2_COMPA_vect, ISR_BLOCK) {
+	if (Configuration::enableInterrupt_TIMER2_OC_A)
+		Interrupt::invoke<TIMER2_COMPA_vect_num>();
+}
+
+#elif ISRTYPE_TIMER2_OCA == NOBLOCK
+
+ISR(TIMER2_COMPA_vect, ISR_NOBLOCK) {
+	if (Configuration::enableInterrupt_TIMER2_OC_A)
+		Interrupt::invoke<TIMER2_COMPA_vect_num>();
+}
+
+#endif
+#endif
+
+//TIMER2 OCB
+#if ISRTYPE_TIMER2_OCB != NONE
+#if ISRTYPE_TIMER2_OCB == BLOCK
+
+ISR(TIMER2_COMPB_vect, ISR_BLOCK) {
+	if (Configuration::enableInterrupt_TIMER2_OC_B)
+		Interrupt::invoke<TIMER2_COMPB_vect_num>();
+}
+
+#elif ISRTYPE_TIMER2_OCB == NOBLOCK
+
+ISR(TIMER2_COMPB_vect, ISR_NOBLOCK) {
+	if (Configuration::enableInterrupt_TIMER2_OC_B)
+		Interrupt::invoke<TIMER2_COMPB_vect_num>();
+}
+
+#endif
+#endif
+
+//___________________________________
+//Timer	OVF
+
+//TIMER0 OVF
+#if ISRTYPE_TIMER0_OVF != NONE
+#if ISRTYPE_TIMER0_OVF == BLOCK
+
+ISR(TIMER0_OVF_vect, ISR_BLOCK) {
+	if (Configuration::enableInterrupt_TIMER0_OVF)
+		Interrupt::invoke<TIMER0_OVF_vect_num>();
+}
+
+#elif ISRTYPE_TIMER0_OVF == NOBLOCK
+
+ISR(TIMER0_OVF_vect, ISR_NOBLOCK) {
+	if (Configuration::enableInterrupt_TIMER0_OVF)
+		Interrupt::invoke<TIMER0_OVF_vect_num>();
+}
+
+#endif
+#endif
+
+//TIMER2 OVF
+#if ISRTYPE_TIMER2_OVF != NONE
+#if ISRTYPE_TIMER2_OVF == BLOCK
+
+ISR(TIMER2_OVF_vect, ISR_BLOCK) {
+	if (Configuration::enableInterrupt_TIMER2_OVF)
+		Interrupt::invoke<TIMER2_OVF_vect_num>();
+}
+
+#elif ISRTYPE_TIMER2_OVF == NOBLOCK
+
+ISR(TIMER2_OVF_vect, ISR_NOBLOCK) {
+	if (Configuration::enableInterrupt_TIMER2_OVF)
+		Interrupt::invoke<TIMER2_OVF_vect_num>();
 }
 
 #endif
