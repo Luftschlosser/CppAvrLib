@@ -39,9 +39,9 @@ namespace Configuration {
 	static constexpr bool enableInterrupt_TIMER0_OC_A	= true;
 	static constexpr bool enableInterrupt_TIMER0_OC_B	= true;
 	static constexpr bool enableInterrupt_TIMER0_OVF	= true;
-	static constexpr bool enableInterrupt_TIMER2_OC_A	= false;
-	static constexpr bool enableInterrupt_TIMER2_OC_B	= false;
-	static constexpr bool enableInterrupt_TIMER2_OVF	= false;
+	static constexpr bool enableInterrupt_TIMER2_OC_A	= true;
+	static constexpr bool enableInterrupt_TIMER2_OC_B	= true;
+	static constexpr bool enableInterrupt_TIMER2_OVF	= true;
 }
 
 

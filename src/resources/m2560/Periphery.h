@@ -10,6 +10,7 @@
 #include "../periphery/Usart.h"
 #include "../periphery/GeneralPurposeRegister.h"
 #include "../periphery/Timer8bit.h"
+#include "../periphery/Timer8bitAsync.h"
 
 #include "../periphery/secondary/InterruptPin.h"
 #include "../periphery/secondary/Pin.h"
@@ -56,6 +57,10 @@ namespace Periphery {
 		Timer8bit::Registers& registers = *(reinterpret_cast<Timer8bit::Registers*>(AddressMap::getTimer8bitAdress<Index>()));
 		return Timer8bit(registers, Index, (Index == 0 ? 0 : 1));
 	}
+	inline Timer8bitAsync getTimer8bitAsync() noexcept {
+		Timer8bit::Registers& registers = *(reinterpret_cast<Timer8bit::Registers*>(AddressMap::getTimer8bitAdress<2>()));
+		return Timer8bitAsync(registers, 2);
+	}
 
 	//Access to secondary Periphery
 	template <unsigned char PortIndex, uint8_t PinIndex> inline Pin getPin() noexcept {
@@ -93,11 +98,17 @@ namespace Periphery {
 	}
 	inline Pin getTimer8bitExternalClockPin(uint8_t timerIndex) noexcept {
 		if (timerIndex == 0) { //timerIndex == 0 -> This one has a synchronous external clock input. (T0)
-			return Pin(getPort<'D'>(),7);
+			return Pin(getPort<'D'>(), 7);
 		}
 		else { //timerIndex == 2 (only other 8bit Timer on this µC) -> This one has an asynchronous external clock input. (TOSC1)
-			return Pin(getPort<'G'>(),4);
+			return Pin(getPort<'G'>(), 4);
 		}
+	}
+	inline Pin getTimer8bitAsyncOscillatorPin1() noexcept {
+		return Pin(getPort<'G'>(), 4);
+	}
+	inline Pin getTimer8bitAsyncOscillatorPin2() noexcept {
+		return Pin(getPort<'G'>(), 3);
 	}
 
 	///Get the total number of instances of a periphery type.
