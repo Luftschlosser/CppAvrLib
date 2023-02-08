@@ -11,6 +11,7 @@
 #include "../periphery/GeneralPurposeRegister.h"
 #include "../periphery/Timer8bit.h"
 #include "../periphery/Timer8bitAsync.h"
+#include "../periphery/Timer16bit.h"
 
 #include "../periphery/secondary/InterruptPin.h"
 #include "../periphery/secondary/Pin.h"
@@ -42,6 +43,11 @@ namespace Periphery {
 	static GeneralPurposeRegister& gpior1 = *(reinterpret_cast<GeneralPurposeRegister*>(ADR_GPIOR1));
 	static GeneralPurposeRegister& gpior2 = *(reinterpret_cast<GeneralPurposeRegister*>(ADR_GPIOR2));
 
+	static Timer16bit& timer1 = *(reinterpret_cast<Timer16bit*>(ADR_TIMER1));
+	static Timer16bit& timer3 = *(reinterpret_cast<Timer16bit*>(ADR_TIMER3));
+	static Timer16bit& timer4 = *(reinterpret_cast<Timer16bit*>(ADR_TIMER4));
+	static Timer16bit& timer5 = *(reinterpret_cast<Timer16bit*>(ADR_TIMER5));
+
 
 	//Access to MMIO Periphery
 	template <unsigned char Index> inline Port& getPort() noexcept {
@@ -60,6 +66,9 @@ namespace Periphery {
 	inline Timer8bitAsync getTimer8bitAsync() noexcept {
 		Timer8bit::Registers& registers = *(reinterpret_cast<Timer8bit::Registers*>(AddressMap::getTimer8bitAdress<2>()));
 		return Timer8bitAsync(registers, 2);
+	}
+	template <uint8_t Index> inline Timer16bit& getTimer16bit() noexcept {
+		return *(reinterpret_cast<Timer16bit*>(AddressMap::getTimer16bitAdress<Index>()));
 	}
 
 	//Access to secondary Periphery
@@ -110,6 +119,67 @@ namespace Periphery {
 	inline Pin getTimer8bitAsyncOscillatorPin2() noexcept {
 		return Pin(getPort<'G'>(), 3);
 	}
+	template <char Channel> inline Pin getTimer16bitCompareOutputPin(uint8_t timerIndex) noexcept;
+	template <> inline Pin getTimer16bitCompareOutputPin<'A'>(uint8_t timerIndex) noexcept {
+		switch (timerIndex) {
+		case 1:
+			return Pin(getPort<'B'>(), 5);
+		case 3:
+			return Pin(getPort<'E'>(), 3);
+		case 4:
+			return Pin(getPort<'H'>(), 3);
+		default: //5
+			return Pin(getPort<'L'>(), 3);
+		}
+	}
+	template <> inline Pin getTimer16bitCompareOutputPin<'B'>(uint8_t timerIndex) noexcept {
+		switch (timerIndex) {
+		case 1:
+			return Pin(getPort<'B'>(), 6);
+		case 3:
+			return Pin(getPort<'E'>(), 4);
+		case 4:
+			return Pin(getPort<'H'>(), 4);
+		default: //5
+			return Pin(getPort<'L'>(), 4);
+		}
+	}
+	template <> inline Pin getTimer16bitCompareOutputPin<'C'>(uint8_t timerIndex) noexcept {
+		switch (timerIndex) {
+		case 1:
+			return Pin(getPort<'B'>(), 7);
+		case 3:
+			return Pin(getPort<'E'>(), 5);
+		case 4:
+			return Pin(getPort<'H'>(), 5);
+		default: //5
+			return Pin(getPort<'L'>(), 5);
+		}
+	}
+	inline Pin getTimer16bitExternalClockPin(uint8_t timerIndex) noexcept {
+		switch (timerIndex) {
+		case 1:
+			return Pin(getPort<'D'>(), 6);
+		case 3:
+			return Pin(getPort<'E'>(), 6);
+		case 4:
+			return Pin(getPort<'H'>(), 7);
+		default: //5
+			return Pin(getPort<'L'>(), 2);
+		}
+	}
+	inline Pin getTimer16bitInputCapturePin(uint8_t timerIndex) noexcept {
+		switch (timerIndex) {
+		case 1:
+			return Pin(getPort<'D'>(), 4);
+		case 3:
+			return Pin(getPort<'E'>(), 7);
+		case 4:
+			return Pin(getPort<'L'>(), 0);
+		default: //5
+			return Pin(getPort<'L'>(), 1);
+		}
+	}
 
 	///Get the total number of instances of a periphery type.
 	///\return The total number of instances of the template-specified type [0-n]
@@ -121,6 +191,7 @@ namespace Periphery {
 	template <> inline constexpr uint8_t getCapacity<InterruptPin>() noexcept { return 8; }
 	template <> inline constexpr uint8_t getCapacity<GeneralPurposeFlag>() noexcept { return 8 * getCapacity<GeneralPurposeRegister>(); }
 	template <> inline constexpr uint8_t getCapacity<Timer8bit>() noexcept { return 2; }
+	template <> inline constexpr uint8_t getCapacity<Timer16bit>() noexcept { return 4; }
 }
 
 #endif /* SRC_RESOURCES_M2560_PERIPHERY_H_ */

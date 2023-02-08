@@ -1,0 +1,8 @@
+Things to consider:
+
+- Timer8bit & Timer8bitAsync -> inheritance (nested mmio class) or separate classes? (both mmio, clean coding paradigma, but shared ressources)
+- How to handle Pin access & allocation by periphery?
+- How to access & enable/disable interrupts connected to a periphery?
+- Circular Depency Port <- Pin <- InterruptPin ... ??? Don't remember...
+
+- comment style?

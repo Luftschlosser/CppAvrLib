@@ -39,9 +39,29 @@ namespace Configuration {
 	static constexpr bool enableInterrupt_TIMER0_OC_A	= true;
 	static constexpr bool enableInterrupt_TIMER0_OC_B	= true;
 	static constexpr bool enableInterrupt_TIMER0_OVF	= true;
+	static constexpr bool enableInterrupt_TIMER1_OC_A	= true;
+	static constexpr bool enableInterrupt_TIMER1_OC_B	= true;
+	static constexpr bool enableInterrupt_TIMER1_OC_C	= true;
+	static constexpr bool enableInterrupt_TIMER1_OVF	= true;
+	static constexpr bool enableInterrupt_TIMER1_CAPT	= false;
 	static constexpr bool enableInterrupt_TIMER2_OC_A	= true;
 	static constexpr bool enableInterrupt_TIMER2_OC_B	= true;
 	static constexpr bool enableInterrupt_TIMER2_OVF	= true;
+	static constexpr bool enableInterrupt_TIMER3_OC_A	= true;
+	static constexpr bool enableInterrupt_TIMER3_OC_B	= true;
+	static constexpr bool enableInterrupt_TIMER3_OC_C	= true;
+	static constexpr bool enableInterrupt_TIMER3_OVF	= true;
+	static constexpr bool enableInterrupt_TIMER3_CAPT	= false;
+	static constexpr bool enableInterrupt_TIMER4_OC_A	= true;
+	static constexpr bool enableInterrupt_TIMER4_OC_B	= true;
+	static constexpr bool enableInterrupt_TIMER4_OC_C	= true;
+	static constexpr bool enableInterrupt_TIMER4_OVF	= true;
+	static constexpr bool enableInterrupt_TIMER4_CAPT	= false;
+	static constexpr bool enableInterrupt_TIMER5_OC_A	= true;
+	static constexpr bool enableInterrupt_TIMER5_OC_B	= true;
+	static constexpr bool enableInterrupt_TIMER5_OC_C	= true;
+	static constexpr bool enableInterrupt_TIMER5_OVF	= true;
+	static constexpr bool enableInterrupt_TIMER5_CAPT	= false;
 }
 
 

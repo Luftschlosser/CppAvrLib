@@ -46,14 +46,38 @@ namespace Interrupts {
 	template <uint8_t Index, char Channel> inline Interrupt getTimerOcInterrupt() noexcept;
 	template <> inline Interrupt getTimerOcInterrupt<0, 'A'>() noexcept { return Interrupt::GetInstance<TIMER0_COMPA_vect_num>(); }
 	template <> inline Interrupt getTimerOcInterrupt<0, 'B'>() noexcept { return Interrupt::GetInstance<TIMER0_COMPB_vect_num>(); }
+	template <> inline Interrupt getTimerOcInterrupt<1, 'A'>() noexcept { return Interrupt::GetInstance<TIMER1_COMPA_vect_num>(); }
+	template <> inline Interrupt getTimerOcInterrupt<1, 'B'>() noexcept { return Interrupt::GetInstance<TIMER1_COMPB_vect_num>(); }
+	template <> inline Interrupt getTimerOcInterrupt<1, 'C'>() noexcept { return Interrupt::GetInstance<TIMER1_COMPC_vect_num>(); }
 	template <> inline Interrupt getTimerOcInterrupt<2, 'A'>() noexcept { return Interrupt::GetInstance<TIMER2_COMPA_vect_num>(); }
 	template <> inline Interrupt getTimerOcInterrupt<2, 'B'>() noexcept { return Interrupt::GetInstance<TIMER2_COMPB_vect_num>(); }
+	template <> inline Interrupt getTimerOcInterrupt<3, 'A'>() noexcept { return Interrupt::GetInstance<TIMER3_COMPA_vect_num>(); }
+	template <> inline Interrupt getTimerOcInterrupt<3, 'B'>() noexcept { return Interrupt::GetInstance<TIMER3_COMPB_vect_num>(); }
+	template <> inline Interrupt getTimerOcInterrupt<3, 'C'>() noexcept { return Interrupt::GetInstance<TIMER3_COMPC_vect_num>(); }
+	template <> inline Interrupt getTimerOcInterrupt<4, 'A'>() noexcept { return Interrupt::GetInstance<TIMER4_COMPA_vect_num>(); }
+	template <> inline Interrupt getTimerOcInterrupt<4, 'B'>() noexcept { return Interrupt::GetInstance<TIMER4_COMPB_vect_num>(); }
+	template <> inline Interrupt getTimerOcInterrupt<4, 'C'>() noexcept { return Interrupt::GetInstance<TIMER4_COMPC_vect_num>(); }
+	template <> inline Interrupt getTimerOcInterrupt<5, 'A'>() noexcept { return Interrupt::GetInstance<TIMER5_COMPA_vect_num>(); }
+	template <> inline Interrupt getTimerOcInterrupt<5, 'B'>() noexcept { return Interrupt::GetInstance<TIMER5_COMPB_vect_num>(); }
+	template <> inline Interrupt getTimerOcInterrupt<5, 'C'>() noexcept { return Interrupt::GetInstance<TIMER5_COMPC_vect_num>(); }
 
 	///Access the Timer Overflow Interrupt object for the template specified Timer device
 	///\return A reference to the Interrupt object
 	template <uint8_t Index> inline Interrupt getTimerOvfInterrupt() noexcept;
 	template <> inline Interrupt getTimerOvfInterrupt<0>() noexcept { return Interrupt::GetInstance<TIMER0_OVF_vect_num>(); }
+	template <> inline Interrupt getTimerOvfInterrupt<1>() noexcept { return Interrupt::GetInstance<TIMER1_OVF_vect_num>(); }
 	template <> inline Interrupt getTimerOvfInterrupt<2>() noexcept { return Interrupt::GetInstance<TIMER2_OVF_vect_num>(); }
+	template <> inline Interrupt getTimerOvfInterrupt<3>() noexcept { return Interrupt::GetInstance<TIMER3_OVF_vect_num>(); }
+	template <> inline Interrupt getTimerOvfInterrupt<4>() noexcept { return Interrupt::GetInstance<TIMER4_OVF_vect_num>(); }
+	template <> inline Interrupt getTimerOvfInterrupt<5>() noexcept { return Interrupt::GetInstance<TIMER5_OVF_vect_num>(); }
+
+	///Access the Tiimer Input Capture Interrupt object for the template specified Timer device
+	///\return A reference to the Interrupt object
+	template <uint8_t Index> inline Interrupt getTimerCaptInterrupt() noexcept;
+	template <> inline Interrupt getTimerCaptInterrupt<1>() noexcept { return Interrupt::GetInstance<TIMER1_CAPT_vect_num>(); }
+	template <> inline Interrupt getTimerCaptInterrupt<3>() noexcept { return Interrupt::GetInstance<TIMER3_CAPT_vect_num>(); }
+	template <> inline Interrupt getTimerCaptInterrupt<4>() noexcept { return Interrupt::GetInstance<TIMER4_CAPT_vect_num>(); }
+	template <> inline Interrupt getTimerCaptInterrupt<5>() noexcept { return Interrupt::GetInstance<TIMER5_CAPT_vect_num>(); }
 }
 
 

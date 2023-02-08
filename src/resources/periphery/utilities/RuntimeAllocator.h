@@ -12,6 +12,7 @@ class Usart;
 class GeneralPurposeRegister;
 class GeneralPurposeFlag;
 class Timer8bit;
+class Timer16bit;
 
 
 namespace RuntimeAllocator {
@@ -22,6 +23,7 @@ namespace RuntimeAllocator {
 	bool allocate(const GeneralPurposeRegister* object) noexcept;
 	bool allocate(const GeneralPurposeFlag* object) noexcept;
 	bool allocate(const Timer8bit* object) noexcept;
+	bool allocate(const Timer16bit* object) noexcept;
 
 	void deallocate(const Port* object) noexcept;
 	void deallocate(const Pin* object) noexcept;
@@ -29,6 +31,7 @@ namespace RuntimeAllocator {
 	void deallocate(const GeneralPurposeRegister* object) noexcept;
 	void deallocate(const GeneralPurposeFlag* object) noexcept;
 	void deallocate(const Timer8bit* object) noexcept;
+	void deallocate(const Timer16bit* object) noexcept;
 
 	bool isAllocated(const Port* object) noexcept;
 	bool isAllocated(const Pin* object) noexcept;
@@ -36,6 +39,7 @@ namespace RuntimeAllocator {
 	bool isAllocated(const GeneralPurposeRegister* object) noexcept;
 	bool isAllocated(const GeneralPurposeFlag* object) noexcept;
 	bool isAllocated(const Timer8bit* object) noexcept;
+	bool isAllocated(const Timer16bit* object) noexcept;
 }
 
 

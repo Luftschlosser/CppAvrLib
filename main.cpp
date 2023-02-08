@@ -5,7 +5,7 @@
 
 
 const Pin led = Periphery::getPin<'B', 6>();
-const Timer8bit timer = Periphery::getTimer8bit<2>();
+Timer16bit& timer = Periphery::getTimer16bit<5>();
 
 class Log final {
 private:
@@ -49,7 +49,6 @@ public:
 		while (!ready);
 		usart.write(c);
 		while (!usart.isTransmitComplete());
-		led.setLow();
 		usart.clearTransmitComplete();
 	}
 
@@ -73,8 +72,8 @@ void toggle() {
 void incPwm() {
 	static uint8_t value = 0;
 	value++;
-	timer.setOutputCompareValue<'A'>(value);
-	timer.setOutputCompareValue<'B'>(value);
+	timer.setOutputCompareValue<'A'>((uint16_t)value);
+	timer.setOutputCompareValue<'B'>((uint16_t)value);
 }
 
 int main (void) noexcept
@@ -86,24 +85,23 @@ int main (void) noexcept
 	led.setMode(Pin::Mode::OUTPUT);
 
 	timer.init();
-	Interrupt tov = Interrupts::getTimerOvfInterrupt<2>();
+	Interrupt tov = Interrupts::getTimerOvfInterrupt<5>();
 	tov.registerFunction<&incPwm>();
 	timer.enableTimerOverflowInterrupt();
-	timer.setWaveformGenerationMode(Timer8bit::WaveformGenerationMode::PWM_FAST_0XFF);
-	timer.setOutputCompareValue<'A'>(128);
-	timer.setOutputCompareValue<'B'>(128);
-	timer.setCompareOutputMode<'A'>(Timer8bit::CompareOutputMode::CLEAR);
-	timer.setCompareOutputMode<'B'>(Timer8bit::CompareOutputMode::SET);
-	timer.setClockSelect(Timer8bit::ClockSelect::PRESCALE_128a);
+	timer.setWaveformGenerationMode(Timer16bit::WaveformGenerationMode::PWM_FAST_0X00FF);
+	timer.setOutputCompareValue<'A'>(5);
+	timer.setOutputCompareValue<'B'>(5);
+	timer.setCompareOutputMode<'A'>(Timer16bit::CompareOutputMode::CLEAR);
+	timer.setCompareOutputMode<'B'>(Timer16bit::CompareOutputMode::SET);
+	timer.setClockSelect(Timer16bit::ClockSelect::PRESCALE_256);
 
     // Main-loop
     while (1)
     {
-    	//_delay_ms(5000);
-		//led.setHigh();
-		//led.setHigh();
-		//log.write("\nHello");
-		//_delay_ms(500);
-		//led.setLow();
+    	_delay_ms(500);
+		led.setHigh();
+		log.write("\n\rHello ");
+		_delay_ms(500);
+		led.setLow();
     }
 }

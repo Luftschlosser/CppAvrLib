@@ -36,9 +36,29 @@
 #define ISRTYPE_TIMER0_OCA	ISR_BLOCK
 #define ISRTYPE_TIMER0_OCB	ISR_BLOCK
 #define ISRTYPE_TIMER0_OVF	ISR_BLOCK
+#define ISRTYPE_TIMER1_OCA	ISR_BLOCK
+#define ISRTYPE_TIMER1_OCB	ISR_BLOCK
+#define ISRTYPE_TIMER1_OCC	ISR_BLOCK
+#define ISRTYPE_TIMER1_OVF	ISR_BLOCK
+#define ISRTYPE_TIMER1_CAPT	ISR_BLOCK
 #define ISRTYPE_TIMER2_OCA	ISR_BLOCK
 #define ISRTYPE_TIMER2_OCB	ISR_BLOCK
 #define ISRTYPE_TIMER2_OVF	ISR_BLOCK
+#define ISRTYPE_TIMER3_OCA	ISR_BLOCK
+#define ISRTYPE_TIMER3_OCB	ISR_BLOCK
+#define ISRTYPE_TIMER3_OCC	ISR_BLOCK
+#define ISRTYPE_TIMER3_OVF	ISR_BLOCK
+#define ISRTYPE_TIMER3_CAPT	ISR_BLOCK
+#define ISRTYPE_TIMER4_OCA	ISR_BLOCK
+#define ISRTYPE_TIMER4_OCB	ISR_BLOCK
+#define ISRTYPE_TIMER4_OCC	ISR_BLOCK
+#define ISRTYPE_TIMER4_OVF	ISR_BLOCK
+#define ISRTYPE_TIMER4_CAPT	ISR_BLOCK
+#define ISRTYPE_TIMER5_OCA	ISR_BLOCK
+#define ISRTYPE_TIMER5_OCB	ISR_BLOCK
+#define ISRTYPE_TIMER5_OCC	ISR_BLOCK
+#define ISRTYPE_TIMER5_OVF	ISR_BLOCK
+#define ISRTYPE_TIMER5_CAPT	ISR_BLOCK
 
 
 //___________________________________
@@ -224,6 +244,30 @@ ISR(TIMER0_COMPB_vect, ISRTYPE_TIMER0_OCB) {
 }
 #endif
 
+//TIMER1 OCA
+#ifdef ISRTYPE_TIMER1_OCA
+ISR(TIMER1_COMPA_vect, ISRTYPE_TIMER1_OCA) {
+	if (Configuration::enableInterrupt_TIMER1_OC_A)
+		Interrupt::invoke<TIMER1_COMPA_vect_num>();
+}
+#endif
+
+//TIMER1 OCB
+#ifdef ISRTYPE_TIMER1_OCB
+ISR(TIMER1_COMPB_vect, ISRTYPE_TIMER1_OCB) {
+	if (Configuration::enableInterrupt_TIMER1_OC_B)
+		Interrupt::invoke<TIMER1_COMPB_vect_num>();
+}
+#endif
+
+//TIMER1 OCC
+#ifdef ISRTYPE_TIMER1_OCC
+ISR(TIMER1_COMPC_vect, ISRTYPE_TIMER1_OCC) {
+	if (Configuration::enableInterrupt_TIMER1_OC_C)
+		Interrupt::invoke<TIMER1_COMPC_vect_num>();
+}
+#endif
+
 //TIMER2 OCA
 #ifdef ISRTYPE_TIMER2_OCA
 ISR(TIMER2_COMPA_vect, ISRTYPE_TIMER2_OCA) {
@@ -240,6 +284,78 @@ ISR(TIMER2_COMPB_vect, ISRTYPE_TIMER2_OCB) {
 }
 #endif
 
+//TIMER3 OCA
+#ifdef ISRTYPE_TIMER3_OCA
+ISR(TIMER3_COMPA_vect, ISRTYPE_TIMER3_OCA) {
+	if (Configuration::enableInterrupt_TIMER3_OC_A)
+		Interrupt::invoke<TIMER3_COMPA_vect_num>();
+}
+#endif
+
+//TIMER3 OCB
+#ifdef ISRTYPE_TIMER3_OCB
+ISR(TIMER3_COMPB_vect, ISRTYPE_TIMER3_OCB) {
+	if (Configuration::enableInterrupt_TIMER3_OC_B)
+		Interrupt::invoke<TIMER3_COMPB_vect_num>();
+}
+#endif
+
+//TIMER3 OCC
+#ifdef ISRTYPE_TIMER3_OCC
+ISR(TIMER3_COMPC_vect, ISRTYPE_TIMER3_OCC) {
+	if (Configuration::enableInterrupt_TIMER3_OC_C)
+		Interrupt::invoke<TIMER3_COMPC_vect_num>();
+}
+#endif
+
+//TIMER4 OCA
+#ifdef ISRTYPE_TIMER4_OCA
+ISR(TIMER4_COMPA_vect, ISRTYPE_TIMER4_OCA) {
+	if (Configuration::enableInterrupt_TIMER4_OC_A)
+		Interrupt::invoke<TIMER4_COMPA_vect_num>();
+}
+#endif
+
+//TIMER4 OCB
+#ifdef ISRTYPE_TIMER4_OCB
+ISR(TIMER4_COMPB_vect, ISRTYPE_TIMER4_OCB) {
+	if (Configuration::enableInterrupt_TIMER4_OC_B)
+		Interrupt::invoke<TIMER4_COMPB_vect_num>();
+}
+#endif
+
+//TIMER4 OCC
+#ifdef ISRTYPE_TIMER4_OCC
+ISR(TIMER4_COMPC_vect, ISRTYPE_TIMER4_OCC) {
+	if (Configuration::enableInterrupt_TIMER4_OC_C)
+		Interrupt::invoke<TIMER4_COMPC_vect_num>();
+}
+#endif
+
+//TIMER5 OCA
+#ifdef ISRTYPE_TIMER5_OCA
+ISR(TIMER5_COMPA_vect, ISRTYPE_TIMER5_OCA) {
+	if (Configuration::enableInterrupt_TIMER5_OC_A)
+		Interrupt::invoke<TIMER5_COMPA_vect_num>();
+}
+#endif
+
+//TIMER5 OCB
+#ifdef ISRTYPE_TIMER5_OCB
+ISR(TIMER5_COMPB_vect, ISRTYPE_TIMER5_OCB) {
+	if (Configuration::enableInterrupt_TIMER5_OC_B)
+		Interrupt::invoke<TIMER5_COMPB_vect_num>();
+}
+#endif
+
+//TIMER5 OCC
+#ifdef ISRTYPE_TIMER5_OCC
+ISR(TIMER5_COMPC_vect, ISRTYPE_TIMER5_OCC) {
+	if (Configuration::enableInterrupt_TIMER5_OC_C)
+		Interrupt::invoke<TIMER5_COMPC_vect_num>();
+}
+#endif
+
 //___________________________________
 //Timer	OVF
 
@@ -251,10 +367,77 @@ ISR(TIMER0_OVF_vect, ISRTYPE_TIMER0_OVF) {
 }
 #endif
 
+//TIMER1 OVF
+#ifdef ISRTYPE_TIMER1_OVF
+ISR(TIMER1_OVF_vect, ISRTYPE_TIMER1_OVF) {
+	if (Configuration::enableInterrupt_TIMER1_OVF)
+		Interrupt::invoke<TIMER1_OVF_vect_num>();
+}
+#endif
+
 //TIMER2 OVF
 #ifdef ISRTYPE_TIMER2_OVF
 ISR(TIMER2_OVF_vect, ISRTYPE_TIMER2_OVF) {
 	if (Configuration::enableInterrupt_TIMER2_OVF)
 		Interrupt::invoke<TIMER2_OVF_vect_num>();
+}
+#endif
+
+//TIMER3 OVF
+#ifdef ISRTYPE_TIMER3_OVF
+ISR(TIMER3_OVF_vect, ISRTYPE_TIMER3_OVF) {
+	if (Configuration::enableInterrupt_TIMER3_OVF)
+		Interrupt::invoke<TIMER3_OVF_vect_num>();
+}
+#endif
+
+//TIMER4 OVF
+#ifdef ISRTYPE_TIMER4_OVF
+ISR(TIMER4_OVF_vect, ISRTYPE_TIMER4_OVF) {
+	if (Configuration::enableInterrupt_TIMER4_OVF)
+		Interrupt::invoke<TIMER4_OVF_vect_num>();
+}
+#endif
+
+//TIMER5 OVF
+#ifdef ISRTYPE_TIMER5_OVF
+ISR(TIMER5_OVF_vect, ISRTYPE_TIMER5_OVF) {
+	if (Configuration::enableInterrupt_TIMER5_OVF)
+		Interrupt::invoke<TIMER5_OVF_vect_num>();
+}
+#endif
+
+//___________________________________
+//Timer	CAPT
+
+//TIMER1 CAPT
+#ifdef ISRTYPE_TIMER1_CAPT
+ISR(TIMER1_CAPT_vect, ISRTYPE_TIMER1_CAPT) {
+	if (Configuration::enableInterrupt_TIMER1_CAPT)
+		Interrupt::invoke<TIMER1_CAPT_vect_num>();
+}
+#endif
+
+//TIMER3 CAPT
+#ifdef ISRTYPE_TIMER3_CAPT
+ISR(TIMER3_CAPT_vect, ISRTYPE_TIMER3_CAPT) {
+	if (Configuration::enableInterrupt_TIMER3_CAPT)
+		Interrupt::invoke<TIMER3_CAPT_vect_num>();
+}
+#endif
+
+//TIMER4 CAPT
+#ifdef ISRTYPE_TIMER4_CAPT
+ISR(TIMER4_CAPT_vect, ISRTYPE_TIMER4_CAPT) {
+	if (Configuration::enableInterrupt_TIMER4_CAPT)
+		Interrupt::invoke<TIMER4_CAPT_vect_num>();
+}
+#endif
+
+//TIMER5 CAPT
+#ifdef ISRTYPE_TIMER5_CAPT
+ISR(TIMER5_CAPT_vect, ISRTYPE_TIMER5_CAPT) {
+	if (Configuration::enableInterrupt_TIMER5_CAPT)
+		Interrupt::invoke<TIMER5_CAPT_vect_num>();
 }
 #endif

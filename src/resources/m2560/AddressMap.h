@@ -46,7 +46,7 @@
 class Port;
 class Usart;
 class GeneralPurposeRegister;
-
+class Timer16bit;
 
 ///Functions for bidirectional pointer<->index evaluations of the MMIO-Periphery for the ATmega2560
 namespace AddressMap {
@@ -81,6 +81,19 @@ namespace AddressMap {
 			return ptr - 0x49;
 		}
 	}
+	inline uint8_t getIdentity(const Timer16bit* periphery) noexcept {
+		const intptr_t ptr = reinterpret_cast<intptr_t>(periphery);
+		if (ptr == 0x120) { //5
+			return 5;
+		}
+		else { //1,3,4
+			uint8_t returnBuf = (ptr/0x10)-0x06;
+			if (returnBuf == 2) {
+				returnBuf--;
+			}
+			return returnBuf;
+		}
+	}
 
 	///index -> Address for the template-specified type
 	template <unsigned char Index> inline constexpr intptr_t getPortAdress() noexcept;
@@ -111,6 +124,11 @@ namespace AddressMap {
 	template <> inline constexpr intptr_t getTimer8bitAdress<0>() noexcept { return ADR_TIMER0; }
 	template <> inline constexpr intptr_t getTimer8bitAdress<2>() noexcept { return ADR_TIMER2; }
 
+	template <uint8_t Index> inline constexpr intptr_t getTimer16bitAdress() noexcept;
+	template <> inline constexpr intptr_t getTimer16bitAdress<1>() noexcept { return ADR_TIMER1; }
+	template <> inline constexpr intptr_t getTimer16bitAdress<3>() noexcept { return ADR_TIMER3; }
+	template <> inline constexpr intptr_t getTimer16bitAdress<4>() noexcept { return ADR_TIMER4; }
+	template <> inline constexpr intptr_t getTimer16bitAdress<5>() noexcept { return ADR_TIMER5; }
 
 	inline constexpr intptr_t getRegisterTIFR(uint8_t index) noexcept { return ADR_TIFR + index; }
 	inline constexpr intptr_t getRegisterTIMSK(uint8_t index) noexcept { return ADR_TIMSK + index; }

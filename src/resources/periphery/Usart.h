@@ -7,6 +7,10 @@
 #include "utilities/RuntimeAllocator.h"
 
 
+//TODO: allocate Pins when used by USART!
+//TODO: add 'getExternalClockInputPin!-method (XCKn Pins)
+
+
 ///MMIO Abstraction of the USARTs
 class Usart final {
 
@@ -210,7 +214,7 @@ public:
 	inline void setStopBits(UCSRC::FIELDS::StopBitsUSBS mode) noexcept { this->regUCSRC.fields.flagUSBS = mode; }
 
 	///Sets the character size [5-9]
-	inline void setCharacterSize(const uint8_t size) noexcept {
+	inline void setCharacterSize(const uint8_t size) noexcept { //TODO: change to safe template-version
 		if (size >= 5 && size <= 8) {
 			this->regUCSRB.fields.flagUCSZ2 = 0;
 			this->regUCSRC.fields.dataUCSZ = size - 5;
@@ -234,7 +238,7 @@ public:
 	inline void write(char data) noexcept { this->regUDR = data; }
 
 	///Writes data to the transmit buffer (up to nine Bits)
-	inline void write(uint16_t data) noexcept {
+	inline void write(uint16_t data) noexcept { //TODO: Check if atomic block is necessary?
 		uint8_t first = data;
 		uint8_t last = data >> 8;
 		this->regUDR = first;

@@ -50,8 +50,8 @@ public:
 			struct FIELDS {
 				volatile uint8_t dataWGM01 : 2; //Waveform generation mode control bits [0-1]
 				volatile const uint8_t reserved : 2;
-				volatile uint8_t dataCOMA : 2; //Compare output mode A
 				volatile uint8_t dataCOMB : 2; //Compare output mode B
+				volatile uint8_t dataCOMA : 2; //Compare output mode A
 			} fields;
 			volatile uint8_t reg;
 		} regTCCRA;
@@ -62,8 +62,8 @@ public:
 				volatile uint8_t dataCS : 3; //Clock select
 				volatile uint8_t flagWGM2 : 1; //Waveform generation mode control bit [2]
 				volatile const uint8_t reserved : 2;
-				volatile uint8_t flagFOCA : 1; //Force output compare A
 				volatile uint8_t flagFOCB : 1; //Force output compare B
+				volatile uint8_t flagFOCA : 1; //Force output compare A
 			} fields;
 			volatile uint8_t reg;
 		} regTCCRB;
@@ -118,7 +118,7 @@ public:
 	///Enumeration to describe the Clock Selection Mode (Caution, some only work on synchronous/asynchronous Timers, Read more in the µC's documentation)
 	enum ClockSelect : uint8_t {
 		NONE,
-		PRESCALE_0,
+		PRESCALE_1,
 		PRESCALE_8,
 		PRESCALE_32a, 	//Only available on asynchronous Timer
 		PRESCALE_64,
@@ -227,7 +227,7 @@ public:
 			case NONE:
 				this->registers.regTCCRB.fields.dataCS = 0x00;
 				break;
-			case PRESCALE_0:
+			case PRESCALE_1:
 				this->registers.regTCCRB.fields.dataCS = 0x01;
 				break;
 			case PRESCALE_8:
@@ -258,7 +258,7 @@ public:
 			case NONE:
 				this->registers.regTCCRB.fields.dataCS = 0x00;
 				break;
-			case PRESCALE_0:
+			case PRESCALE_1:
 				this->registers.regTCCRB.fields.dataCS = 0x01;
 				break;
 			case PRESCALE_8:

@@ -67,6 +67,11 @@ bool RuntimeAllocator::allocate(const Timer8bit* object) noexcept { //Allocates 
 	return allocateBit(timerUsage, index);
 }
 
+bool RuntimeAllocator::allocate(const Timer16bit* object) noexcept { //Allocates part of underlying GeneralPurposeRegister
+	uint8_t index = AddressMap::getIdentity(object);
+	return allocateBit(timerUsage, index);
+}
+
 //-------------------------------------------------------------------------------------------
 
 void RuntimeAllocator::deallocate(const Port* object) noexcept {
@@ -98,6 +103,11 @@ void RuntimeAllocator::deallocate(const GeneralPurposeFlag* object) noexcept { /
 
 void RuntimeAllocator::deallocate(const Timer8bit* object) noexcept {
 	uint8_t index = object->timerIndex;
+	timerUsage &= ~(1 << index);
+}
+
+void RuntimeAllocator::deallocate(const Timer16bit* object) noexcept {
+	uint8_t index = AddressMap::getIdentity(object);
 	timerUsage &= ~(1 << index);
 }
 
@@ -134,3 +144,9 @@ bool RuntimeAllocator::isAllocated(const Timer8bit* object) noexcept {
 	uint8_t index = object->timerIndex;
 	return timerUsage & (1 << index);
 }
+
+bool RuntimeAllocator::isAllocated(const Timer16bit* object) noexcept {
+	uint8_t index = AddressMap::getIdentity(object);
+	return timerUsage & (1 << index);
+}
+
