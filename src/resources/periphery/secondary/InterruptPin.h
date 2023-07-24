@@ -12,7 +12,7 @@ namespace Periphery {
 }
 
 
-//Wraps external PCINT interrupt
+//Wraps external INTn interrupt
 class InterruptPin final : public Pin {
 	template <uint8_t Index> friend inline InterruptPin Periphery::getInterruptPin(); //Allows Constructor-Access for Factory-Function
 

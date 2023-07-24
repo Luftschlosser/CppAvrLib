@@ -20,6 +20,10 @@
 #define ISRTYPE_EXT_INT6 	ISR_BLOCK
 #define ISRTYPE_EXT_INT7 	ISR_BLOCK
 
+#define ISRTYPE_PCINT0		ISR_BLOCK
+#define ISRTYPE_PCINT1		ISR_BLOCK
+#define ISRTYPE_PCINT2		ISR_BLOCK
+
 #define ISRTYPE_USART0_RX 	ISR_BLOCK
 #define ISRTYPE_USART0_TX 	ISR_BLOCK
 #define ISRTYPE_USART0_UDRE	ISR_BLOCK
@@ -117,6 +121,30 @@ ISR(INT6_vect, ISRTYPE_EXT_INT6) {
 ISR(INT7_vect, ISRTYPE_EXT_INT7) {
 	if (Configuration::enableInterrupt_EXT_INT7)
 		Interrupt::invoke<INT7_vect_num>();
+}
+#endif
+
+//___________________________________
+//PinChange Interrupts
+
+#ifdef ISRTYPE_PCINT0
+ISR(PCINT0_vect, ISRTYPE_PCINT0) {
+	if (Configuration::enableInterrupt_PCINT0)
+		Interrupt::invoke<PCINT0_vect_num>();
+}
+#endif
+
+#ifdef ISRTYPE_PCINT1
+ISR(PCINT1_vect, ISRTYPE_PCINT1) {
+	if (Configuration::enableInterrupt_PCINT1)
+		Interrupt::invoke<PCINT1_vect_num>();
+}
+#endif
+
+#ifdef ISRTYPE_PCINT2
+ISR(PCINT2_vect, ISRTYPE_PCINT2) {
+	if (Configuration::enableInterrupt_PCINT2)
+		Interrupt::invoke<PCINT2_vect_num>();
 }
 #endif
 

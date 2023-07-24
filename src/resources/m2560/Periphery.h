@@ -16,6 +16,7 @@
 #include "../periphery/secondary/InterruptPin.h"
 #include "../periphery/secondary/Pin.h"
 #include "../periphery/secondary/GeneralPurposeFlag.h"
+#include "../periphery/secondary/PinChangeInterrupt.h"
 
 
 ///Periphery declaration for the ATmega2560
@@ -83,11 +84,42 @@ namespace Periphery {
 			return InterruptPin(Periphery::getPort<'E'>(), Index, Index);
 		}
 	}
+
+	template <uint8_t Index> inline PinChangeInterrupt getPinChangeInterrupt() noexcept;
+	template <> inline PinChangeInterrupt getPinChangeInterrupt<0>() noexcept {
+		return PinChangeInterrupt(0);
+	}
+	template <> inline PinChangeInterrupt getPinChangeInterrupt<1>() noexcept {
+		return PinChangeInterrupt(1);
+	}
+	template <> inline PinChangeInterrupt getPinChangeInterrupt<2>() noexcept {
+		return PinChangeInterrupt(2);
+	}
+
 	template <unsigned char RegisterIndex, uint8_t BitIndex> inline GeneralPurposeFlag getGeneralPurposeFlag() noexcept {
 		return GeneralPurposeFlag(getGeneralPurposeRegister<RegisterIndex>(), BitIndex);
 	}
 
 	//Access Pins for alternate Port functions
+	inline Pin getPinChangeInterruptPin(uint8_t pinCangeInterruptIndex, uint8_t pinNumber) noexcept {
+		switch (pinCangeInterruptIndex) {
+		case 0:
+			return Pin(getPort<'B'>(), pinNumber);
+		case 1:
+			if (pinNumber == 0) {
+				return Pin(getPort<'E'>(), 0);
+			}
+			else {
+				return Pin(getPort<'J'>(), pinNumber-1);
+			}
+		default: //2
+			return Pin(getPort<'K'>(), pinNumber);
+		}
+	}
+	inline Pin getPinChangeInterruptPin(uint8_t pinChangeInterruptPin) noexcept {
+		return getPinChangeInterruptPin(pinChangeInterruptPin/8, pinChangeInterruptPin%8);
+	}
+
 	template <char Channel> inline Pin getTimer8bitCompareOutputPin(uint8_t timerIndex) noexcept;
 	template <> inline Pin getTimer8bitCompareOutputPin<'A'>(uint8_t timerIndex) noexcept {
 		if (timerIndex == 0) {

@@ -16,14 +16,17 @@ namespace Configuration {
 	//TODO: Errorhandling config: None/Exceptions/Errorhandling/
 
 	//Flags to enable/disable Interrupt-Instantiations (change "ISR.cpp" to remove ISR-routines completely)
-	static constexpr bool enableInterrupt_EXT_INT0 		= true;
+	static constexpr bool enableInterrupt_EXT_INT0 		= false;
 	static constexpr bool enableInterrupt_EXT_INT1 		= false;
-	static constexpr bool enableInterrupt_EXT_INT2 		= false;
+	static constexpr bool enableInterrupt_EXT_INT2 		= true;
 	static constexpr bool enableInterrupt_EXT_INT3 		= false;
-	static constexpr bool enableInterrupt_EXT_INT4 		= false;
-	static constexpr bool enableInterrupt_EXT_INT5 		= false;
+	static constexpr bool enableInterrupt_EXT_INT4 		= true;
+	static constexpr bool enableInterrupt_EXT_INT5 		= true;
 	static constexpr bool enableInterrupt_EXT_INT6 		= false;
 	static constexpr bool enableInterrupt_EXT_INT7 		= false;
+	static constexpr bool enableInterrupt_PCINT0		= false;
+	static constexpr bool enableInterrupt_PCINT1		= false;
+	static constexpr bool enableInterrupt_PCINT2		= true;
 	static constexpr bool enableInterrupt_USART0_RX 	= true;
 	static constexpr bool enableInterrupt_USART0_TX 	= true;
 	static constexpr bool enableInterrupt_USART0_UDRE 	= true;
@@ -33,9 +36,9 @@ namespace Configuration {
 	static constexpr bool enableInterrupt_USART2_RX 	= false;
 	static constexpr bool enableInterrupt_USART2_TX 	= false;
 	static constexpr bool enableInterrupt_USART2_UDRE 	= false;
-	static constexpr bool enableInterrupt_USART3_RX 	= false;
-	static constexpr bool enableInterrupt_USART3_TX 	= false;
-	static constexpr bool enableInterrupt_USART3_UDRE 	= false;
+	static constexpr bool enableInterrupt_USART3_RX 	= true;
+	static constexpr bool enableInterrupt_USART3_TX 	= true;
+	static constexpr bool enableInterrupt_USART3_UDRE 	= true;
 	static constexpr bool enableInterrupt_TIMER0_OC_A	= true;
 	static constexpr bool enableInterrupt_TIMER0_OC_B	= true;
 	static constexpr bool enableInterrupt_TIMER0_OVF	= true;

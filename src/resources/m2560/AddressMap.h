@@ -31,6 +31,12 @@
 #define ADR_EIFR 0x3C
 #define ADR_EIMSK 0x3D
 
+#define ADR_PCICR 0x68
+#define ADR_PCIFR 0x3B
+#define ADR_PCMSK0 0x6B
+#define ADR_PCMSK1 0x6C
+#define ADR_PCMSK2 0x6D
+
 #define ADR_TIMER0 0x44
 #define ADR_TIMER1 0x80
 #define ADR_TIMER2 0xB0
@@ -132,6 +138,8 @@ namespace AddressMap {
 
 	inline constexpr intptr_t getRegisterTIFR(uint8_t index) noexcept { return ADR_TIFR + index; }
 	inline constexpr intptr_t getRegisterTIMSK(uint8_t index) noexcept { return ADR_TIMSK + index; }
+
+	inline constexpr intptr_t getRegisterPCMSK(uint8_t index) noexcept { return ADR_PCMSK0 + index; }
 }
 
 #endif /* SRC_RESOURCES_M2560_ADDRESSMAP_H_ */

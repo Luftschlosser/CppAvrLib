@@ -17,6 +17,13 @@ namespace Interrupts {
 	template <> inline Interrupt getExternalInterrupt<6>() noexcept { return Interrupt::GetInstance<INT6_vect_num>(); }
 	template <> inline Interrupt getExternalInterrupt<7>() noexcept { return Interrupt::GetInstance<INT7_vect_num>(); }
 
+	///Acess the Interrupt Object for the PinChange Interrupt Port with the template-specified index
+	///\return A reference to the Interrupt object
+	template <uint8_t Index> inline Interrupt getPinChangeInterrupt() noexcept;
+	template <> inline Interrupt getPinChangeInterrupt<0>() noexcept { return Interrupt::GetInstance<PCINT0_vect_num>(); }
+	template <> inline Interrupt getPinChangeInterrupt<1>() noexcept { return Interrupt::GetInstance<PCINT1_vect_num>(); }
+	template <> inline Interrupt getPinChangeInterrupt<2>() noexcept { return Interrupt::GetInstance<PCINT2_vect_num>(); }
+
 	///Access the Usart RX-Interrupt object for the Usart device with the template-specified index
 	///\return A reference to the Interrupt object
 	template <uint8_t Index> inline Interrupt getUsartRxInterrupt() noexcept;

@@ -100,7 +100,7 @@ int main (void) noexcept
     {
     	_delay_ms(500);
 		led.setHigh();
-		log.write("\n\rHello ");
+		log.write("\n\rHello");
 		_delay_ms(500);
 		led.setLow();
     }

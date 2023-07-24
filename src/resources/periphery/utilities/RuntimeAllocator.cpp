@@ -7,6 +7,7 @@ static uint8_t portUsage[Periphery::getCapacity<Port>()] = {}; //Initialize with
 static uint8_t usartUsage = 0;
 static uint8_t gpiorUsage[Periphery::getCapacity<GeneralPurposeRegister>()] = {}; //Initialize with 0's
 static uint8_t timerUsage = 0;
+static uint8_t pcIntUsage = 0;
 
 
 inline bool allocateByte(uint8_t& byte) noexcept {
@@ -62,14 +63,19 @@ bool RuntimeAllocator::allocate(const GeneralPurposeFlag* object) noexcept { //A
 	return allocateBit(gpiorUsage[index], object->getBitNumber());
 }
 
-bool RuntimeAllocator::allocate(const Timer8bit* object) noexcept { //Allocates part of underlying GeneralPurposeRegister
+bool RuntimeAllocator::allocate(const Timer8bit* object) noexcept {
 	uint8_t index = object->timerIndex;
 	return allocateBit(timerUsage, index);
 }
 
-bool RuntimeAllocator::allocate(const Timer16bit* object) noexcept { //Allocates part of underlying GeneralPurposeRegister
+bool RuntimeAllocator::allocate(const Timer16bit* object) noexcept {
 	uint8_t index = AddressMap::getIdentity(object);
 	return allocateBit(timerUsage, index);
+}
+
+bool RuntimeAllocator::allocate(const PinChangeInterrupt* object) noexcept {
+	uint8_t index = object->pinCangeInterruptIndex;
+	return allocateBit(pcIntUsage, index);
 }
 
 //-------------------------------------------------------------------------------------------
@@ -111,6 +117,11 @@ void RuntimeAllocator::deallocate(const Timer16bit* object) noexcept {
 	timerUsage &= ~(1 << index);
 }
 
+void RuntimeAllocator::deallocate(const PinChangeInterrupt* object) noexcept {
+	uint8_t index = object->pinCangeInterruptIndex;
+	pcIntUsage &= ~(1 << index);
+}
+
 //-------------------------------------------------------------------------------------------
 
 bool RuntimeAllocator::isAllocated(const Port* object) noexcept {
@@ -148,5 +159,10 @@ bool RuntimeAllocator::isAllocated(const Timer8bit* object) noexcept {
 bool RuntimeAllocator::isAllocated(const Timer16bit* object) noexcept {
 	uint8_t index = AddressMap::getIdentity(object);
 	return timerUsage & (1 << index);
+}
+
+bool RuntimeAllocator::isAllocated(const PinChangeInterrupt* object) noexcept {
+	uint8_t index = object->pinCangeInterruptIndex;
+	return pcIntUsage & (1 << index);
 }
 
