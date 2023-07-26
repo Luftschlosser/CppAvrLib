@@ -60,7 +60,7 @@ public:
 
 	///Factory for Interrupt-Instances which are paired to a specified ISR-vector
 	///\param vectorNumber This template parameter specifiess the Vector-Number of the ISR the created Interrupt-Instance shall represent.
-	template <uint8_t vectorNumber> static inline Interrupt GetInstance() { return Interrupt(getTarget<vectorNumber>());}
+	template <uint8_t vectorNumber> static inline Interrupt GetInstance() noexcept { return Interrupt(getTarget<vectorNumber>());}
 
 	///Default Destructor
 	inline ~Interrupt() noexcept {}

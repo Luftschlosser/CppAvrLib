@@ -42,6 +42,8 @@ private:
 	inline constexpr PinChangeInterrupt (uint8_t pinCangeInterruptIndex) noexcept :
 		pinCangeInterruptIndex(pinCangeInterruptIndex) {}
 
+public:
+
 	///Initializes the PinChangeInterrupt
 	inline void init() const {
 		if (Configuration::runtimeAllocationsEnabled) {
@@ -68,8 +70,6 @@ private:
 			return false;
 		}
 	}
-
-public:
 
 	inline void setPinMask(uint8_t mask) const noexcept { *reinterpret_cast<uint8_t*>(AddressMap::getRegisterPCMSK(this->pinCangeInterruptIndex)) = mask; }
 	inline uint8_t getPinMask() const noexcept { return *reinterpret_cast<uint8_t*>(AddressMap::getRegisterPCMSK(this->pinCangeInterruptIndex)); }
