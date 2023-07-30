@@ -229,7 +229,7 @@ public:
 	inline void setClockPolarity(UCSRC::FIELDS::ClockPolarityUCPOL mode) noexcept { this->regUCSRC.fields.flagUCPOL = mode; }
 
 	///Sets the baudrate
-	inline void setBaudrate(uint16_t baudrate) noexcept { this->regUBRR = baudrate; }
+	inline void setBaudrateRegisterValue(uint16_t baudrate) noexcept { this->regUBRR = baudrate; }
 
 	///Read the data in the receive buffer (first 8 Bits, use "getNinthDataBit()" for the ninth Bit)
 	inline char read() noexcept { return this->regUDR; }

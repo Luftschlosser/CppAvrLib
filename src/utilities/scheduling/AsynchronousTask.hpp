@@ -15,8 +15,7 @@ enum AsynchronousTaskExecutionBehavior {
 
 ///An instance of this class can store one function- or method call to be executed later.
 ///It is useful to schedule a task (for example in an ISR) to be executed later (for example in the main loop).
-///\param Behavior This template parameter specifies whether the task will be cleared after execution or if the task will remain scheduled to be executed multiple times. [ONCE / REPEATEDLY].
-template <AsynchronousTaskExecutionBehavior Behavior> class AsynchronousTask {
+class AsynchronousTask {
 
 private:
 
@@ -95,7 +94,8 @@ public:
 	}
 
 	///Executes the scheduled function or method.
-	inline void execute() noexcept {
+	///\param Behavior This template parameter specifies whether the task will be cleared after execution or if the task will remain scheduled to be executed multiple times. [ONCE / REPEATEDLY].
+	template <AsynchronousTaskExecutionBehavior Behavior> inline void execute() noexcept {
 		TaskData tmp;
 		ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
 			tmp = this->target;

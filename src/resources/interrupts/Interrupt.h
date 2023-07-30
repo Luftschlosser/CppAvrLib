@@ -18,7 +18,7 @@ private:
 		void* obj;
 
 		///The pointer to the functions which wraps the actual handler invocation.
-		void (*invoker)(void* obj);
+		void (*invoker)(void* obj) noexcept;
 	};
 
 	///Empty function to serve as default handler.
