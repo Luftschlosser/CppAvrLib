@@ -8,9 +8,12 @@
 
 class SerialRxTx {
 
-private:
+public:
 
 	Usart& usart;
+
+private:
+
 	const char* txData;
 
 	enum TxStatus : int8_t {
