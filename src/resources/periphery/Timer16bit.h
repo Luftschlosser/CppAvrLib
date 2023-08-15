@@ -231,7 +231,9 @@ public:
 	///Disables the Timer Overflow Interrupt.
 	inline void disableTimerOverflowInterrupt() const noexcept {
 		uint8_t* regTIMSK = reinterpret_cast<uint8_t*>(AddressMap::getRegisterTIMSK(AddressMap::getIdentity(this)));
+		uint8_t* regTIFR = reinterpret_cast<uint8_t*>(AddressMap::getRegisterTIFR(AddressMap::getIdentity(this)));
 		*regTIMSK &= ~0x01;
+		*regTIFR |= 0x01; //Clear any pending Interrupt Flag
 	}
 };
 
@@ -346,15 +348,21 @@ template <> inline void Timer16bit::enableOutputCompareMatchInterrupt<'C'>() con
 }
 template <> inline void Timer16bit::disableOutputCompareMatchInterrupt<'A'>() const noexcept {
 	uint8_t* regTIMSK = reinterpret_cast<uint8_t*>(AddressMap::getRegisterTIMSK(AddressMap::getIdentity(this)));
+	uint8_t* regTIFR = reinterpret_cast<uint8_t*>(AddressMap::getRegisterTIFR(AddressMap::getIdentity(this)));
 	*regTIMSK &= ~(0x01<<1);
+	*regTIFR |= (0x01<<1);
 }
 template <> inline void Timer16bit::disableOutputCompareMatchInterrupt<'B'>() const noexcept {
 	uint8_t* regTIMSK = reinterpret_cast<uint8_t*>(AddressMap::getRegisterTIMSK(AddressMap::getIdentity(this)));
+	uint8_t* regTIFR = reinterpret_cast<uint8_t*>(AddressMap::getRegisterTIFR(AddressMap::getIdentity(this)));
 	*regTIMSK &= ~(0x01<<2);
+	*regTIFR |= (0x01<<2);
 }
 template <> inline void Timer16bit::disableOutputCompareMatchInterrupt<'C'>() const noexcept {
 	uint8_t* regTIMSK = reinterpret_cast<uint8_t*>(AddressMap::getRegisterTIMSK(AddressMap::getIdentity(this)));
+	uint8_t* regTIFR = reinterpret_cast<uint8_t*>(AddressMap::getRegisterTIFR(AddressMap::getIdentity(this)));
 	*regTIMSK &= ~(0x01<<3);
+	*regTIFR |= (0x01<<3);
 }
 
 
