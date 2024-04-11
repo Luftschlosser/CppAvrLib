@@ -7,6 +7,7 @@
 //ISR-Routine (empty)	: 20B ROM + 0B RAM
 
 
+#if defined(__AVR_ATmega2560__)
 //_____________________________________________
 //INTERRUPT-CONFIGURATION:2
 
@@ -45,9 +46,9 @@
 #define ISRTYPE_TIMER1_OCC	ISR_BLOCK
 #define ISRTYPE_TIMER1_OVF	ISR_BLOCK
 #define ISRTYPE_TIMER1_CAPT	ISR_BLOCK
-#define ISRTYPE_TIMER2_OCA	ISR_BLOCK
+//#define ISRTYPE_TIMER2_OCA	ISR_BLOCK
 #define ISRTYPE_TIMER2_OCB	ISR_BLOCK
-#define ISRTYPE_TIMER2_OVF	ISR_BLOCK
+//#define ISRTYPE_TIMER2_OVF	ISR_BLOCK
 #define ISRTYPE_TIMER3_OCA	ISR_BLOCK
 #define ISRTYPE_TIMER3_OCB	ISR_BLOCK
 #define ISRTYPE_TIMER3_OCC	ISR_BLOCK
@@ -468,4 +469,8 @@ ISR(TIMER5_CAPT_vect, ISRTYPE_TIMER5_CAPT) {
 	if (Configuration::enableInterrupt_TIMER5_CAPT)
 		Interrupt::invoke<TIMER5_CAPT_vect_num>();
 }
+#endif
+
+
+
 #endif

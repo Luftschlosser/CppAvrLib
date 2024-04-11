@@ -4,8 +4,14 @@
 #include "src/resources/Interrupts.h"
 
 
+#if defined(__AVR_ATmega2560__)
 const Pin led = Periphery::getPin<'B', 6>();
 Timer16bit& timer = Periphery::getTimer16bit<5>();
+#elif defined(__AVR_ATmega328P__)
+const Pin led = Periphery::getPin<'B', 5>();
+Timer16bit& timer = Periphery::getTimer16bit();
+#endif
+
 
 class Log final {
 private:
@@ -80,12 +86,21 @@ int main (void) noexcept
 {
 	sei();
 
+	#if defined(__AVR_ATmega2560__)
 	Log log(Periphery::getUsart<0>(), Interrupts::getUsartUdreInterrupt<0>());
+	#elif defined(__AVR_ATmega328P__)
+	Log log(Periphery::getUsart(), Interrupts::getUsartUdreInterrupt<0>());
+	#endif
+
 	led.init();
 	led.setMode(Pin::Mode::OUTPUT);
 
 	timer.init();
+	#if defined(__AVR_ATmega2560__)
 	Interrupt tov = Interrupts::getTimerOvfInterrupt<5>();
+	#elif defined(__AVR_ATmega328P__)
+	Interrupt tov = Interrupts::getTimerOvfInterrupt<1>();
+	#endif
 	tov.registerFunction<&incPwm>();
 	timer.enableTimerOverflowInterrupt();
 	timer.setWaveformGenerationMode(Timer16bit::WaveformGenerationMode::PWM_FAST_0X00FF);
