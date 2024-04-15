@@ -54,7 +54,7 @@ public:
 				volatile uint8_t dataCOMA : 2; //Compare output mode A
 			} fields;
 			volatile uint8_t reg;
-		} regTCCRA;
+		} volatile regTCCRA;
 
 		///The TCCRnB register
 		union TCCRB {
@@ -66,7 +66,7 @@ public:
 				volatile uint8_t flagFOCA : 1; //Force output compare A
 			} fields;
 			volatile uint8_t reg;
-		} regTCCRB;
+		} volatile regTCCRB;
 
 		///The TCNTn register
 		volatile uint8_t regTCNT; //Timer counter
@@ -94,7 +94,7 @@ public:
 				volatile const uint8_t reserved : 1;
 			} fields;
 			volatile uint8_t reg;
-		} regASSR;
+		} volatile regASSR;
 	};
 
 	///Enumeration to describe the Compare Output Mode (Read more in the µC's documentation)
