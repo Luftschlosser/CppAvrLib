@@ -22,9 +22,8 @@ inline bool allocateByte(uint8_t& byte) noexcept {
 	return success;
 }
 
-inline bool allocateBit(uint8_t& byte, uint8_t bit) noexcept {
+inline bool allocateMask(uint8_t& byte, uint8_t mask) noexcept {
 	bool success = false;
-	uint8_t mask = 1 << bit;
 	ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
 	{
 		if (! (byte & mask)) {
@@ -35,12 +34,21 @@ inline bool allocateBit(uint8_t& byte, uint8_t bit) noexcept {
 	return success;
 }
 
+inline bool allocateBit(uint8_t& byte, uint8_t bit) noexcept {
+	return allocateMask(byte, 1 << bit);
+}
+
 
 //-------------------------------------------------------------------------------------------
 
 bool RuntimeAllocator::allocate(const Port* object) noexcept {
 	uint8_t index = AddressMap::getIdentity(object);
 	return allocateByte(portUsage[index]);
+}
+
+bool RuntimeAllocator::allocate(const Port* object, uint8_t mask) noexcept {
+	uint8_t index = AddressMap::getIdentity(object);
+	return allocateMask(portUsage[index], mask);
 }
 
 bool RuntimeAllocator::allocate(const Pin* object) noexcept { //Allocates part of underlying Port
@@ -85,6 +93,11 @@ void RuntimeAllocator::deallocate(const Port* object) noexcept {
 	portUsage[index] = 0;
 }
 
+void RuntimeAllocator::deallocate(const Port* object, uint8_t mask) noexcept {
+	uint8_t index = AddressMap::getIdentity(object);
+	portUsage[index] &= ~mask;
+}
+
 void RuntimeAllocator::deallocate(const Pin* object) noexcept { //Deallocates part of underlying Port
 	uint8_t index = AddressMap::getIdentity(&(object->port));
 	uint8_t mask = 1 << object->getPinNumber();
@@ -127,6 +140,11 @@ void RuntimeAllocator::deallocate(const PinChangeInterrupt* object) noexcept {
 bool RuntimeAllocator::isAllocated(const Port* object) noexcept {
 	uint8_t index = AddressMap::getIdentity(object);
 	return portUsage[index] != 0;
+}
+
+bool isAllocated(const Port* object, uint8_t mask) noexcept {
+	uint8_t index = AddressMap::getIdentity(object);
+	return (portUsage[index] & mask) != 0;
 }
 
 bool RuntimeAllocator::isAllocated(const Pin* object) noexcept { //Checks part of underlying Port

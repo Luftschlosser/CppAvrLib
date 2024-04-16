@@ -41,10 +41,28 @@ public:
 		}
 	}
 
+	///Initializes a part of this Port
+	///\param mask the bitmask which specifies the bits to allocate (1 = allocate)
+	inline void init(uint8_t mask) const {
+		if (Configuration::runtimeAllocationsEnabled) {
+			if (! RuntimeAllocator::allocate(this, mask)) {
+				//TODO throw
+			}
+		}
+	}
+
 	///De-Initializes the entire Port
 	inline void close() const noexcept {
 		if (Configuration::runtimeAllocationsEnabled) {
 			RuntimeAllocator::deallocate(this);
+		}
+	}
+
+	///De-Initializes part of this Port
+	///\param mask the bitmask which specifies the bits to de-allocate (1 = de-allocate)
+	inline void close(uint8_t mask) const noexcept {
+		if (Configuration::runtimeAllocationsEnabled) {
+			RuntimeAllocator::deallocate(this, mask);
 		}
 	}
 
@@ -58,6 +76,19 @@ public:
 			return false;
 		}
 	}
+
+	///checks the usage of the Port
+	///\return true if at least one of the specified Pins of the Port is already in use, else false
+	///\param mask the bitmask which specifies the bits to check (1 = check)
+	inline bool isUsed(uint8_t mask) const noexcept {
+		if (Configuration::runtimeAllocationsEnabled) {
+			return RuntimeAllocator::isAllocated(this, mask);
+		}
+		else {
+			return false;
+		}
+	}
+
 
 	///Sets the mode of operation for the entire Port
 	///\param mode the mode of operation to configure

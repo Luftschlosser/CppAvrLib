@@ -19,6 +19,7 @@ class PinChangeInterrupt;
 namespace RuntimeAllocator {
 
 	bool allocate(const Port* object) noexcept;
+	bool allocate(const Port* object, uint8_t mask) noexcept;
 	bool allocate(const Pin* object) noexcept;
 	bool allocate(const Usart* object) noexcept;
 	bool allocate(const GeneralPurposeRegister* object) noexcept;
@@ -28,6 +29,7 @@ namespace RuntimeAllocator {
 	bool allocate(const PinChangeInterrupt* object) noexcept;
 
 	void deallocate(const Port* object) noexcept;
+	void deallocate(const Port* object, uint8_t mask) noexcept;
 	void deallocate(const Pin* object) noexcept;
 	void deallocate(const Usart* object) noexcept;
 	void deallocate(const GeneralPurposeRegister* object) noexcept;
@@ -37,6 +39,7 @@ namespace RuntimeAllocator {
 	void deallocate(const PinChangeInterrupt* object) noexcept;
 
 	bool isAllocated(const Port* object) noexcept;
+	bool isAllocated(const Port* object, uint8_t mask) noexcept;
 	bool isAllocated(const Pin* object) noexcept;
 	bool isAllocated(const Usart* object) noexcept;
 	bool isAllocated(const GeneralPurposeRegister* object) noexcept;
