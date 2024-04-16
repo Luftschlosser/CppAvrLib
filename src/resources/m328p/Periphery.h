@@ -36,6 +36,10 @@ namespace Periphery {
 	static Timer16bit& timer1 = *(reinterpret_cast<Timer16bit*>(ADR_TIMER1));
 
 
+	//Device specific Constants
+	static constexpr uint8_t Timer16bitChannelCount = 2;
+
+
 	//Access to MMIO Periphery
 	template <unsigned char Index> inline Port& getPort() noexcept {
 		return *(reinterpret_cast<Port*>(AddressMap::getPortAdress<Index>()));
@@ -127,8 +131,9 @@ namespace Periphery {
 	inline Pin getTimer8bitAsyncOscillatorPin2() noexcept {
 		return Pin(getPort<'B'>(), 7);
 	}
+
 	inline constexpr uint8_t getTimer16bitCompareOutputPinCount() noexcept {
-		return 2;
+		return Timer16bitChannelCount;
 	}
 	template <char Channel> inline Pin getTimer16bitCompareOutputPin(uint8_t timerIndex) noexcept;
 	template <> inline Pin getTimer16bitCompareOutputPin<'A'>(uint8_t timerIndex) noexcept {
