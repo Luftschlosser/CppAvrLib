@@ -151,6 +151,9 @@ namespace Periphery {
 	inline Pin getTimer8bitAsyncOscillatorPin2() noexcept {
 		return Pin(getPort<'G'>(), 3);
 	}
+	inline constexpr uint8_t getTimer16bitCompareOutputPinCount() noexcept {
+		return 3;
+	}
 	template <char Channel> inline Pin getTimer16bitCompareOutputPin(uint8_t timerIndex) noexcept;
 	template <> inline Pin getTimer16bitCompareOutputPin<'A'>(uint8_t timerIndex) noexcept {
 		switch (timerIndex) {

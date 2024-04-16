@@ -127,6 +127,9 @@ namespace Periphery {
 	inline Pin getTimer8bitAsyncOscillatorPin2() noexcept {
 		return Pin(getPort<'B'>(), 7);
 	}
+	inline constexpr uint8_t getTimer16bitCompareOutputPinCount() noexcept {
+		return 2;
+	}
 	template <char Channel> inline Pin getTimer16bitCompareOutputPin(uint8_t timerIndex) noexcept;
 	template <> inline Pin getTimer16bitCompareOutputPin<'A'>(uint8_t timerIndex) noexcept {
 		return Pin(getPort<'B'>(), 1);
@@ -134,8 +137,8 @@ namespace Periphery {
 	template <> inline Pin getTimer16bitCompareOutputPin<'B'>(uint8_t timerIndex) noexcept {
 		return Pin(getPort<'B'>(), 2);
 	}
-	template <> inline Pin getTimer16bitCompareOutputPin<'C'>(uint8_t timerIndex) noexcept { //DOES NOT EXIST -> Use non-existing Pin as workaround
-		return Pin(getPort<'C'>(), 7);
+	template <> inline Pin getTimer16bitCompareOutputPin<'C'>(uint8_t timerIndex) noexcept {
+		return getTimer16bitCompareOutputPin<'B'>(timerIndex); //Forward non-existing Channel 'C' to 'B'
 	}
 	inline Pin getTimer16bitExternalClockPin(uint8_t timerIndex) noexcept {
 		return Pin(getPort<'D'>(), 5);

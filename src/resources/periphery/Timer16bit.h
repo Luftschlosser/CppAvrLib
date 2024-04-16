@@ -14,6 +14,7 @@
 namespace Periphery {
 	template <char Channel> inline Pin getTimer16bitCompareOutputPin(uint8_t timerIndex) noexcept;
 	inline Pin getTimer16bitExternalClockPin(uint8_t timerIndex) noexcept;
+	inline constexpr uint8_t getTimer16bitCompareOutputPinCount() noexcept;
 }
 namespace AddressMap {
 	inline uint8_t getIdentity(const Timer16bit* periphery) noexcept;
@@ -79,7 +80,7 @@ public:
 	volatile uint16_t regOCRB; 	//Output Compare Register B
 
 	///The OCRnA register
-	volatile uint16_t regOCRC; 	//Output Compare Register C
+	volatile uint16_t regOCRC; 	//Output Compare Register C (may not exist)
 
 	///Enumeration to describe the Compare Output Mode (Read more in the µC's documentation)
 	enum CompareOutputMode : uint8_t {
@@ -122,9 +123,6 @@ public:
 
 private:
 
-	///Runtime information about this Timer's number of Output Compare Channels
-	static constexpr uint8_t ChannelCount = 3;
-
 	///No Constructor to prohibit instantiation
 	Timer16bit() = delete;
 
@@ -158,8 +156,8 @@ public:
 	}
 
 	///Gets the number of output compare channelCount of this Timer
-	inline const uint8_t getChannelCount() const noexcept {
-		return Timer16bit::ChannelCount;
+	inline static constexpr uint8_t getChannelCount() noexcept {
+		return Periphery::getTimer16bitCompareOutputPinCount();
 	}
 
 	///Gets the Pin connected to this Timer's compare output on the template-parameter specified channel.
@@ -262,89 +260,115 @@ template <> inline void Timer16bit::setCompareOutputMode<'A'>(CompareOutputMode 
 	this->regTCCRA.fields.dataCOMA = mode;
 }
 template <> inline void Timer16bit::setCompareOutputMode<'B'>(CompareOutputMode mode) noexcept {
-	if (Configuration::autoPinAllocationEnabled || Configuration::autoPinConfigurationEnabled) {
-		Pin out = this->getCompareOutputPin<'B'>();
-		uint8_t currentMode = this->regTCCRA.fields.dataCOMB;
-		if (currentMode == CompareOutputMode::DISCONNECTED && mode != CompareOutputMode::DISCONNECTED) {
-			if (Configuration::autoPinAllocationEnabled) {
-				out.init(); //TODO: Deal with possible exception!
+	if (Periphery::getTimer16bitCompareOutputPinCount() >= 2) { //todo: install newer gcc, use constexpr-if
+		if (Configuration::autoPinAllocationEnabled || Configuration::autoPinConfigurationEnabled) {
+			Pin out = this->getCompareOutputPin<'B'>();
+			uint8_t currentMode = this->regTCCRA.fields.dataCOMB;
+			if (currentMode == CompareOutputMode::DISCONNECTED && mode != CompareOutputMode::DISCONNECTED) {
+				if (Configuration::autoPinAllocationEnabled) {
+					out.init(); //TODO: Deal with possible exception!
+				}
+				if (Configuration::autoPinConfigurationEnabled) {
+					out.setMode(Pin::Mode::OUTPUT);
+				}
 			}
-			if (Configuration::autoPinConfigurationEnabled) {
-				out.setMode(Pin::Mode::OUTPUT);
+			else if (currentMode != CompareOutputMode::DISCONNECTED && mode == CompareOutputMode::DISCONNECTED) {
+				if (Configuration::autoPinAllocationEnabled) {
+					out.close();
+				}
+				if (Configuration::autoPinConfigurationEnabled) {
+					out.setMode(Pin::Mode::INPUT);
+				}
 			}
 		}
-		else if (currentMode != CompareOutputMode::DISCONNECTED && mode == CompareOutputMode::DISCONNECTED) {
-			if (Configuration::autoPinAllocationEnabled) {
-				out.close();
-			}
-			if (Configuration::autoPinConfigurationEnabled) {
-				out.setMode(Pin::Mode::INPUT);
-			}
-		}
+		this->regTCCRA.fields.dataCOMB = mode;
 	}
-	this->regTCCRA.fields.dataCOMB = mode;
 }
 template <> inline void Timer16bit::setCompareOutputMode<'C'>(CompareOutputMode mode) noexcept {
-	if (Configuration::autoPinAllocationEnabled || Configuration::autoPinConfigurationEnabled) {
-		Pin out = this->getCompareOutputPin<'C'>();
-		uint8_t currentMode = this->regTCCRA.fields.dataCOMC;
-		if (currentMode == CompareOutputMode::DISCONNECTED && mode != CompareOutputMode::DISCONNECTED) {
-			if (Configuration::autoPinAllocationEnabled) {
-				out.init(); //TODO: Deal with possible exception!
+	if (Periphery::getTimer16bitCompareOutputPinCount() >= 3) { //todo: install newer gcc, use constexpr-if
+		if (Configuration::autoPinAllocationEnabled || Configuration::autoPinConfigurationEnabled) {
+			Pin out = this->getCompareOutputPin<'C'>();
+			uint8_t currentMode = this->regTCCRA.fields.dataCOMC;
+			if (currentMode == CompareOutputMode::DISCONNECTED && mode != CompareOutputMode::DISCONNECTED) {
+				if (Configuration::autoPinAllocationEnabled) {
+					out.init(); //TODO: Deal with possible exception!
+				}
+				if (Configuration::autoPinConfigurationEnabled) {
+					out.setMode(Pin::Mode::OUTPUT);
+				}
 			}
-			if (Configuration::autoPinConfigurationEnabled) {
-				out.setMode(Pin::Mode::OUTPUT);
+			else if (currentMode != CompareOutputMode::DISCONNECTED && mode == CompareOutputMode::DISCONNECTED) {
+				if (Configuration::autoPinAllocationEnabled) {
+					out.close();
+				}
+				if (Configuration::autoPinConfigurationEnabled) {
+					out.setMode(Pin::Mode::INPUT);
+				}
 			}
 		}
-		else if (currentMode != CompareOutputMode::DISCONNECTED && mode == CompareOutputMode::DISCONNECTED) {
-			if (Configuration::autoPinAllocationEnabled) {
-				out.close();
-			}
-			if (Configuration::autoPinConfigurationEnabled) {
-				out.setMode(Pin::Mode::INPUT);
-			}
-		}
+		this->regTCCRA.fields.dataCOMC = mode;
 	}
-	this->regTCCRA.fields.dataCOMC = mode;
 }
 template <> inline void Timer16bit::forceOutputCompare<'A'>() noexcept {
 	this->regTCCRC.fields.flagFOCA = 1;
 }
 template <> inline void Timer16bit::forceOutputCompare<'B'>() noexcept {
-	this->regTCCRC.fields.flagFOCB = 1;
+	if (Periphery::getTimer16bitCompareOutputPinCount() >= 2) { //todo: install newer gcc, use constexpr-if
+		this->regTCCRC.fields.flagFOCB = 1;
+	}
 }
 template <> inline void Timer16bit::forceOutputCompare<'C'>() noexcept {
-	this->regTCCRC.fields.flagFOCC = 1;
+	if (Periphery::getTimer16bitCompareOutputPinCount() >= 3) { //todo: install newer gcc, use constexpr-if
+		this->regTCCRC.fields.flagFOCC = 1;
+	}
 }
 template <> inline uint16_t Timer16bit::getOutputCompareValue<'A'>() const noexcept {
 	return this->regOCRA;
 }
 template <> inline uint16_t Timer16bit::getOutputCompareValue<'B'>() const noexcept {
-	return this->regOCRB;
+	if (Periphery::getTimer16bitCompareOutputPinCount() >= 2) { //todo: install newer gcc, use constexpr-if
+		return this->regOCRB;
+	}
+	else {
+		return 0;
+	}
 }
 template <> inline uint16_t Timer16bit::getOutputCompareValue<'C'>() const noexcept {
-	return this->regOCRC;
+	if (Periphery::getTimer16bitCompareOutputPinCount() >= 3) { //todo: install newer gcc, use constexpr-if
+		return this->regOCRC;
+	}
+	else {
+		return 0;
+	}
 }
 template <> inline void Timer16bit::setOutputCompareValue<'A'>(uint16_t value) noexcept {
 	this->regOCRA = value;
 }
 template <> inline void Timer16bit::setOutputCompareValue<'B'>(uint16_t value) noexcept {
-	this->regOCRB = value;
+	if (Periphery::getTimer16bitCompareOutputPinCount() >= 2) { //todo: install newer gcc, use constexpr-if
+		this->regOCRB = value;
+	}
 }
 template <> inline void Timer16bit::setOutputCompareValue<'C'>(uint16_t value) noexcept {
-	this->regOCRC = value;
+	if (Periphery::getTimer16bitCompareOutputPinCount() >= 3) { //todo: install newer gcc, use constexpr-if
+		this->regOCRC = value;
+	}
 }
 template <> inline void Timer16bit::enableOutputCompareMatchInterrupt<'A'>() const noexcept {
 	uint8_t* regTIMSK = reinterpret_cast<uint8_t*>(AddressMap::getRegisterTIMSK(AddressMap::getIdentity(this)));
 	*regTIMSK |= (0x01<<1);
 }
 template <> inline void Timer16bit::enableOutputCompareMatchInterrupt<'B'>() const noexcept {
-	uint8_t* regTIMSK = reinterpret_cast<uint8_t*>(AddressMap::getRegisterTIMSK(AddressMap::getIdentity(this)));
-	*regTIMSK |= (0x01<<2);
+	if (Periphery::getTimer16bitCompareOutputPinCount() >= 2) { //todo: install newer gcc, use constexpr-if
+		uint8_t* regTIMSK = reinterpret_cast<uint8_t*>(AddressMap::getRegisterTIMSK(AddressMap::getIdentity(this)));
+		*regTIMSK |= (0x01<<2);
+	}
 }
 template <> inline void Timer16bit::enableOutputCompareMatchInterrupt<'C'>() const noexcept {
-	uint8_t* regTIMSK = reinterpret_cast<uint8_t*>(AddressMap::getRegisterTIMSK(AddressMap::getIdentity(this)));
-	*regTIMSK |= (0x01<<3);
+	if (Periphery::getTimer16bitCompareOutputPinCount() >= 3) { //todo: install newer gcc, use constexpr-if
+		uint8_t* regTIMSK = reinterpret_cast<uint8_t*>(AddressMap::getRegisterTIMSK(AddressMap::getIdentity(this)));
+		*regTIMSK |= (0x01<<3);
+	}
 }
 template <> inline void Timer16bit::disableOutputCompareMatchInterrupt<'A'>() const noexcept {
 	uint8_t* regTIMSK = reinterpret_cast<uint8_t*>(AddressMap::getRegisterTIMSK(AddressMap::getIdentity(this)));
@@ -353,16 +377,20 @@ template <> inline void Timer16bit::disableOutputCompareMatchInterrupt<'A'>() co
 	*regTIFR |= (0x01<<1);
 }
 template <> inline void Timer16bit::disableOutputCompareMatchInterrupt<'B'>() const noexcept {
-	uint8_t* regTIMSK = reinterpret_cast<uint8_t*>(AddressMap::getRegisterTIMSK(AddressMap::getIdentity(this)));
-	uint8_t* regTIFR = reinterpret_cast<uint8_t*>(AddressMap::getRegisterTIFR(AddressMap::getIdentity(this)));
-	*regTIMSK &= ~(0x01<<2);
-	*regTIFR |= (0x01<<2);
+	if (Periphery::getTimer16bitCompareOutputPinCount() >= 2) { //todo: install newer gcc, use constexpr-if
+		uint8_t* regTIMSK = reinterpret_cast<uint8_t*>(AddressMap::getRegisterTIMSK(AddressMap::getIdentity(this)));
+		uint8_t* regTIFR = reinterpret_cast<uint8_t*>(AddressMap::getRegisterTIFR(AddressMap::getIdentity(this)));
+		*regTIMSK &= ~(0x01<<2);
+		*regTIFR |= (0x01<<2);
+	}
 }
 template <> inline void Timer16bit::disableOutputCompareMatchInterrupt<'C'>() const noexcept {
-	uint8_t* regTIMSK = reinterpret_cast<uint8_t*>(AddressMap::getRegisterTIMSK(AddressMap::getIdentity(this)));
-	uint8_t* regTIFR = reinterpret_cast<uint8_t*>(AddressMap::getRegisterTIFR(AddressMap::getIdentity(this)));
-	*regTIMSK &= ~(0x01<<3);
-	*regTIFR |= (0x01<<3);
+	if (Periphery::getTimer16bitCompareOutputPinCount() >= 3) { //todo: install newer gcc, use constexpr-if
+		uint8_t* regTIMSK = reinterpret_cast<uint8_t*>(AddressMap::getRegisterTIMSK(AddressMap::getIdentity(this)));
+		uint8_t* regTIFR = reinterpret_cast<uint8_t*>(AddressMap::getRegisterTIFR(AddressMap::getIdentity(this)));
+		*regTIMSK &= ~(0x01<<3);
+		*regTIFR |= (0x01<<3);
+	}
 }
 
 
