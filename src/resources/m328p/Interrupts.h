@@ -22,20 +22,17 @@ namespace Interrupts {
 	template <> inline Interrupt getPinChangeInterrupt<1>() noexcept { return Interrupt::GetInstance<PCINT1_vect_num>(); }
 	template <> inline Interrupt getPinChangeInterrupt<2>() noexcept { return Interrupt::GetInstance<PCINT2_vect_num>(); }
 
-	///Access the Usart RX-Interrupt object for the Usart device with the template-specified index
+	///Access the Usart RX-Interrupt object for the Usart device
 	///\return A reference to the Interrupt object
-	template <uint8_t Index> inline Interrupt getUsartRxInterrupt() noexcept;
-	template <> inline Interrupt getUsartRxInterrupt<0>() noexcept { return Interrupt::GetInstance<USART_RX_vect_num>(); }
+	inline Interrupt getUsartRxInterrupt() noexcept { return Interrupt::GetInstance<USART_RX_vect_num>(); }
 
-	///Access the Usart TX-Interrupt object for the Usart device with the template-specified index
+	///Access the Usart TX-Interrupt object for the Usart device
 	///\return A reference to the Interrupt object
-	template <uint8_t Index> inline Interrupt getUsartTxInterrupt() noexcept;
-	template <> inline Interrupt getUsartTxInterrupt<0>() noexcept { return Interrupt::GetInstance<USART_TX_vect_num>(); }
+	inline Interrupt getUsartTxInterrupt() noexcept { return Interrupt::GetInstance<USART_TX_vect_num>(); }
 
-	///Access the Usart UDRE-Interrupt object for the Usart device with the template-specified index
+	///Access the Usart UDRE-Interrupt object for the Usart device
 	///\return A reference to the Interrupt object
-	template <uint8_t Index> inline Interrupt getUsartUdreInterrupt() noexcept;
-	template <> inline Interrupt getUsartUdreInterrupt<0>() noexcept { return Interrupt::GetInstance<USART_UDRE_vect_num>(); }
+	inline Interrupt getUsartUdreInterrupt() noexcept { return Interrupt::GetInstance<USART_UDRE_vect_num>(); }
 
 	///Access the Timer OC-Interrupt object for the template specified Timer device and compare-match channel
 	///\return A reference to the Interrupt object
