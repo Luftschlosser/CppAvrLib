@@ -10,7 +10,7 @@ class SerialRxTx {
 
 public:
 
-	Usart& usart;
+	Usart& usart; //Todo find better way to expose necessary functionality for reading...
 
 private:
 
