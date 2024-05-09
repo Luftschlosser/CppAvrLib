@@ -12,6 +12,7 @@
 #include "../periphery/Timer8bit.h"
 #include "../periphery/Timer8bitAsync.h"
 #include "../periphery/Timer16bit.h"
+#include "../periphery/Twi.h"
 
 #include "../periphery/secondary/InterruptPin.h"
 #include "../periphery/secondary/Pin.h"
@@ -49,6 +50,7 @@ namespace Periphery {
 	static Timer16bit& timer4 = *(reinterpret_cast<Timer16bit*>(ADR_TIMER4));
 	static Timer16bit& timer5 = *(reinterpret_cast<Timer16bit*>(ADR_TIMER5));
 
+	static Twi& twi = *(reinterpret_cast<Twi*>(ADR_TWI));
 
 	//Device specific Constants
 	static constexpr uint8_t Timer16bitChannelCount = 3;
@@ -74,6 +76,9 @@ namespace Periphery {
 	}
 	template <uint8_t Index> inline Timer16bit& getTimer16bit() noexcept {
 		return *(reinterpret_cast<Timer16bit*>(AddressMap::getTimer16bitAdress<Index>()));
+	}
+	inline Twi& getTwi() noexcept {
+		return *(reinterpret_cast<Twi*>(AddressMap::getTwiAddress()));
 	}
 
 	//Access to secondary Periphery
@@ -220,6 +225,12 @@ namespace Periphery {
 			return Pin(getPort<'L'>(), 1);
 		}
 	}
+	inline Pin getTwiSclPin() noexcept {
+		return Pin(getPort<'D'>(), 0);
+	}
+	inline Pin getTwiSdaPin() noexcept {
+		return Pin(getPort<'D'>(), 1);
+	}
 
 	///Get the total number of instances of a periphery type.
 	///\return The total number of instances of the template-specified type [0-n]
@@ -232,6 +243,7 @@ namespace Periphery {
 	template <> inline constexpr uint8_t getCapacity<GeneralPurposeFlag>() noexcept { return 8 * getCapacity<GeneralPurposeRegister>(); }
 	template <> inline constexpr uint8_t getCapacity<Timer8bit>() noexcept { return 2; }
 	template <> inline constexpr uint8_t getCapacity<Timer16bit>() noexcept { return 4; }
+	template <> inline constexpr uint8_t getCapacity<Twi>() noexcept { return 1; }
 }
 
 #endif /* SRC_RESOURCES_M2560_PERIPHERY_H_ */

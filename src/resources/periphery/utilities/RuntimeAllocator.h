@@ -14,6 +14,7 @@ class GeneralPurposeFlag;
 class Timer8bit;
 class Timer16bit;
 class PinChangeInterrupt;
+class Twi;
 
 
 namespace RuntimeAllocator {
@@ -27,6 +28,7 @@ namespace RuntimeAllocator {
 	bool allocate(const Timer8bit* object) noexcept;
 	bool allocate(const Timer16bit* object) noexcept;
 	bool allocate(const PinChangeInterrupt* object) noexcept;
+	bool allocate(const Twi* object) noexcept;
 
 	void deallocate(const Port* object) noexcept;
 	void deallocate(const Port* object, uint8_t mask) noexcept;
@@ -37,6 +39,7 @@ namespace RuntimeAllocator {
 	void deallocate(const Timer8bit* object) noexcept;
 	void deallocate(const Timer16bit* object) noexcept;
 	void deallocate(const PinChangeInterrupt* object) noexcept;
+	void deallocate(const Twi* object) noexcept;
 
 	bool isAllocated(const Port* object) noexcept;
 	bool isAllocated(const Port* object, uint8_t mask) noexcept;
@@ -47,6 +50,7 @@ namespace RuntimeAllocator {
 	bool isAllocated(const Timer8bit* object) noexcept;
 	bool isAllocated(const Timer16bit* object) noexcept;
 	bool isAllocated(const PinChangeInterrupt* object) noexcept;
+	bool isAllocated(const Twi* object) noexcept;
 }
 
 

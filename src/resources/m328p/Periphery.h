@@ -12,6 +12,7 @@
 #include "../periphery/Timer8bit.h"
 #include "../periphery/Timer8bitAsync.h"
 #include "../periphery/Timer16bit.h"
+#include "../periphery/Twi.h"
 
 #include "../periphery/secondary/InterruptPin.h"
 #include "../periphery/secondary/Pin.h"
@@ -35,6 +36,7 @@ namespace Periphery {
 
 	static Timer16bit& timer1 = *(reinterpret_cast<Timer16bit*>(ADR_TIMER1));
 
+	static Twi& twi = *(reinterpret_cast<Twi*>(ADR_TWI));
 
 	//Device specific Constants
 	static constexpr uint8_t Timer16bitChannelCount = 2;
@@ -60,6 +62,15 @@ namespace Periphery {
 	}
 	inline Timer16bit& getTimer16bit() noexcept {
 		return *(reinterpret_cast<Timer16bit*>(AddressMap::getTimer16bitAdress()));
+	}
+	inline Twi& getTwi() noexcept {
+		return *(reinterpret_cast<Twi*>(AddressMap::getTwiAddress()));
+	}
+	inline Pin getTwiSclPin() noexcept {
+		return Pin(getPort<'C'>(), 5);
+	}
+	inline Pin getTwiSdaPin() noexcept {
+		return Pin(getPort<'C'>(), 4);
 	}
 
 	//Access to secondary Periphery
@@ -163,6 +174,7 @@ namespace Periphery {
 	template <> inline constexpr uint8_t getCapacity<GeneralPurposeFlag>() noexcept { return 8 * getCapacity<GeneralPurposeRegister>(); }
 	template <> inline constexpr uint8_t getCapacity<Timer8bit>() noexcept { return 2; }
 	template <> inline constexpr uint8_t getCapacity<Timer16bit>() noexcept { return 1; }
+	template <> inline constexpr uint8_t getCapacity<Twi>() noexcept { return 1; }
 }
 
 

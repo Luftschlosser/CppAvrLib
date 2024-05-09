@@ -33,12 +33,14 @@
 #define ADR_TIMSK 0x6E
 #define ADR_GTCCR 0x43
 
+#define ADR_TWI 0xB8
 
 //Forward-Declarations
 class Port;
 class Usart;
 class GeneralPurposeRegister;
 class Timer16bit;
+class Twi;
 
 ///Functions for bidirectional pointer<->index evaluations of the MMIO-Periphery for the ATmega328p
 namespace AddressMap {
@@ -65,6 +67,9 @@ namespace AddressMap {
 	inline uint8_t getIdentity(const Timer16bit* periphery) noexcept {
 		return 1;
 	}
+	inline constexpr uint8_t getIdentity(const Twi* periphery) noexcept {
+		return 0; //Only 1 exists
+	}
 
 	///index -> Address for the template-specified type
 	template <unsigned char Index> inline constexpr intptr_t getPortAdress() noexcept;
@@ -82,6 +87,8 @@ namespace AddressMap {
 	template <> inline constexpr intptr_t getTimer8bitAdress<2>() noexcept { return ADR_TIMER2; }
 
 	inline constexpr intptr_t getTimer16bitAdress() noexcept { return ADR_TIMER1; }
+
+	inline constexpr intptr_t getTwiAddress() noexcept { return ADR_TWI; }
 
 	inline constexpr intptr_t getRegisterTIFR(uint8_t index) noexcept { return ADR_TIFR + index; }
 	inline constexpr intptr_t getRegisterTIMSK(uint8_t index) noexcept { return ADR_TIMSK + index; }

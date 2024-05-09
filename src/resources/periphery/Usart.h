@@ -187,16 +187,16 @@ public:
 	inline void disableDataRegisterEmptyInterrupt() noexcept { this->regUCSRB.fields.flagUDRIE = 0; }
 
 	///Enables the Receiver
-	inline void enableReceiver() noexcept { this->regUCSRB.fields.flagRXEN = 1; }
+	inline void enableReceiver() noexcept { this->regUCSRB.fields.flagRXEN = 1; } //TODO: AutoPinAllocation
 
 	///Disables the Receiver
-	inline void disableReceiver() noexcept { this->regUCSRB.fields.flagRXEN = 0; }
+	inline void disableReceiver() noexcept { this->regUCSRB.fields.flagRXEN = 0; } //TODO: AutoPinAllocation
 
 	///Enables the Transmitter
-	inline void enableTransmitter() noexcept { this->regUCSRB.fields.flagTXEN = 1; }
+	inline void enableTransmitter() noexcept { this->regUCSRB.fields.flagTXEN = 1; } //TODO: AutoPinAllocation
 
 	///Disables the Transmitter
-	inline void disableTransmitter() noexcept { this->regUCSRB.fields.flagTXEN = 0; }
+	inline void disableTransmitter() noexcept { this->regUCSRB.fields.flagTXEN = 0; } //TODO: AutoPinAllocation
 
 	///Reads the ninth data bit
 	inline bool getNinthDataBit() noexcept { return this->regUCSRB.fields.flagRXB8 == 1; }
