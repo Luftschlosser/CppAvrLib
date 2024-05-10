@@ -78,13 +78,16 @@ namespace Interrupts {
 	template <> inline Interrupt getTimerOvfInterrupt<4>() noexcept { return Interrupt::GetInstance<TIMER4_OVF_vect_num>(); }
 	template <> inline Interrupt getTimerOvfInterrupt<5>() noexcept { return Interrupt::GetInstance<TIMER5_OVF_vect_num>(); }
 
-	///Access the Tiimer Input Capture Interrupt object for the template specified Timer device
+	///Access the Timer Input Capture Interrupt object for the template specified Timer device
 	///\return A reference to the Interrupt object
 	template <uint8_t Index> inline Interrupt getTimerCaptInterrupt() noexcept;
 	template <> inline Interrupt getTimerCaptInterrupt<1>() noexcept { return Interrupt::GetInstance<TIMER1_CAPT_vect_num>(); }
 	template <> inline Interrupt getTimerCaptInterrupt<3>() noexcept { return Interrupt::GetInstance<TIMER3_CAPT_vect_num>(); }
 	template <> inline Interrupt getTimerCaptInterrupt<4>() noexcept { return Interrupt::GetInstance<TIMER4_CAPT_vect_num>(); }
 	template <> inline Interrupt getTimerCaptInterrupt<5>() noexcept { return Interrupt::GetInstance<TIMER5_CAPT_vect_num>(); }
+
+	///Access the Twi Interrupt object
+	inline Interrupt getTwiInterrupt() noexcept { return Interrupt::GetInstance<TWI_vect_num>(); }
 }
 
 

@@ -15,7 +15,7 @@ namespace Interrupts {
 	template <uint8_t Index> inline Interrupt getExternalInterrupt() noexcept;
 	template <> inline Interrupt getExternalInterrupt<0>() noexcept { return Interrupt::GetInstance<INT0_vect_num>(); }
 	template <> inline Interrupt getExternalInterrupt<1>() noexcept { return Interrupt::GetInstance<INT1_vect_num>(); }
-	///Acess the Interrupt Object for the PinChange Interrupt Port with the template-specified index
+	///Access the Interrupt Object for the PinChange Interrupt Port with the template-specified index
 	///\return A reference to the Interrupt object
 	template <uint8_t Index> inline Interrupt getPinChangeInterrupt() noexcept;
 	template <> inline Interrupt getPinChangeInterrupt<0>() noexcept { return Interrupt::GetInstance<PCINT0_vect_num>(); }
@@ -55,6 +55,9 @@ namespace Interrupts {
 	///\return A reference to the Interrupt object
 	template <uint8_t Index> inline Interrupt getTimerCaptInterrupt() noexcept;
 	template <> inline Interrupt getTimerCaptInterrupt<1>() noexcept { return Interrupt::GetInstance<TIMER1_CAPT_vect_num>(); }
+
+	///Access the Twi Interrupt object
+	inline Interrupt getTwiInterrupt() noexcept { return Interrupt::GetInstance<TWI_vect_num>(); }
 }
 
 

@@ -46,9 +46,9 @@
 #define ISRTYPE_TIMER1_OCC	ISR_BLOCK
 #define ISRTYPE_TIMER1_OVF	ISR_BLOCK
 #define ISRTYPE_TIMER1_CAPT	ISR_BLOCK
-//#define ISRTYPE_TIMER2_OCA	ISR_BLOCK
+#define ISRTYPE_TIMER2_OCA	ISR_BLOCK
 #define ISRTYPE_TIMER2_OCB	ISR_BLOCK
-//#define ISRTYPE_TIMER2_OVF	ISR_BLOCK
+#define ISRTYPE_TIMER2_OVF	ISR_BLOCK
 #define ISRTYPE_TIMER3_OCA	ISR_BLOCK
 #define ISRTYPE_TIMER3_OCB	ISR_BLOCK
 #define ISRTYPE_TIMER3_OCC	ISR_BLOCK
@@ -64,6 +64,8 @@
 #define ISRTYPE_TIMER5_OCC	ISR_BLOCK
 #define ISRTYPE_TIMER5_OVF	ISR_BLOCK
 #define ISRTYPE_TIMER5_CAPT	ISR_BLOCK
+
+#define ISRTYPE_TWI			ISR_BLOCK
 
 
 //___________________________________
@@ -468,6 +470,17 @@ ISR(TIMER4_CAPT_vect, ISRTYPE_TIMER4_CAPT) {
 ISR(TIMER5_CAPT_vect, ISRTYPE_TIMER5_CAPT) {
 	if (Configuration::enableInterrupt_TIMER5_CAPT)
 		Interrupt::invoke<TIMER5_CAPT_vect_num>();
+}
+#endif
+
+//___________________________________
+//TWI
+
+//TWI
+#ifdef ISRTYPE_TWI
+ISR(TWI_vect, ISRTYPE_TWI) {
+	if (Configuration::enableInterrupt_TWI)
+		Interrupt::invoke<TWI_vect_num>();
 }
 #endif
 
