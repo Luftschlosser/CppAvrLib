@@ -10,36 +10,35 @@
 class I2cMaster {
 
 private:
-	static constexpr uint8_t NumberOfOperations = 2;
-
 	Twi& twi;
 
 	AsynchronousTask<void>* errorCallback;
 
 	struct Operation {
-		enum Type : uint8_t {
-			SingleData = 0,
-			ArrayData = 1,
-			StringData = 2
-		} volatile type;
+		enum Mode : int8_t {
+			writeSingleData = -1,
+			writeArrayData = 0,
+			readData = 1
+		} mode;
 		union Data {
 			uint8_t single;
 			uint8_t* array;
-			const char* string;
+			Data(uint8_t single) noexcept : single(single) {}
+			Data(uint8_t* array) noexcept : array(array) {}
 		} volatile data;
-		volatile uint8_t slaRW;
-		volatile uint8_t length; //decrementing counter, 0 when completed
+		volatile uint8_t slaveAddress;
+		volatile uint8_t registerAddress;
+		volatile uint8_t length = 0; //decrementing counter, 0 when completed
 		AsynchronousTask<void>* completionCallback;
-
-		inline void clear() noexcept {
-			this->length = 0;
-			this->data.array = nullptr;
-			this->completionCallback = nullptr;
+		inline void set(Mode mode, Data data, uint8_t slaveAddress, uint8_t registerAddress, uint8_t length, AsynchronousTask<void>* completionCallback) noexcept {
+			this->slaveAddress = (slaveAddress << 1);
+			this->registerAddress = registerAddress;
+			this->data = data;
+			this->mode = mode;
+			this->length = length;
+			this->completionCallback = completionCallback;
 		}
-
-	} operations[NumberOfOperations];
-
-	volatile uint8_t activeOperation;
+	} operation;
 
 	enum Status : int8_t {
 		Idle = 0,
@@ -52,15 +51,8 @@ private:
 	} volatile status;
 
 
-	inline void prepareNextOperation() noexcept {
-		this->activeOperation = (this->activeOperation + 1) % NumberOfOperations;
-		if (this->operations[this->activeOperation].length > 0) { //-> repeated start
-			this->twi.scheduleStart();
-		}
-		else {
-			this->twi.stop();
-			this->status = Status::Idle;
-		}
+	inline void twiStart() noexcept {
+		this->twi.scheduleStart();
 		this->twi.clearInterruptFlag();
 	}
 
@@ -98,75 +90,60 @@ private:
 			}
 			break;
 		case Twi::TWSReg::FIELDS::Status::M_StartTransmitted:
+			this->twi.clearStart();
+			this->twi.setData(this->operation.slaveAddress); //Prepare SLA+W
+			this->twi.clearInterruptFlag();
+			break;
 		case Twi::TWSReg::FIELDS::Status::M_RepeatedStartTransmitted:
 			this->twi.clearStart();
-			this->twi.setData(this->operations[this->activeOperation].slaRW);
+			this->twi.setData(this->operation.slaveAddress | 0x01); //Prepare SLA+R
 			this->twi.clearInterruptFlag();
 			break;
 		case Twi::TWSReg::FIELDS::Status::M_SLA_W_ACK:
+			this->twi.setData(this->operation.registerAddress);
+			this->twi.clearInterruptFlag();
+			break;
 		case Twi::TWSReg::FIELDS::Status::M_DataTransmitted_ACK:
-			if (this->operations[this->activeOperation].length > 0) {
-				switch (this->operations[this->activeOperation].type) {
-				case Operation::Type::SingleData:
-					this->twi.setData(this->operations[this->activeOperation].data.single);
-					this->operations[this->activeOperation].length = 0;
-					break;
-				case Operation::Type::ArrayData:
-					this->twi.setData(*this->operations[this->activeOperation].data.array);
-					this->operations[this->activeOperation].data.array++;
-					this->operations[this->activeOperation].length--;
-					break;
-				case Operation::Type::StringData:
-					this->twi.setData(*this->operations[this->activeOperation].data.string);
-					if (*this->operations[this->activeOperation].data.string == 0) {
-						this->operations[this->activeOperation].length = 0;
-					}
-					this->operations[this->activeOperation].data.string++;
-					break;
+			if (this->operation.mode == Operation::Mode::readData) {
+				this->twi.scheduleStart(); //Prepare Repeated Start for Reading
+			}
+			else if (this->operation.length > 0) {
+				if (this->operation.mode == Operation::Mode::writeSingleData) {
+					this->twi.setData(this->operation.data.single);
+					this->operation.length = 0;
 				}
-				this->twi.clearInterruptFlag();
+				else {
+					this->twi.setData(*this->operation.data.array);
+					this->operation.data.array++;
+					this->operation.length--;
+				}
 			}
 			else {
-				this->operations[this->activeOperation].clear();
-				if (this->operations[this->activeOperation].completionCallback != nullptr) {
-					this->operations[this->activeOperation].completionCallback->execute<REPEATEDLY>();
+				this->status = Status::Idle;
+				if (this->operation.completionCallback != nullptr) {
+					this->operation.completionCallback->execute<REPEATEDLY>();
 				}
-				this->prepareNextOperation();
+				this->twi.stop();
 			}
+			this->twi.clearInterruptFlag();
 			break;
 		case Twi::TWSReg::FIELDS::Status::M_SLA_R_ACK:
 			this->twi.clearInterruptFlag();
 			break;
 		case Twi::TWSReg::FIELDS::Status::M_DataReceived_ACK:
-			switch (this->operations[this->activeOperation].type) {
-			case Operation::Type::SingleData:
-			case Operation::Type::ArrayData:
-				*this->operations[this->activeOperation].data.array = twi.readData();
-				this->operations[this->activeOperation].length--;
-				if (this->operations[this->activeOperation].length > 0) {
-					this->operations[this->activeOperation].data.array++;
-				}
-				break;
-			case Operation::Type::StringData:
-				*this->operations[this->activeOperation].data.string = twi.readData();
-				if (*this->operations[this->activeOperation].data.string == 0) {
-					this->operations[this->activeOperation].length = 0;
-				}
-				else {
-					this->operations[this->activeOperation].length--;
-					this->operations[this->activeOperation].data.string++;
-				}
+			*this->operation.data.array = twi.readData();
+			this->operation.length--;
+			if (this->operation.length > 0) {
+				this->operation.data.array++;
 			}
-			if (this->operations[this->activeOperation].length == 0) {
-				this->operations[this->activeOperation].clear();
-				if (this->operations[this->activeOperation].completionCallback != nullptr) {
-					this->operations[this->activeOperation].completionCallback->execute<REPEATEDLY>();
+			if (this->operation.length == 0) {
+				this->status = Status::Idle;
+				if (this->operation.completionCallback != nullptr) {
+					this->operation.completionCallback->execute<REPEATEDLY>();
 				}
-				this->prepareNextOperation();
+				this->twi.stop();
 			}
-			else {
-				this->twi.clearInterruptFlag();
-			}
+			this->twi.clearInterruptFlag();
 			break;
 		default:
 			this->status = Status::TransmissionError;
@@ -185,10 +162,7 @@ public:
 		High400k = 40
 	};
 
-	inline I2cMaster(Twi& twi, Interrupt twiIrq) noexcept: twi(twi), errorCallback(nullptr), operations({}), activeOperation(0), status(Status::Idle) {
-		for (uint8_t i = 0; i < NumberOfOperations; i++) {
-			this->operations[i].clear();
-		}
+	inline I2cMaster(Twi& twi, Interrupt twiIrq) noexcept: twi(twi), errorCallback(nullptr), operation({}), status(Status::Idle) {
 		twiIrq.registerMethod<I2cMaster, &I2cMaster::twiCallback>(*this);
 	}
 
@@ -233,173 +207,52 @@ public:
 		this->twi.disableInterrupt();
 	}
 
-	inline bool writeAsync(uint8_t address, uint8_t data, AsynchronousTask<void>* completionCallback = nullptr) noexcept {
+	inline bool writeAsync(uint8_t slaveAddress, uint8_t slaveRegister, uint8_t data, AsynchronousTask<void>* completionCallback = nullptr) noexcept {
 		if (this->status == Status::Idle) {
-			this->operations[this->activeOperation].slaRW = (address << 1);
-			this->operations[this->activeOperation].data.single = data;
-			this->operations[this->activeOperation].type = Operation::Type::SingleData;
-			this->operations[this->activeOperation].length = 1;
-			this->operations[this->activeOperation].completionCallback = completionCallback;
 			this->status = Status::Busy;
-			this->twi.scheduleStart();
-			this->twi.clearInterruptFlag();
+			this->operation.set(Operation::Mode::writeSingleData, Operation::Data(data), slaveAddress, slaveRegister, 1, completionCallback);
+			this->twiStart();
 			return true;
 		}
-		else if (this->status == Status::Busy) {
-			uint8_t nextOperation = (this->activeOperation + 1) % NumberOfOperations;
-			if (this->operations[nextOperation].length > 0) {
-				return false;
-			}
-			else  {
-				this->operations[nextOperation].length = 1;
-				this->operations[nextOperation].slaRW = (address << 1);
-				this->operations[nextOperation].type = Operation::Type::SingleData;
-				this->operations[nextOperation].data.single = data;
-				this->operations[this->activeOperation].completionCallback = completionCallback;
-				return true;
-			}
-		}
-		else {
-			return false;
-		}
+		return false;
 	}
 
-	inline bool writeAsync(uint8_t address, uint8_t* data, uint8_t length, AsynchronousTask<void>* completionCallback = nullptr) noexcept {
+	inline bool writeAsync(uint8_t slaveAddress, uint8_t slaveRegister, uint8_t* data, uint8_t length, AsynchronousTask<void>* completionCallback = nullptr) noexcept {
 		if (length > 0) {
 			if (this->status == Status::Idle) {
-				this->operations[this->activeOperation].slaRW = (address << 1);
-				this->operations[this->activeOperation].data.array = data;
-				this->operations[this->activeOperation].type = Operation::Type::ArrayData;
-				this->operations[this->activeOperation].length = length;
-				this->operations[this->activeOperation].completionCallback = completionCallback;
 				this->status = Status::Busy;
-				this->twi.scheduleStart();
-				this->twi.clearInterruptFlag();
+				this->operation.set(Operation::Mode::writeArrayData, Operation::Data(data), slaveAddress, slaveRegister, length, completionCallback);
+				this->twiStart();
 				return true;
-			}
-			else if (this->status == Status::Busy) {
-				uint8_t nextOperation = (this->activeOperation + 1) % NumberOfOperations;
-				if (this->operations[nextOperation].length > 0) {
-					return false;
-				}
-				else  {
-					this->operations[nextOperation].length = length;
-					this->operations[nextOperation].slaRW = (address << 1);
-					this->operations[nextOperation].data.array = data;
-					this->operations[nextOperation].type = Operation::Type::ArrayData;
-					this->operations[this->activeOperation].completionCallback = completionCallback;
-					return true;
-				}
 			}
 		}
 		return false;
 	}
 
-	inline bool writeAsync(uint8_t address, const char* string, AsynchronousTask<void>* completionCallback = nullptr) noexcept {
-		if (this->status == Status::Idle) {
-			this->operations[this->activeOperation].slaRW = (address << 1);
-			this->operations[this->activeOperation].data.string = string;
-			this->operations[this->activeOperation].type = Operation::Type::StringData;
-			this->operations[this->activeOperation].length = 1;
-			this->operations[this->activeOperation].completionCallback = completionCallback;
-			this->status = Status::Busy;
-			this->twi.scheduleStart();
-			this->twi.clearInterruptFlag();
-			return true;
-		}
-		else if (this->status == Status::Busy) {
-			uint8_t nextOperation = (this->activeOperation + 1) % NumberOfOperations;
-			if (this->operations[nextOperation].length > 0) {
-				return false;
-			}
-			else  {
-				this->operations[nextOperation].length = 1;
-				this->operations[nextOperation].slaRW = (address << 1);
-				this->operations[nextOperation].data.string = string;
-				this->operations[nextOperation].type = Operation::Type::StringData;
-				this->operations[this->activeOperation].completionCallback = completionCallback;
-				return true;
-			}
-		}
-		else {
-			return false;
-		}
-	}
-
-	inline bool readAsync(uint8_t address, uint8_t* buffer, uint8_t buffersize = 1, AsynchronousTask<void>* completionCallback = nullptr) noexcept {
-		if (buffersize > 0) {
+	inline bool readAsync(uint8_t slaveAddress, uint8_t slaveRegister, uint8_t* buffer, uint8_t length = 1, AsynchronousTask<void>* completionCallback = nullptr) noexcept {
+		if (length > 0) {
 			if (this->status == Status::Idle) {
-				this->operations[this->activeOperation].slaRW = ((address << 1) | 0x01);
-				this->operations[this->activeOperation].data.array = buffer;
-				this->operations[this->activeOperation].type = Operation::Type::ArrayData;
-				this->operations[this->activeOperation].length = buffersize;
-				this->operations[this->activeOperation].completionCallback = completionCallback;
 				this->status = Status::Busy;
-				this->twi.scheduleStart();
-				this->twi.clearInterruptFlag();
+				this->operation.set(Operation::Mode::readData, Operation::Data(buffer), slaveAddress, slaveRegister, length, completionCallback);
+				this->twiStart();
 				return true;
-			}
-			else if (this->status == Status::Busy) {
-				uint8_t nextOperation = (this->activeOperation + 1) % NumberOfOperations;
-				if (this->operations[nextOperation].length > 0) {
-					return false;
-				}
-				else  {
-					this->operations[nextOperation].length = buffersize;
-					this->operations[nextOperation].slaRW = ((address << 1) | 0x01);
-					this->operations[nextOperation].type = Operation::Type::ArrayData;
-					this->operations[nextOperation].data.array = buffer;
-					this->operations[this->activeOperation].completionCallback = completionCallback;
-					return true;
-				}
 			}
 		}
 		return false;
 	}
 
-	inline bool readAsync(uint8_t address, const char* buffer, uint8_t buffersize, AsynchronousTask<void>* completionCallback = nullptr) noexcept {
-		if (buffersize > 0) {
-			if (this->status == Status::Idle) {
-				this->operations[this->activeOperation].slaRW = ((address << 1) | 0x01);
-				this->operations[this->activeOperation].data.string = buffer;
-				this->operations[this->activeOperation].type = Operation::Type::StringData;
-				this->operations[this->activeOperation].length = buffersize;
-				this->operations[this->activeOperation].completionCallback = completionCallback;
-				this->status = Status::Busy;
-				this->twi.scheduleStart();
-				this->twi.clearInterruptFlag();
-				return true;
-			}
-			else if (this->status == Status::Busy) {
-				uint8_t nextOperation = (this->activeOperation + 1) % NumberOfOperations;
-				if (this->operations[nextOperation].length > 0) {
-					return false;
-				}
-				else  {
-					this->operations[nextOperation].length = buffersize;
-					this->operations[nextOperation].slaRW = ((address << 1) | 0x01);
-					this->operations[nextOperation].type = Operation::Type::StringData;
-					this->operations[nextOperation].data.string = buffer;
-					this->operations[this->activeOperation].completionCallback = completionCallback;
-					return true;
-				}
-			}
-		}
-		return false;
-	}
-
-	inline uint8_t readSync(uint8_t address) noexcept {
+	inline uint8_t readByteSync(uint8_t slaveAddress, uint8_t slaveRegister) noexcept {
 		uint8_t buffer;
-		struct Semaphore {
+		struct Lock {
 			volatile bool wait = true;
 			inline void resume() noexcept { this->wait = false; }
-		} semaphore;
-		AsynchronousTask<void> completedCallback = AsynchronousTask<void>();
-		completedCallback.scheduleMethod<Semaphore, &Semaphore::resume>(semaphore);
-		if (!readAsync(address, &buffer, 1, &completedCallback)) {
+		} lock;
+		AsynchronousTask<void> completionCallback = AsynchronousTask<void>();
+		completionCallback.scheduleMethod<Lock, &Lock::resume>(lock);
+		if (!readAsync(slaveAddress, slaveRegister, &buffer, 1, &completionCallback)) {
 			return 0;
 		}
-		while (semaphore.wait) {
+		while (lock.wait) {
 			if (this->hasError()) {
 				return 0;
 			}
@@ -424,13 +277,10 @@ public:
 	}
 
 	inline void clearError() noexcept {
+		this->operation.length = 0;
 		this->status = Status::Idle;
-		for (uint8_t i = 0; i < NumberOfOperations; i++) {
-			this->operations[i].clear();
-		}
 		this->twi.stop(); //TransmissionError recovery
 		this->twi.clearInterruptFlag();
-
 	}
 
 	inline void setErrorCallback(AsynchronousTask<void>* errorCallback) noexcept {
