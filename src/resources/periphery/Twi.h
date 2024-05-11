@@ -70,7 +70,7 @@ public:
 				Prescale_1 = 0x00,
 				Prescale_4 = 0x01,
 				Prescale_16 = 0x02,
-				Perscale_64 = 0x03
+				Prescale_64 = 0x03
 			};
 
 		} fields;
