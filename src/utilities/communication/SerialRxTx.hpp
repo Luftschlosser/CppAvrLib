@@ -14,13 +14,18 @@ public:
 
 private:
 
-	const char* txData;
+	union TxData {
+		const char* string;
+		char hex8_pt2;
+		TxData() noexcept : string(nullptr) {}
+	} txData;
 
 	enum TxStatus : int8_t {
 		DISABLED = -1,
 		IDLE = 0,
 		COMPLETING = 1,
-		TX_STRING = 2
+		TX_STRING = 2,
+		TX_8HEX = 3
 	} volatile txStatus;
 
 
@@ -30,14 +35,16 @@ private:
 
 	inline void txReadyCallback() noexcept {
 		if (this->txStatus == TX_STRING) {
-			if (*(++(this->txData)) != 0) {
-				usart.write(*(this->txData));
-			}
-			else {
-				this->txStatus = TxStatus::COMPLETING;
-				this->usart.disableDataRegisterEmptyInterrupt();
+			if (*(++(this->txData.string)) != 0) {
+				usart.write(*(this->txData.string));
+				return;
 			}
 		}
+		else if (this->txStatus == TX_8HEX) {
+			usart.write(this->txData.hex8_pt2);
+		}
+		this->txStatus = TxStatus::COMPLETING;
+		this->usart.disableDataRegisterEmptyInterrupt();
 	}
 
 public:
@@ -52,7 +59,7 @@ public:
 
 
 	inline SerialRxTx(Usart& usart, Interrupt txIrq, Interrupt udreIrq) noexcept
-			: usart(usart), txData(nullptr), txStatus(TxStatus::DISABLED) {
+			: usart(usart), txData(), txStatus(TxStatus::DISABLED) {
 		txIrq.registerMethod<SerialRxTx, &SerialRxTx::txCompleteCallback>(*this);
 		udreIrq.registerMethod<SerialRxTx, &SerialRxTx::txReadyCallback>(*this);
 	}
@@ -137,7 +144,7 @@ public:
 		if (*s != 0) {
 			if (this->txStatus == TxStatus::IDLE) {
 				this->txStatus = TxStatus::TX_STRING;
-				this->txData = s;
+				this->txData.string = s;
 				usart.write(*s);
 				this->usart.enableDataRegisterEmptyInterrupt();
 				return true;
@@ -148,6 +155,21 @@ public:
 		}
 		else {
 			return true;
+		}
+	}
+
+	inline bool transmitHex(uint8_t value) noexcept {
+		if (this->txStatus == TxStatus::IDLE) {
+			this->txStatus = TxStatus::TX_8HEX;
+			uint8_t pt2 = value & 0x0F;
+			this->txData.hex8_pt2 = pt2 > 9 ? pt2 + ('A' - 10) : pt2 + '0';
+			value = value >> 4; //pt1
+			this->usart.write(char(value > 9 ? value + ('A' - 10) : value + '0'));
+			this->usart.enableDataRegisterEmptyInterrupt();
+			return true;
+		}
+		else {
+			return false;
 		}
 	}
 };
