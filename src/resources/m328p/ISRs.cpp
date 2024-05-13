@@ -34,6 +34,7 @@
 #define ISRTYPE_TIMER2_OCB	ISR_BLOCK
 #define ISRTYPE_TIMER2_OVF	ISR_BLOCK
 
+#define ISRTYPE_TWI			ISR_BLOCK
 
 //___________________________________
 //External Interrupts

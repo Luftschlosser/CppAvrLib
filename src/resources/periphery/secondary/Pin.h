@@ -86,7 +86,14 @@ public:
 
 	///Writes a given Bit to the Pin (in Output mode)
 	///\param data the boolean value to output
-	inline void write(bool data) const noexcept { if (data) port.regPORT |= (1 << pin); else port.regPORT &= ~(1 << pin); }
+	inline void write(bool data) const noexcept {
+		if (data) {
+			port.regPORT |= (1 << pin);
+		}
+		else {
+			port.regPORT &= ~(1 << pin);
+		}
+	}
 
 	///Sets the Pin output to High (in Output mode)
 	inline void setHigh() const noexcept { port.regPORT |= (1 << pin); }

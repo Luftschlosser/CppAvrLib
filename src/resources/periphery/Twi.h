@@ -30,39 +30,39 @@ public:
 	///The TWI Status Register
 	union TWSReg {
 		struct FIELDS {
-			volatile const uint8_t dataTWS : 5; //TWI Status
-			volatile const uint8_t reserved : 1;
 			volatile uint8_t dataTWPS : 2; //TWI Prescaler Bits
+			volatile const uint8_t reserved : 1;
+			volatile const uint8_t dataTWS : 5; //TWI Status
 
 			//Enumeration for interpreting the Status-Bytes
 			enum Status : uint8_t {
-				BusError = 0x00 >> 3,
-				M_StartTransmitted = 0x08 >> 3,
-				M_RepeatedStartTransmitted = 0x10 >> 3,
-				M_SLA_W_ACK = 0x18 >> 3,
-				M_SLA_W_NACK = 0x20 >> 3,
-				M_DataTransmitted_ACK = 0x28 >> 3,
-				M_DataTransmitted_NACK = 0x30 >> 3,
-				M_ArbitrationLost = 0x38 >> 3,
-				M_SLA_R_ACK = 0x40 >> 3,
-				M_SLA_R_NACK = 0x48 >> 3,
-				M_DataReceived_ACK = 0x50 >> 3,
-				M_DataReceived_NACK = 0x58 >> 3,
-				S_SLA_W_ACK = 0x60 >> 3,
-				M_ArbitrationLost_SLA_W = 0x68 >> 3,
+				BusError = 0x00,
+				M_StartTransmitted = 0x08,
+				M_RepeatedStartTransmitted = 0x10,
+				M_SLA_W_ACK = 0x18,
+				M_SLA_W_NACK = 0x20,
+				M_DataTransmitted_ACK = 0x28,
+				M_DataTransmitted_NACK = 0x30,
+				M_ArbitrationLost = 0x38,
+				M_SLA_R_ACK = 0x40,
+				M_SLA_R_NACK = 0x48,
+				M_DataReceived_ACK = 0x50,
+				M_DataReceived_NACK = 0x58,
+				S_SLA_W_ACK = 0x60,
+				M_ArbitrationLost_SLA_W = 0x68,
 				S_Broadcast_ACK = 0x70,
-				M_ArbitrationLost_Broadcast = 0x78 >> 3,
-				S_DataReceived_ACK = 0x80 >> 3,
-				S_DataReceived_NACK = 0x88 >> 3,
-				S_DataBroadcastReceived_ACK = 0x90 >> 3,
-				S_DataBroadcastReceived_NACK = 0x98 >> 3,
-				S_StopReceived = 0xA0 >> 3,
-				S_SLA_R_ACK = 0xA8 >> 3,
-				M_ArbitrationLost_SLA_R = 0xB0 >> 3,
-				S_DataTransmitted_ACK = 0xB8 >> 3,
-				S_DataTransmitted_NACK = 0xC0 >> 3,
-				S_TransmitStopped_ACK = 0xC8 >> 3,
-				Idle = 0xF8 >> 3
+				M_ArbitrationLost_Broadcast = 0x78,
+				S_DataReceived_ACK = 0x80,
+				S_DataReceived_NACK = 0x88,
+				S_DataBroadcastReceived_ACK = 0x90,
+				S_DataBroadcastReceived_NACK = 0x98,
+				S_StopReceived = 0xA0,
+				S_SLA_R_ACK = 0xA8,
+				M_ArbitrationLost_SLA_R = 0xB0,
+				S_DataTransmitted_ACK = 0xB8,
+				S_DataTransmitted_NACK = 0xC0,
+				S_TransmitStopped_ACK = 0xC8,
+				Idle = 0xF8
 			};
 
 			//Enumeration for the Prescaler Values
@@ -80,8 +80,8 @@ public:
 	///The TWI (Slave) Address Register
 	union TWAReg {
 		struct FIELDS {
-			volatile uint8_t dataTWA : 7; //TWI (Slave) Address
 			volatile uint8_t flagTWGCE : 1; //TWI General Call Recognition Enable Bit
+			volatile uint8_t dataTWA : 7; //TWI (Slave) Address
 		} fields;
 		volatile uint8_t reg;
 	} regTWAR;
@@ -92,14 +92,14 @@ public:
 	///The TWI Control Register
 	union TWCReg {
 		struct FIELDS {
-			volatile uint8_t flagTWINT : 1; //TWI Interrupt Flag
-			volatile uint8_t flagTWEA : 1; //TWI Enable Acknowledge Bit
-			volatile uint8_t  flagTWSTA : 1; //TWI START Condition Bit
-			volatile uint8_t flagTWSTO : 1; //TWI STOP Condition Bit
-			volatile const uint8_t flagTWWC : 1; //TWI Write Collision Flag
-			volatile uint8_t flagTWEN : 1; //TWI Enable Bit
-			volatile const uint8_t reserved : 1;
 			volatile uint8_t flagTWIE : 1; //TWI Interrupt Enable
+			volatile const uint8_t reserved : 1;
+			volatile uint8_t flagTWEN : 1; //TWI Enable Bit
+			volatile const uint8_t flagTWWC : 1; //TWI Write Collision Flag
+			volatile uint8_t flagTWSTO : 1; //TWI STOP Condition Bit
+			volatile uint8_t  flagTWSTA : 1; //TWI START Condition Bit
+			volatile uint8_t flagTWEA : 1; //TWI Enable Acknowledge Bit
+			volatile uint8_t flagTWINT : 1; //TWI Interrupt Flag
 		} fields;
 		volatile uint8_t reg;
 	} regTWCR;
@@ -107,8 +107,8 @@ public:
 	///The TWI (Slave) Address Mask Register
 	union TWAMReg {
 		struct FIELDS {
-			volatile uint8_t dataTWAM : 7; //TWI Address Mask
 			volatile const uint8_t reserved : 1;
+			volatile uint8_t dataTWAM : 7; //TWI Address Mask
 		} fields;
 		volatile uint8_t reg;
 	} regTWAMR;
@@ -147,6 +147,9 @@ public:
 		this->regTWBR = bitrate;
 	}
 
+	/*
+	 * TODO: For some reason the TWI does not operate correctly when controlled via bitfields -> Not sure why, but TWCR must be controlled by writing complete values...
+	 *
 	///Clears the Interrupt Flag "TWINT" by writing a logic 1 to it. This is used to start the operation of the TWI.
 	inline void clearInterruptFlag() noexcept {
 		this->regTWCR.fields.flagTWINT = 1;
@@ -176,6 +179,7 @@ public:
 	inline void stop() noexcept {
 		this->regTWCR.fields.flagTWSTO = 1;
 	}
+	*/
 
 	///Checks if the write collision flag is set.
 	inline bool hasWriteCollision() const noexcept {
@@ -216,7 +220,7 @@ public:
 
 	///Returns the TWI-Status
 	inline TWSReg::FIELDS::Status getStatus() const noexcept {
-		return TWSReg::FIELDS::Status(this->regTWSR.fields.dataTWS);
+		return TWSReg::FIELDS::Status(this->regTWSR.reg & 0xF8);
 	}
 
 	///Sets the prescalar value

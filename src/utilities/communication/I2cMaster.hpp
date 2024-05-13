@@ -9,6 +9,17 @@
 
 class I2cMaster {
 
+public:
+	enum Status : int8_t {
+		Idle = 0,
+		Busy = 1,
+		BusError = -1,
+		ArbitrationLost = -2,
+		AddressNack = -3,
+		DataNack = -4,
+		TransmissionError = -5
+	};
+
 private:
 	Twi& twi;
 
@@ -25,9 +36,9 @@ private:
 			uint8_t* array;
 			Data(uint8_t single) noexcept : single(single) {}
 			Data(uint8_t* array) noexcept : array(array) {}
-		} volatile data;
-		volatile uint8_t slaveAddress;
-		volatile uint8_t registerAddress;
+		} data;
+		uint8_t slaveAddress;
+		uint8_t registerAddress;
 		volatile uint8_t length = 0; //decrementing counter, 0 when completed
 		AsynchronousTask<void>* completionCallback;
 		inline void set(Mode mode, Data data, uint8_t slaveAddress, uint8_t registerAddress, uint8_t length, AsynchronousTask<void>* completionCallback) noexcept {
@@ -38,22 +49,30 @@ private:
 			this->length = length;
 			this->completionCallback = completionCallback;
 		}
+		Operation() noexcept : mode(Mode::writeArrayData), data(nullptr), slaveAddress(0), registerAddress(0), length(0), completionCallback(nullptr) {}
 	} operation;
 
-	enum Status : int8_t {
-		Idle = 0,
-		Busy = 1,
-		BusError = -1,
-		ArbitrationLost = -2,
-		AddressNack = -3,
-		DataNack = -4,
-		TransmissionError = -5
-	} volatile status;
+	volatile Status status;
 
 
 	inline void twiStart() noexcept {
-		this->twi.scheduleStart();
-		this->twi.clearInterruptFlag();
+		static const uint8_t TwiCtrl_TwintTwstaTwenTwie = 0xA5;
+		this->twi.regTWCR.reg = TwiCtrl_TwintTwstaTwenTwie;
+	}
+
+	inline void twiStop() noexcept {
+		static const uint8_t TwiCtrl_TwintTwstoTwen = 0x94;
+		this->twi.regTWCR.reg = TwiCtrl_TwintTwstoTwen;
+	}
+
+	inline void twiResume() noexcept {
+		static const uint8_t TwiCtrl_TwintTwenTwie = 0x85;
+		this->twi.regTWCR.reg = TwiCtrl_TwintTwenTwie;
+	}
+
+	inline void twiResumeWithAck() noexcept {
+		static const uint8_t TwiCtrl_TwintTweaTwenTwie = 0xC5;
+		this->twi.regTWCR.reg = TwiCtrl_TwintTweaTwenTwie;
 	}
 
 	inline void twiCallback() noexcept {
@@ -63,8 +82,7 @@ private:
 			if (this->errorCallback != nullptr) {
 				this->errorCallback->execute<REPEATEDLY>();
 			}
-			break;
-		case Twi::TWSReg::FIELDS::Status::Idle:
+			this->twiStop();
 			break;
 		case Twi::TWSReg::FIELDS::Status::M_ArbitrationLost:
 		case Twi::TWSReg::FIELDS::Status::M_ArbitrationLost_Broadcast:
@@ -74,13 +92,14 @@ private:
 			if (this->errorCallback != nullptr) {
 				this->errorCallback->execute<REPEATEDLY>();
 			}
+			this->twiStop();
 			break;
-		case Twi::TWSReg::FIELDS::Status::M_DataReceived_NACK:
 		case Twi::TWSReg::FIELDS::Status::M_DataTransmitted_NACK:
 			this->status = Status::DataNack;
 			if (this->errorCallback != nullptr) {
 				this->errorCallback->execute<REPEATEDLY>();
 			}
+			this->twiStop();
 			break;
 		case Twi::TWSReg::FIELDS::Status::M_SLA_R_NACK:
 		case Twi::TWSReg::FIELDS::Status::M_SLA_W_NACK:
@@ -88,24 +107,23 @@ private:
 			if (this->errorCallback != nullptr) {
 				this->errorCallback->execute<REPEATEDLY>();
 			}
+			this->twiStop();
 			break;
 		case Twi::TWSReg::FIELDS::Status::M_StartTransmitted:
-			this->twi.clearStart();
 			this->twi.setData(this->operation.slaveAddress); //Prepare SLA+W
-			this->twi.clearInterruptFlag();
+			this->twiResume();
 			break;
 		case Twi::TWSReg::FIELDS::Status::M_RepeatedStartTransmitted:
-			this->twi.clearStart();
 			this->twi.setData(this->operation.slaveAddress | 0x01); //Prepare SLA+R
-			this->twi.clearInterruptFlag();
+			this->twiResume();
 			break;
 		case Twi::TWSReg::FIELDS::Status::M_SLA_W_ACK:
 			this->twi.setData(this->operation.registerAddress);
-			this->twi.clearInterruptFlag();
+			this->twiResume();
 			break;
 		case Twi::TWSReg::FIELDS::Status::M_DataTransmitted_ACK:
 			if (this->operation.mode == Operation::Mode::readData) {
-				this->twi.scheduleStart(); //Prepare Repeated Start for Reading
+				this->twiStart(); //Prepare repeated Start for Receiving
 			}
 			else if (this->operation.length > 0) {
 				if (this->operation.mode == Operation::Mode::writeSingleData) {
@@ -113,9 +131,39 @@ private:
 					this->operation.length = 0;
 				}
 				else {
-					this->twi.setData(*this->operation.data.array);
-					this->operation.data.array++;
+					this->twi.setData(*(this->operation.data.array));
+					(this->operation.data.array)++;
 					this->operation.length--;
+				}
+				this->twiResume();
+			}
+			else {
+				this->status = Status::Idle;
+				if (this->operation.completionCallback != nullptr) {
+					this->operation.completionCallback->execute<REPEATEDLY>();
+				}
+				this->twiStop();
+			}
+			break;
+		case Twi::TWSReg::FIELDS::Status::M_SLA_R_ACK:
+			if (this->operation.length > 1) {
+				this->twiResumeWithAck();
+			}
+			else {
+				this->twiResume();
+			}
+			break;
+		case Twi::TWSReg::FIELDS::Status::M_DataReceived_ACK:
+		case Twi::TWSReg::FIELDS::Status::M_DataReceived_NACK:
+			*(this->operation.data.array) = twi.readData();
+			this->operation.length--;
+			if (this->operation.length > 0) {
+				(this->operation.data.array)++;
+				if (this->operation.length > 1) {
+					this->twiResumeWithAck();
+				}
+				else {
+					this->twiResume();
 				}
 			}
 			else {
@@ -123,33 +171,17 @@ private:
 				if (this->operation.completionCallback != nullptr) {
 					this->operation.completionCallback->execute<REPEATEDLY>();
 				}
-				this->twi.stop();
+				this->twiStop();
 			}
-			this->twi.clearInterruptFlag();
 			break;
-		case Twi::TWSReg::FIELDS::Status::M_SLA_R_ACK:
-			this->twi.clearInterruptFlag();
-			break;
-		case Twi::TWSReg::FIELDS::Status::M_DataReceived_ACK:
-			*this->operation.data.array = twi.readData();
-			this->operation.length--;
-			if (this->operation.length > 0) {
-				this->operation.data.array++;
-			}
-			if (this->operation.length == 0) {
-				this->status = Status::Idle;
-				if (this->operation.completionCallback != nullptr) {
-					this->operation.completionCallback->execute<REPEATEDLY>();
-				}
-				this->twi.stop();
-			}
-			this->twi.clearInterruptFlag();
+		case Twi::TWSReg::FIELDS::Status::Idle:
 			break;
 		default:
 			this->status = Status::TransmissionError;
 			if (this->errorCallback != nullptr) {
 				this->errorCallback->execute<REPEATEDLY>();
 			}
+			this->twiStop();
 			break;
 		}
 	}
@@ -162,16 +194,16 @@ public:
 		High400k = 40
 	};
 
-	inline I2cMaster(Twi& twi, Interrupt twiIrq) noexcept: twi(twi), errorCallback(nullptr), operation({}), status(Status::Idle) {
+	inline I2cMaster(Twi& twi, Interrupt twiIrq) noexcept: twi(twi), errorCallback(nullptr), operation(), status(Status::Idle) {
 		twiIrq.registerMethod<I2cMaster, &I2cMaster::twiCallback>(*this);
 	}
 
 	inline void init() noexcept { this->twi.init(); }
 	inline void close() noexcept { this->twi.close(); }
 
-	template <uint32_t FCPU> inline void configure(Speed speed, bool internalPullup = false) noexcept {
+	inline void configure(Speed speed, bool internalPullup = false) noexcept {
 		uint32_t fScl = uint32_t(10000)*speed;
-		uint32_t scale = ((FCPU/fScl)-16)/2;
+		uint32_t scale = ((F_CPU/fScl)-16)/2;
 
 		if (scale < 256) {
 			this->twi.setPrescalar(Twi::TWSReg::FIELDS::Prescaler::Prescale_1);
@@ -198,8 +230,6 @@ public:
 
 	inline void enable() noexcept {
 		this->twi.enable();
-		this->twi.enableInterrupt();
-		this->twi.enableAck();
 	}
 
 	inline void disable() noexcept {
@@ -241,7 +271,7 @@ public:
 		return false;
 	}
 
-	inline uint8_t readByteSync(uint8_t slaveAddress, uint8_t slaveRegister) noexcept {
+	inline uint8_t readSync(uint8_t slaveAddress, uint8_t slaveRegister) noexcept {
 		uint8_t buffer;
 		struct Lock {
 			volatile bool wait = true;
@@ -279,14 +309,11 @@ public:
 	inline void clearError() noexcept {
 		this->operation.length = 0;
 		this->status = Status::Idle;
-		this->twi.stop(); //TransmissionError recovery
-		this->twi.clearInterruptFlag();
 	}
 
 	inline void setErrorCallback(AsynchronousTask<void>* errorCallback) noexcept {
 		this->errorCallback = errorCallback;
 	}
-
 };
 
 
