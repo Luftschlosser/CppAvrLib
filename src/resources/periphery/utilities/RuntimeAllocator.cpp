@@ -9,6 +9,7 @@ static uint8_t gpiorUsage[Periphery::getCapacity<GeneralPurposeRegister>()] = {}
 static uint8_t timerUsage = 0;
 static uint8_t pcIntUsage = 0;
 static uint8_t twiUsage = 0;
+static uint8_t adcUsage = 0;
 
 
 inline bool allocateByte(uint8_t& byte) noexcept {
@@ -92,6 +93,11 @@ bool RuntimeAllocator::allocate(const Twi* object) noexcept {
 	return allocateBit(twiUsage, index);
 }
 
+bool RuntimeAllocator::allocate(const Adc* object) noexcept {
+	uint8_t index = AddressMap::getIdentity(object);
+	return allocateBit(adcUsage, index);
+}
+
 //-------------------------------------------------------------------------------------------
 
 void RuntimeAllocator::deallocate(const Port* object) noexcept {
@@ -146,6 +152,11 @@ void RuntimeAllocator::deallocate(const Twi* object) noexcept {
 	twiUsage &= ~(1 << index);
 }
 
+void RuntimeAllocator::deallocate(const Adc* object) noexcept {
+	uint8_t index = AddressMap::getIdentity(object);
+	adcUsage &= ~(1 << index);
+}
+
 //-------------------------------------------------------------------------------------------
 
 bool RuntimeAllocator::isAllocated(const Port* object) noexcept {
@@ -198,5 +209,10 @@ bool RuntimeAllocator::isAllocated(const PinChangeInterrupt* object) noexcept {
 bool RuntimeAllocator::isAllocated(const Twi* object) noexcept {
 	uint8_t index = AddressMap::getIdentity(object);
 	return twiUsage & (1 << index);
+}
+
+bool RuntimeAllocator::isAllocated(const Adc* object) noexcept {
+	uint8_t index = AddressMap::getIdentity(object);
+	return adcUsage & (1 << index);
 }
 

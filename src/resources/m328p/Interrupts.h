@@ -58,6 +58,9 @@ namespace Interrupts {
 
 	///Access the Twi Interrupt object
 	inline Interrupt getTwiInterrupt() noexcept { return Interrupt::GetInstance<TWI_vect_num>(); }
+
+	///Access the Adc Interrupt object
+	inline Interrupt getAdcInterrupt() noexcept { return Interrupt::GetInstance<ADC_vect_num>(); }
 }
 
 

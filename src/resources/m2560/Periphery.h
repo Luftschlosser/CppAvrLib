@@ -13,6 +13,7 @@
 #include "../periphery/Timer8bitAsync.h"
 #include "../periphery/Timer16bit.h"
 #include "../periphery/Twi.h"
+#include "../periphery/Adc.h"
 
 #include "../periphery/secondary/InterruptPin.h"
 #include "../periphery/secondary/Pin.h"
@@ -51,6 +52,7 @@ namespace Periphery {
 	static Timer16bit& timer5 = *(reinterpret_cast<Timer16bit*>(ADR_TIMER5));
 
 	static Twi& twi = *(reinterpret_cast<Twi*>(ADR_TWI));
+	static Adc& adc = *(reinterpret_cast<Adc*>(ADR_ADC));
 
 	//Device specific Constants
 	static constexpr uint8_t Timer16bitChannelCount = 3;
@@ -79,6 +81,9 @@ namespace Periphery {
 	}
 	inline Twi& getTwi() noexcept {
 		return *(reinterpret_cast<Twi*>(AddressMap::getTwiAddress()));
+	}
+	inline Adc& getAdc() noexcept {
+		return *(reinterpret_cast<Adc*>(AddressMap::getAdcAddress()));
 	}
 
 	//Access to secondary Periphery
@@ -244,6 +249,7 @@ namespace Periphery {
 	template <> inline constexpr uint8_t getCapacity<Timer8bit>() noexcept { return 2; }
 	template <> inline constexpr uint8_t getCapacity<Timer16bit>() noexcept { return 4; }
 	template <> inline constexpr uint8_t getCapacity<Twi>() noexcept { return 1; }
+	template <> inline constexpr uint8_t getCapacity<Adc>() noexcept { return 1; }
 }
 
 #endif /* SRC_RESOURCES_M2560_PERIPHERY_H_ */

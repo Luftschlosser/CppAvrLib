@@ -66,6 +66,7 @@ namespace Configuration {
 	static constexpr bool enableInterrupt_TIMER5_OVF	= false;
 	static constexpr bool enableInterrupt_TIMER5_CAPT	= false;
 	static constexpr bool enableInterrupt_TWI			= true;
+	static constexpr bool enableInterrupt_ADC			= true;
 }
 
 

@@ -35,6 +35,7 @@
 #define ISRTYPE_TIMER2_OVF	ISR_BLOCK
 
 #define ISRTYPE_TWI			ISR_BLOCK
+#define ISRTYPE_ADC			ISR_BLOCK
 
 //___________________________________
 //External Interrupts
@@ -210,6 +211,16 @@ ISR(TWI_vect, ISRTYPE_TWI) {
 }
 #endif
 
+//___________________________________
+//ADC
+
+//ADC
+#ifdef ISRTYPE_ADC
+ISR(ADC_vect, ISRTYPE_ADC) {
+	if (Configuration::enableInterrupt_ADC)
+		Interrupt::invoke<ADC_vect_num>();
+}
+#endif
 
 
 #endif
