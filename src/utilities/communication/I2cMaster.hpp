@@ -238,7 +238,7 @@ public:
 	}
 
 	inline bool writeAsync(uint8_t slaveAddress, uint8_t slaveRegister, uint8_t data, AsynchronousTask<void>* completionCallback = nullptr) noexcept {
-		if (this->status == Status::Idle) {
+		if (this->isIdle()) {
 			this->status = Status::Busy;
 			this->operation.set(Operation::Mode::writeSingleData, Operation::Data(data), slaveAddress, slaveRegister, 1, completionCallback);
 			this->twiStart();
@@ -249,7 +249,7 @@ public:
 
 	inline bool writeAsync(uint8_t slaveAddress, uint8_t slaveRegister, uint8_t* data, uint8_t length, AsynchronousTask<void>* completionCallback = nullptr) noexcept {
 		if (length > 0) {
-			if (this->status == Status::Idle) {
+			if (this->isIdle()) {
 				this->status = Status::Busy;
 				this->operation.set(Operation::Mode::writeArrayData, Operation::Data(data), slaveAddress, slaveRegister, length, completionCallback);
 				this->twiStart();
@@ -259,9 +259,33 @@ public:
 		return false;
 	}
 
+	inline bool writeSync(uint8_t slaveAddress, uint8_t slaveRegister, uint8_t data) noexcept {
+		if (this->writeAsync(slaveAddress, slaveRegister, data)) {
+			while (!this->isIdle()) {
+				if (this->hasError()) {
+					return false;
+				}
+			}
+			return true;
+		}
+		return false;
+	}
+
+	inline bool writeSync(uint8_t slaveAddress, uint8_t slaveRegister, uint8_t* data, uint8_t length) noexcept {
+		if (this->writeAsync(slaveAddress, slaveRegister, data, length)) {
+			while (!this->isIdle()) {
+				if (this->hasError()) {
+					return false;
+				}
+			}
+			return true;
+		}
+		return false;
+	}
+
 	inline bool readAsync(uint8_t slaveAddress, uint8_t slaveRegister, uint8_t* buffer, uint8_t length = 1, AsynchronousTask<void>* completionCallback = nullptr) noexcept {
 		if (length > 0) {
-			if (this->status == Status::Idle) {
+			if (this->isIdle()) {
 				this->status = Status::Busy;
 				this->operation.set(Operation::Mode::readData, Operation::Data(buffer), slaveAddress, slaveRegister, length, completionCallback);
 				this->twiStart();
@@ -273,21 +297,27 @@ public:
 
 	inline uint8_t readSync(uint8_t slaveAddress, uint8_t slaveRegister) noexcept {
 		uint8_t buffer;
-		struct Lock {
-			volatile bool wait = true;
-			inline void resume() noexcept { this->wait = false; }
-		} lock;
-		AsynchronousTask<void> completionCallback = AsynchronousTask<void>();
-		completionCallback.scheduleMethod<Lock, &Lock::resume>(lock);
-		if (!readAsync(slaveAddress, slaveRegister, &buffer, 1, &completionCallback)) {
-			return 0;
-		}
-		while (lock.wait) {
-			if (this->hasError()) {
-				return 0;
+		if (readAsync(slaveAddress, slaveRegister, &buffer)) {
+			while (!this->isIdle()) {
+				if (this->hasError()) {
+					return 0;
+				}
 			}
+			return buffer;
 		}
-		return buffer;
+		return 0;
+	}
+
+	inline bool readSync(uint8_t slaveAddress, uint8_t slaveRegister, uint8_t* buffer, uint8_t length = 1) noexcept {
+		if (readAsync(slaveAddress, slaveRegister, buffer, length)) {
+			while (!this->isIdle()) {
+				if (this->hasError()) {
+					return false;
+				}
+			}
+			return true;
+		}
+		return false;
 	}
 
 	inline Status getBusStatus() const noexcept {
