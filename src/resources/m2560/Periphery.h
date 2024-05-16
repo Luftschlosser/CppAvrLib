@@ -56,6 +56,8 @@ namespace Periphery {
 
 	//Device specific Constants
 	static constexpr uint8_t Timer16bitChannelCount = 3;
+	static constexpr uint8_t AdcChannelCount = 16;
+	static constexpr uint8_t AdcNumberOfMuxOptions = 64;
 
 
 	//Access to MMIO Periphery
