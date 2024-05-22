@@ -238,6 +238,27 @@ namespace Periphery {
 	inline Pin getTwiSdaPin() noexcept {
 		return Pin(getPort<'D'>(), 1);
 	}
+	inline constexpr uint8_t getAdcChannelCount() noexcept {
+		return AdcChannelCount;
+	}
+	inline constexpr uint8_t getAdcNumberOfMuxOptions() noexcept {
+		return AdcNumberOfMuxOptions;
+	}
+	template <uint8_t Group> inline Port& getAdcPort() noexcept;
+	template <> inline Port& getAdcPort<0>() noexcept {
+		return getPort<'F'>();
+	}
+	template <> inline Port& getAdcPort<1>() noexcept {
+		return getPort<'K'>();
+	}
+	inline Pin getAdcPin(uint8_t pinIndex) noexcept {
+		if (pinIndex <= 7) {
+			return Pin(getAdcPort<0>(), pinIndex);
+		}
+		else {
+			return Pin(getAdcPort<1>(), pinIndex - 8);
+		}
+	}
 
 	///Get the total number of instances of a periphery type.
 	///\return The total number of instances of the template-specified type [0-n]

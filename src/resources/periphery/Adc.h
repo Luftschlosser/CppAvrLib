@@ -9,8 +9,10 @@
 
 //Forward Declarations
 namespace Periphery {
-//	inline Pin getTwiSclPin() noexcept;
-//	inline Pin getTwiSdaPin() noexcept;
+	inline constexpr uint8_t getAdcChannelCount() noexcept;
+	inline constexpr uint8_t getAdcNumberOfMuxOptions() noexcept;
+	inline Pin getAdcPin(uint8_t adcIndex) noexcept;
+	template <uint8_t Group> inline Port& getAdcPort() noexcept;
 }
 
 
@@ -138,7 +140,7 @@ public:
 
 	///Sets the prescale to the lowest value which allows maximum precision at current F_CPU
 	inline void setPrescaleAuto() noexcept {
-		static constexpr uint8_t f_max = 200000;
+		static constexpr uint32_t f_max = 200000;
 		uint8_t scale;
 		for (scale = 1; (F_CPU >> scale) > f_max; scale++);
 		this->regADCSRA.fields.dataADPS = scale;
@@ -192,8 +194,8 @@ public:
 	}
 
 	inline void setMuxValue(uint8_t value) noexcept {
-		if (Periphery::AdcNumberOfMuxOptions <= 32) {
-			this->regADMUX.fields.dataMUX = (value & (Periphery::AdcNumberOfMuxOptions - 1));
+		if (Periphery::getAdcNumberOfMuxOptions() <= 32) {
+			this->regADMUX.fields.dataMUX = (value & (Periphery::getAdcNumberOfMuxOptions() - 1));
 		}
 		else {
 			this->regADMUX.fields.dataMUX = (value & 0x1f);
@@ -202,7 +204,7 @@ public:
 	}
 
 	inline void disableDigitalInput(uint16_t channel) noexcept {
-		if (channel < Periphery::AdcChannelCount) {
+		if (channel < Periphery::getAdcChannelCount()) {
 			if (channel < 8) {
 				this->DIDR0reg |= 1<<channel;
 			}
