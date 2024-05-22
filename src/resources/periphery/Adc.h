@@ -130,10 +130,14 @@ public:
 		}
 	}
 
+	///reads the value of the latest ADC conversion
+	///\return the value of the latest ADC conversion, aligned as defined by \function setLeftAdjustResult
 	inline uint16_t readValue() const noexcept {
 		return this->ADCreg;
 	}
 
+	///Sets the Prescale value of the ADC conversion Timer
+	///\param scale The Prescale enumeration value
 	inline void setPrescale(ADCSRAreg::FIELDS::Prescalar scale) noexcept {
 		this->regADCSRA.fields.dataADPS = scale;
 	}
@@ -146,26 +150,33 @@ public:
 		this->regADCSRA.fields.dataADPS = scale;
 	}
 
+	///Enables the ADC
 	inline void enable() noexcept {
 		this->regADCSRA.fields.flagADEN = 1;
 	}
 
+	///Disables the ADC
 	inline void disable() noexcept {
 		this->regADCSRA.fields.flagADEN = 0;
 	}
 
+	///Enables the ADC Interrupt
 	inline void enableInterrupt() noexcept {
 		this->regADCSRA.fields.flagADIE = 1;
 	}
 
+	///Disables the ADC Interrupt
 	inline void disableInterrupt() noexcept {
 		this->regADCSRA.fields.flagADIE = 0;
 	}
 
+	///Clears the ADC Interrupt Flag
 	inline void clearInterruptFlag() noexcept {
 		this->regADCSRA.fields.flagADIF = 1;
 	}
 
+	///Sets the trigger source OR the non-triggered single conversion mode of operation
+	///\param source enumeration specifies the trigger source
 	inline void setTriggerSource(TriggerSource source) noexcept {
 		if (source == TriggerSource::SingleConversion) {
 			this->regADCSRA.fields.flagADATE = 0;
@@ -176,14 +187,19 @@ public:
 		}
 	}
 
+	///Starts the first conversion in triggered mode OR start a single conversion in single conversion mode
 	inline void startConversion() noexcept {
 		this->regADCSRA.fields.flagADSC = 1;
 	}
 
+	///Sets the Voltage reference source
+	///\param source enumeration specifies the reference voltage source. Caution: Voltage values of 'Internal1' & 'Internal2' are Microcontroller-Dependent!
 	inline void setReferenceSource(ADMUXreg::FIELDS::Reference source) noexcept {
 		this->regADMUX.fields.dataREFS = source;
 	}
 
+	///Sets the adjustment of the result (left- or right-aligned, right=default)
+	///\param leftAdjust true = adjust left, false = adjust right
 	inline void setLeftAdjustResult(bool leftAdjust = true) noexcept {
 		if (leftAdjust) {
 			this->regADMUX.fields.flagADLAR = 1;
@@ -193,6 +209,8 @@ public:
 		}
 	}
 
+	///Sets the value of the ADC multiplexer. Caution: Mux-values are Microcontroller-Dependent!
+	///\param value the ADC Mux Value
 	inline void setMuxValue(uint8_t value) noexcept {
 		if (Periphery::getAdcNumberOfMuxOptions() <= 32) {
 			this->regADMUX.fields.dataMUX = (value & (Periphery::getAdcNumberOfMuxOptions() - 1));
@@ -203,6 +221,8 @@ public:
 		}
 	}
 
+	///Disables one digital digital input buffer of the specified ADC Input. This can help to minimize Pin capacitance.
+	///\param channel The ADC-Channel who's digital input buffer shall be disabled
 	inline void disableDigitalInput(uint16_t channel) noexcept {
 		if (channel < Periphery::getAdcChannelCount()) {
 			if (channel < 8) {
@@ -214,10 +234,14 @@ public:
 		}
 	}
 
+	///Disables the input buffers of the mask-specified ADC Inputs. This can help to minimize Pin capacitance. Used for ADC channels 0-7
+	///\param mask Where mask = 1 -> digital input buffer of ADC Pin will be disabled.
 	inline void disableDigitalInputs(uint8_t mask) noexcept {
 		this->DIDR0reg = mask;
 	}
 
+	///Disables the input buffers of the mask-specified ADC Inputs. This can help to minimize Pin capacitance. Used for ADC channels 0-15
+	///\param mask Where mask = 1 -> digital input buffer of ADC Pin will be disabled.
 	inline void disableDigitalInputs(uint16_t mask) noexcept {
 		this->DIDR0reg = mask && 0xFF;
 		this->DIDR2reg = mask >> 8;
