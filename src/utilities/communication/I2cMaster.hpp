@@ -50,6 +50,8 @@ private:
 			this->completionCallback = completionCallback;
 		}
 		Operation() noexcept : mode(Mode::writeArrayData), data(nullptr), slaveAddress(0), registerAddress(0), length(0), completionCallback(nullptr) {}
+		Operation(Operation& other) noexcept : mode(other.mode), data(other.data), slaveAddress(other.slaveAddress), registerAddress(other.registerAddress),
+				length(other.length), completionCallback(other.completionCallback) {}
 	} operation;
 
 	volatile Status status;
@@ -194,9 +196,10 @@ public:
 		High400k = 40
 	};
 
-	inline I2cMaster(Twi& twi, Interrupt twiIrq) noexcept: twi(twi), errorCallback(nullptr), operation(), status(Status::Idle) {
+	inline I2cMaster(Twi& twi, Interrupt twiIrq) noexcept : twi(twi), errorCallback(nullptr), operation(), status(Status::Idle) {
 		twiIrq.registerMethod<I2cMaster, &I2cMaster::twiCallback>(*this);
 	}
+	inline I2cMaster(I2cMaster& copy) noexcept = delete; //Cannot copy, because Interrupt Callback is connected to original Object
 
 	inline void init() noexcept { this->twi.init(); }
 	inline void close() noexcept { this->twi.close(); }
