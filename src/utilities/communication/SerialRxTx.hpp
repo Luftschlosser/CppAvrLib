@@ -129,10 +129,13 @@ public:
 		return this->txStatus == TxStatus::IDLE;
 	}
 
-	inline bool transmit(char character) noexcept {
+	inline bool transmit(char character, bool synchronous = false) noexcept {
 		if (this->txStatus == TxStatus::IDLE) {
 			this->txStatus = TxStatus::COMPLETING;
 			this->usart.write(character);
+			if(synchronous) {
+				while(!this->isReadyToTransmit());
+			}
 			return true;
 		}
 		else {
@@ -140,13 +143,16 @@ public:
 		}
 	}
 
-	inline bool transmit(const char* s) noexcept {
+	inline bool transmit(const char* s, bool synchronous = false) noexcept {
 		if (*s != 0) {
 			if (this->txStatus == TxStatus::IDLE) {
 				this->txStatus = TxStatus::TX_STRING;
 				this->txData.string = s;
 				usart.write(*s);
 				this->usart.enableDataRegisterEmptyInterrupt();
+				if(synchronous) {
+					while(!this->isReadyToTransmit());
+				}
 				return true;
 			}
 			else {
@@ -158,7 +164,7 @@ public:
 		}
 	}
 
-	inline bool transmitHex(uint8_t value) noexcept {
+	inline bool transmitHex(uint8_t value, bool synchronous = false) noexcept {
 		if (this->txStatus == TxStatus::IDLE) {
 			this->txStatus = TxStatus::TX_8HEX;
 			uint8_t pt2 = value & 0x0F;
@@ -166,6 +172,9 @@ public:
 			value = value >> 4; //pt1
 			this->usart.write(char(value > 9 ? value + ('A' - 10) : value + '0'));
 			this->usart.enableDataRegisterEmptyInterrupt();
+			if(synchronous) {
+				while(!this->isReadyToTransmit());
+			}
 			return true;
 		}
 		else {
