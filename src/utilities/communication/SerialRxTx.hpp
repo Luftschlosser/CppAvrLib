@@ -4,6 +4,7 @@
 
 #include "../../resources/Periphery.h"
 #include "../../resources/Interrupts.h"
+#include "../streaming/Stream.hpp"
 
 
 class SerialRxTx {
@@ -17,6 +18,7 @@ private:
 	union TxData {
 		const char* string;
 		char hex8_pt2;
+		Stream<uint8_t>* stream;
 		TxData() noexcept : string(nullptr) {}
 	} txData;
 
@@ -25,7 +27,8 @@ private:
 		IDLE = 0,
 		COMPLETING = 1,
 		TX_STRING = 2,
-		TX_8HEX = 3
+		TX_STREAM = 3,
+		TX_8HEX = 4
 	} volatile txStatus;
 
 
@@ -37,6 +40,12 @@ private:
 		if (this->txStatus == TX_STRING) {
 			if (*(++(this->txData.string)) != 0) {
 				usart.write(*(this->txData.string));
+				return;
+			}
+		}
+		else if (this->txStatus == TX_STREAM) {
+			if (this->txData.stream->hasNextStreamToken()) {
+				usart.write(this->txData.stream->getNextStreamToken());
 				return;
 			}
 		}
@@ -67,12 +76,18 @@ public:
 	inline void init() noexcept { usart.init(); }
 	inline void close() noexcept { usart.close(); }
 
-	inline void configureAsync(Usart::UCSRC::FIELDS::ParityModeUPM parity, Usart::UCSRC::FIELDS::StopBitsUSBS stopBits, uint16_t baudRateRegisterValue) noexcept {
+	inline void configureAsync(Usart::UCSRC::FIELDS::ParityModeUPM parity, Usart::UCSRC::FIELDS::StopBitsUSBS stopBits, uint16_t baudRateRegisterValue, bool doubleSpeed = false) noexcept {
 		this->usart.setUartMode(Usart::UCSRC::FIELDS::UsartModeUMSEL::ASYNC);
 		this->usart.setCharacterSize(8);
 		this->usart.setParityMode(parity);
 		this->usart.setStopBits(stopBits);
 		this->usart.setBaudrateRegisterValue(baudRateRegisterValue);
+		if (doubleSpeed) {
+			this->usart.enableDoubleAsyncSpeed();
+		}
+		else {
+			this->usart.disableDoubleAsyncSpeed();
+		}
 	}
 
 	inline void configureSync(Usart::UCSRC::FIELDS::ClockPolarityUCPOL clkPolarity, Usart::UCSRC::FIELDS::ParityModeUPM parity, Usart::UCSRC::FIELDS::StopBitsUSBS stopBits, uint16_t baudRateRegisterValue) noexcept {
@@ -149,6 +164,27 @@ public:
 				this->txStatus = TxStatus::TX_STRING;
 				this->txData.string = s;
 				usart.write(*s);
+				this->usart.enableDataRegisterEmptyInterrupt();
+				if(synchronous) {
+					while(!this->isReadyToTransmit());
+				}
+				return true;
+			}
+			else {
+				return false;
+			}
+		}
+		else {
+			return true;
+		}
+	}
+
+	inline bool transmit(Stream<uint8_t>* stream, bool synchronous = false) {
+		if (stream->hasNextStreamToken()) {
+			if (this->txStatus == TxStatus::IDLE) {
+				this->txStatus = TxStatus::TX_STREAM;
+				this->txData.stream = stream;
+				usart.write(stream->getNextStreamToken());
 				this->usart.enableDataRegisterEmptyInterrupt();
 				if(synchronous) {
 					while(!this->isReadyToTransmit());
