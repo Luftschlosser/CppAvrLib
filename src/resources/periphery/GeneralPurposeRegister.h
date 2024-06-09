@@ -58,6 +58,10 @@ public:
 	///Reads data from the GeneralPurposeRegister
 	///return the byte which is currently on the GeneralPurposeRegister
 	inline uint8_t read() const noexcept { return regGPIOR; }
+
+	inline void setBit(uint8_t bit) noexcept { regGPIOR |= 1 << bit; }
+	inline void clearBit(uint8_t bit) noexcept { regGPIOR &= ~(1<<bit); }
+	inline bool isBitSet(uint8_t bit) noexcept { return regGPIOR & 1 << bit; }
 };
 
 
