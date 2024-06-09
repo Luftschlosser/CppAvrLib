@@ -237,6 +237,9 @@ public:
 	///Write data to the transmit buffer (first 8 Bits, use "setNinthDataBit()" for the ninth Bit)
 	inline void write(char data) noexcept { this->regUDR = data; }
 
+	///Write data to the transmit buffer (first 8 Bits, use "setNinthDataBit()" for the ninth Bit)
+	inline void write(uint8_t data) noexcept { this->regUDR = data; }
+
 	///Writes data to the transmit buffer (up to nine Bits)
 	inline void write(uint16_t data) noexcept { //TODO: Check if atomic block is necessary?
 		uint8_t first = data;
