@@ -12,7 +12,7 @@
  * A PinChangeInterruptPort does not always correspond to one specific Port!
  * (for example on the AtMega2560, PCINT8 is on Port E and PCINT9-PCINT15 on Port J)
  * Thus, this class mostly operates on individual Pins.
- * It also does not perform AuoPinAllocation or AutpPinConfiguration.
+ * It also does not perform AutoPinAllocation or AutoPinConfiguration.
  */
 
 

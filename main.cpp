@@ -89,7 +89,7 @@ int main (void) noexcept
 	#if defined(__AVR_ATmega2560__)
 	Log log(Periphery::getUsart<0>(), Interrupts::getUsartUdreInterrupt<0>());
 	#elif defined(__AVR_ATmega328P__)
-	Log log(Periphery::getUsart(), Interrupts::getUsartUdreInterrupt<0>());
+	Log log(Periphery::getUsart(), Interrupts::getUsartUdreInterrupt());
 	#endif
 
 	led.init();

@@ -16,7 +16,7 @@ namespace Configuration {
 	//TODO: Errorhandling config: None/Exceptions/Errorhandling/
 
 	//Flags to enable/disable Interrupt-Instantiations (change "ISR.cpp" to remove ISR-routines completely)
-	static constexpr bool enableInterrupt_EXT_INT0 		= false;
+	static constexpr bool enableInterrupt_EXT_INT0 		= true;
 	static constexpr bool enableInterrupt_EXT_INT1 		= false;
 	static constexpr bool enableInterrupt_EXT_INT2 		= true;
 	static constexpr bool enableInterrupt_EXT_INT3 		= false;
@@ -25,7 +25,7 @@ namespace Configuration {
 	static constexpr bool enableInterrupt_EXT_INT6 		= false;
 	static constexpr bool enableInterrupt_EXT_INT7 		= false;
 	static constexpr bool enableInterrupt_PCINT0		= false;
-	static constexpr bool enableInterrupt_PCINT1		= false;
+	static constexpr bool enableInterrupt_PCINT1		= true;
 	static constexpr bool enableInterrupt_PCINT2		= true;
 	static constexpr bool enableInterrupt_USART0_RX 	= true;
 	static constexpr bool enableInterrupt_USART0_TX 	= true;
