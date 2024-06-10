@@ -5,10 +5,10 @@
 #include <stdint.h>
 
 
-template<typename T, uintptr_t Size> class Ringbuffer {
+template<typename T, typename SizeType, SizeType Size> class Ringbuffer {
 private:
-	volatile uintptr_t inputIndex;
-	uintptr_t outputIndex;
+	volatile SizeType inputIndex;
+	SizeType outputIndex;
 	T buffer[Size];
 
 public:
