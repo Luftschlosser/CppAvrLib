@@ -21,10 +21,6 @@ public:
 		}
 	}
 
-	inline constexpr AddressType getUnderlyingArraySize() noexcept {
-		return arraySize;
-	}
-
 	inline uint8_t getByte(AddressType byteIndex) noexcept {
 		return this->mask[byteIndex];
 	}
@@ -48,7 +44,7 @@ public:
 	}
 
 	inline bool hasAnyBitSet() noexcept {
-		for (AddressType i = 0; i < Size; i++) {
+		for (AddressType i = 0; i < arraySize; i++) {
 			if (this->mask[i] > 0) {
 				return true;
 			}
