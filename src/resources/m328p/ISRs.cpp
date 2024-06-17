@@ -36,6 +36,7 @@
 
 #define ISRTYPE_TWI			ISR_BLOCK
 #define ISRTYPE_ADC			ISR_BLOCK
+#define ISRTYPE_WDT			ISR_BLOCK
 
 //___________________________________
 //External Interrupts
@@ -219,6 +220,17 @@ ISR(TWI_vect, ISRTYPE_TWI) {
 ISR(ADC_vect, ISRTYPE_ADC) {
 	if (Configuration::enableInterrupt_ADC)
 		Interrupt::invoke<ADC_vect_num>();
+}
+#endif
+
+//___________________________________
+//WDT
+
+//ADC
+#ifdef ISRTYPE_WDT
+ISR(WDT_vect, ISRTYPE_WDT) {
+	if (Configuration::enableInterrupt_WDT)
+		Interrupt::invoke<WDT_vect_num>();
 }
 #endif
 

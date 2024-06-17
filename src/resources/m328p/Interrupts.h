@@ -61,6 +61,9 @@ namespace Interrupts {
 
 	///Access the Adc Interrupt object
 	inline Interrupt getAdcInterrupt() noexcept { return Interrupt::GetInstance<ADC_vect_num>(); }
+
+	///Access the Wdt Interrupt object
+	inline Interrupt getWdtInterrupt() noexcept { return Interrupt::GetInstance<WDT_vect_num>(); }
 }
 
 

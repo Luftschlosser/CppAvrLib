@@ -35,6 +35,7 @@
 
 #define ADR_TWI 0xB8
 #define ADR_ADC 0x78
+#define ADR_WATCHDOG 0x60
 
 //Forward-Declarations
 class Port;
@@ -95,6 +96,7 @@ namespace AddressMap {
 
 	inline constexpr intptr_t getTwiAddress() noexcept { return ADR_TWI; }
 	inline constexpr intptr_t getAdcAddress() noexcept { return ADR_ADC; }
+	inline constexpr intptr_t getWatchdogAddress() noexcept { return ADR_WATCHDOG; }
 
 	inline constexpr intptr_t getRegisterTIFR(uint8_t index) noexcept { return ADR_TIFR + index; }
 	inline constexpr intptr_t getRegisterTIMSK(uint8_t index) noexcept { return ADR_TIMSK + index; }

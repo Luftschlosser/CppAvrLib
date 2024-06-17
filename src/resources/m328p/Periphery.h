@@ -14,6 +14,7 @@
 #include "../periphery/Timer16bit.h"
 #include "../periphery/Twi.h"
 #include "../periphery/Adc.h"
+#include "../periphery/Watchdog.h"
 
 #include "../periphery/secondary/InterruptPin.h"
 #include "../periphery/secondary/Pin.h"
@@ -39,6 +40,7 @@ namespace Periphery {
 
 	static Twi& twi = *(reinterpret_cast<Twi*>(ADR_TWI));
 	static Adc& adc = *(reinterpret_cast<Adc*>(ADR_ADC));
+	static Watchdog& watchdog = *(reinterpret_cast<Watchdog*>(ADR_WATCHDOG));
 
 	//Device specific Constants
 	static constexpr uint8_t Timer16bitChannelCount = 2;
@@ -72,6 +74,9 @@ namespace Periphery {
 	}
 	inline Adc& getAdc() noexcept {
 		return *(reinterpret_cast<Adc*>(AddressMap::getAdcAddress()));
+	}
+	inline Watchdog& getWatchdog() noexcept {
+		return *(reinterpret_cast<Watchdog*>(AddressMap::getWatchdogAddress()));
 	}
 
 	//Access to secondary Periphery
