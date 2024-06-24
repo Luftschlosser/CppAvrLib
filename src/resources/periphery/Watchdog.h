@@ -15,6 +15,10 @@ private:
 	///No Constructor to prohibit instantiation
 	Watchdog() = delete;
 
+	inline void enableChange() noexcept {
+		this->regWDTCSR.reg = 0x18;	//WDCE | WDE
+	}
+
 public:
 
 	///The WDTCSR register
@@ -27,19 +31,19 @@ public:
 			volatile uint8_t flagWDIE : 1;	//Watchdog Interrupt Enable
 			volatile uint8_t flagWDIF : 1;	//Watchdog Interrupt Flag
 		} fields;
-		volatile uint8_t reg;
+		volatile uint8_t reg = 0;
 
 		enum Prescaler : uint8_t {
-			Timeout16ms = 0,
-			Timeout32ms = 1,
-			Timeout64ms = 2,
-			Timeout128ms = 3,
-			Timeout256ms = 4,
-			Timeout512ms = 5,
-			Timeout1s = 6,
-			Timeout2s = 7,
-			Timeout4s = 8,
-			Timeout8s = 9
+			Timeout16ms = 0x00,
+			Timeout32ms = 0x01,
+			Timeout64ms = 0x02,
+			Timeout128ms = 0x03,
+			Timeout256ms = 0x04,
+			Timeout512ms = 0x05,
+			Timeout1s = 0x06,
+			Timeout2s = 0x07,
+			Timeout4s = 0x20,
+			Timeout8s = 0x21
 		};
 	} regWDTCSR;
 
@@ -72,20 +76,26 @@ public:
 	}
 
 	inline void configure(WatchdogCtrlReg::Prescaler prescale, bool interruptEnable, bool resetEnable) noexcept {
-		WatchdogCtrlReg buf;
-		buf.fields.dataWDP02 = prescale & 0x07;
-		buf.fields.flagWDP3 = prescale > 7 ? 1 : 0;
+		volatile WatchdogCtrlReg buf;
+		buf.reg |= prescale;
 		buf.fields.flagWDIE = interruptEnable ? 1 : 0;
 		buf.fields.flagWDE = resetEnable ? 1 : 0;
-		buf.fields.flagWDIF = 1;
 		ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
 		{
-			this->regWDTCSR.fields.flagWDCE = 1;
+			this->enableChange();
 			this->regWDTCSR.reg = buf.reg;
 		}
 	}
 
-	inline void reset() noexcept {
+	inline void disable() noexcept {
+		ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
+		{
+			this->enableChange();
+			this->regWDTCSR.reg = 0;
+		}
+	}
+
+	inline void resetTimeout() noexcept {
 		__asm__ __volatile__ ("wdr");
 	}
 };
