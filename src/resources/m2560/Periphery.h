@@ -15,6 +15,7 @@
 #include "../periphery/Twi.h"
 #include "../periphery/Adc.h"
 #include "../periphery/Watchdog.h"
+#include "../periphery/McuStatus.h"
 
 #include "../periphery/secondary/InterruptPin.h"
 #include "../periphery/secondary/Pin.h"
@@ -91,6 +92,9 @@ namespace Periphery {
 	}
 	inline Watchdog& getWatchdog() noexcept {
 		return *(reinterpret_cast<Watchdog*>(AddressMap::getWatchdogAddress()));
+	}
+	inline McuStatus& getMcuStatus() noexcept {
+		return *(reinterpret_cast<McuStatus*>(AddressMap::getMcuStatusAddress()));
 	}
 
 	//Access to secondary Periphery
