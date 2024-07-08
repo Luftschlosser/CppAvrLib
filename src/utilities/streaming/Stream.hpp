@@ -8,8 +8,8 @@
 template<typename T> class Stream {
 public:
 	virtual ~Stream() noexcept {}
-	virtual bool hasNextStreamToken() noexcept;
-	virtual T getNextStreamToken() noexcept;
+	virtual bool hasNextStreamToken() noexcept = 0;
+	virtual T getNextStreamToken() noexcept = 0;
 };
 
 

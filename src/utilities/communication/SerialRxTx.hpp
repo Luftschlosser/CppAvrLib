@@ -5,6 +5,7 @@
 #include "../../resources/Periphery.h"
 #include "../../resources/Interrupts.h"
 #include "../streaming/Stream.hpp"
+#include <avr/pgmspace.h>
 
 
 class SerialRxTx {
@@ -26,9 +27,10 @@ private:
 		DISABLED = -1,
 		IDLE = 0,
 		COMPLETING = 1,
-		TX_STRING = 2,
-		TX_STREAM = 3,
-		TX_8HEX = 4
+		TX_STREAM = 2,
+		TX_8HEX = 3,
+		TX_STRING = 4,
+		TX_PROGMEM_STRING = 5
 	} volatile txStatus;
 
 
@@ -37,13 +39,7 @@ private:
 	}
 
 	inline void txReadyCallback() noexcept {
-		if (this->txStatus == TX_STRING) {
-			if (*(++(this->txData.string)) != 0) {
-				usart.write(*(this->txData.string));
-				return;
-			}
-		}
-		else if (this->txStatus == TX_STREAM) {
+		if (this->txStatus == TX_STREAM) {
 			if (this->txData.stream->hasNextStreamToken()) {
 				usart.write(this->txData.stream->getNextStreamToken());
 				return;
@@ -51,6 +47,18 @@ private:
 		}
 		else if (this->txStatus == TX_8HEX) {
 			usart.write(this->txData.hex8_pt2);
+		}
+		else if (this->txStatus == TX_STRING) {
+			if (*(++(this->txData.string)) != 0) {
+				usart.write(*(this->txData.string));
+				return;
+			}
+		}
+		else if (this->txStatus == TX_PROGMEM_STRING) {
+			if (pgm_read_byte(++(this->txData.string)) != 0) {
+				usart.write(pgm_read_byte(this->txData.string));
+				return;
+			}
 		}
 		this->txStatus = TxStatus::COMPLETING;
 		this->usart.disableDataRegisterEmptyInterrupt();
@@ -164,6 +172,27 @@ public:
 				this->txStatus = TxStatus::TX_STRING;
 				this->txData.string = s;
 				usart.write(*s);
+				this->usart.enableDataRegisterEmptyInterrupt();
+				if(synchronous) {
+					while(!this->isReadyToTransmit());
+				}
+				return true;
+			}
+			else {
+				return false;
+			}
+		}
+		else {
+			return true;
+		}
+	}
+
+	inline bool transmitFromProgmem(PGM_P s, bool synchronous = false) noexcept {
+		if (*s != 0) {
+			if (this->txStatus == TxStatus::IDLE) {
+				this->txStatus = TxStatus::TX_PROGMEM_STRING;
+				this->txData.string = s;
+				usart.write(pgm_read_byte(s));
 				this->usart.enableDataRegisterEmptyInterrupt();
 				if(synchronous) {
 					while(!this->isReadyToTransmit());
