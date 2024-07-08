@@ -18,6 +18,7 @@ private:
 
 	union TxData {
 		const char* string;
+		PGM_P pgmString;
 		char hex8_pt2;
 		Stream<uint8_t>* stream;
 		TxData() noexcept : string(nullptr) {}
@@ -55,8 +56,8 @@ private:
 			}
 		}
 		else if (this->txStatus == TX_PROGMEM_STRING) {
-			if (pgm_read_byte(++(this->txData.string)) != 0) {
-				usart.write(pgm_read_byte(this->txData.string));
+			if (pgm_read_byte(++(this->txData.pgmString)) != 0) {
+				usart.write(pgm_read_byte(this->txData.pgmString));
 				return;
 			}
 		}
@@ -152,99 +153,50 @@ public:
 		return this->txStatus == TxStatus::IDLE;
 	}
 
-	inline bool transmit(char character, bool synchronous = false) noexcept {
-		if (this->txStatus == TxStatus::IDLE) {
-			this->txStatus = TxStatus::COMPLETING;
-			this->usart.write(character);
-			if(synchronous) {
-				while(!this->isReadyToTransmit());
-			}
-			return true;
-		}
-		else {
+	bool transmit(char character) noexcept;
+	bool transmit(const char* s) noexcept;
+	bool transmitFromProgmem(PGM_P s) noexcept;
+	bool transmit(Stream<uint8_t>* stream) noexcept;
+	bool transmitHex(uint8_t value) noexcept;
+
+	inline bool syncTransmit(char character) noexcept {
+		if (!this->transmit(character)) {
 			return false;
 		}
+		while(!this->isReadyToTransmit());
+		return true;
 	}
 
-	inline bool transmit(const char* s, bool synchronous = false) noexcept {
-		if (*s != 0) {
-			if (this->txStatus == TxStatus::IDLE) {
-				this->txStatus = TxStatus::TX_STRING;
-				this->txData.string = s;
-				usart.write(*s);
-				this->usart.enableDataRegisterEmptyInterrupt();
-				if(synchronous) {
-					while(!this->isReadyToTransmit());
-				}
-				return true;
-			}
-			else {
-				return false;
-			}
-		}
-		else {
-			return true;
-		}
-	}
-
-	inline bool transmitFromProgmem(PGM_P s, bool synchronous = false) noexcept {
-		if (*s != 0) {
-			if (this->txStatus == TxStatus::IDLE) {
-				this->txStatus = TxStatus::TX_PROGMEM_STRING;
-				this->txData.string = s;
-				usart.write(pgm_read_byte(s));
-				this->usart.enableDataRegisterEmptyInterrupt();
-				if(synchronous) {
-					while(!this->isReadyToTransmit());
-				}
-				return true;
-			}
-			else {
-				return false;
-			}
-		}
-		else {
-			return true;
-		}
-	}
-
-	inline bool transmit(Stream<uint8_t>* stream, bool synchronous = false) {
-		if (stream->hasNextStreamToken()) {
-			if (this->txStatus == TxStatus::IDLE) {
-				this->txStatus = TxStatus::TX_STREAM;
-				this->txData.stream = stream;
-				usart.write(stream->getNextStreamToken());
-				this->usart.enableDataRegisterEmptyInterrupt();
-				if(synchronous) {
-					while(!this->isReadyToTransmit());
-				}
-				return true;
-			}
-			else {
-				return false;
-			}
-		}
-		else {
-			return true;
-		}
-	}
-
-	inline bool transmitHex(uint8_t value, bool synchronous = false) noexcept {
-		if (this->txStatus == TxStatus::IDLE) {
-			this->txStatus = TxStatus::TX_8HEX;
-			uint8_t pt2 = value & 0x0F;
-			this->txData.hex8_pt2 = pt2 > 9 ? pt2 + ('A' - 10) : pt2 + '0';
-			value = value >> 4; //pt1
-			this->usart.write(char(value > 9 ? value + ('A' - 10) : value + '0'));
-			this->usart.enableDataRegisterEmptyInterrupt();
-			if(synchronous) {
-				while(!this->isReadyToTransmit());
-			}
-			return true;
-		}
-		else {
+	inline bool syncTransmit(const char* s) noexcept {
+		if (!this->transmit(s)) {
 			return false;
 		}
+		while(!this->isReadyToTransmit());
+		return true;
+	}
+
+	inline bool syncTransmitFromProgmem(PGM_P s) noexcept {
+		if (!this->transmitFromProgmem(s)) {
+			return false;
+		}
+		while(!this->isReadyToTransmit());
+		return true;
+	}
+
+	inline bool syncTransmit(Stream<uint8_t>* stream) noexcept {
+		if (!this->transmit(stream)) {
+			return false;
+		}
+		while(!this->isReadyToTransmit());
+		return true;
+	}
+
+	inline bool syncTransmitHex(uint8_t value) noexcept {
+		if (!this->transmitHex(value)) {
+			return false;
+		}
+		while(!this->isReadyToTransmit());
+		return true;
 	}
 };
 
