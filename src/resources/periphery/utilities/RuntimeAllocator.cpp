@@ -11,6 +11,7 @@ static uint8_t pcIntUsage = 0;
 static uint8_t twiUsage = 0;
 static uint8_t adcUsage = 0;
 static bool watchdogUsage = false;
+static bool eepromUsage = false;
 
 
 inline bool allocateByte(uint8_t& byte) noexcept {
@@ -107,6 +108,14 @@ bool RuntimeAllocator::allocate(const Watchdog* object) noexcept {
 	return true;
 }
 
+bool RuntimeAllocator::allocate(const Eeprom* object) noexcept {
+	if (eepromUsage) {
+		return false;
+	}
+	eepromUsage = true;
+	return true;
+}
+
 //-------------------------------------------------------------------------------------------
 
 void RuntimeAllocator::deallocate(const Port* object) noexcept {
@@ -170,6 +179,10 @@ void RuntimeAllocator::deallocate(const Watchdog* object) noexcept {
 	watchdogUsage = false;
 }
 
+void RuntimeAllocator::deallocate(const Eeprom* object) noexcept {
+	eepromUsage = false;
+}
+
 //-------------------------------------------------------------------------------------------
 
 bool RuntimeAllocator::isAllocated(const Port* object) noexcept {
@@ -231,5 +244,9 @@ bool RuntimeAllocator::isAllocated(const Adc* object) noexcept {
 
 bool RuntimeAllocator::isAllocated(const Watchdog* object) noexcept {
 	return watchdogUsage;
+}
+
+bool RuntimeAllocator::isAllocated(const Eeprom* object) noexcept {
+	return eepromUsage;
 }
 

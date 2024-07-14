@@ -68,6 +68,7 @@
 #define ISRTYPE_TWI			ISR_BLOCK
 #define ISRTYPE_ADC			ISR_BLOCK
 #define ISRTYPE_WDT			ISR_BLOCK
+#define ISRTYPE_EEPROM		ISR_BLOCK
 
 
 //___________________________________
@@ -505,6 +506,17 @@ ISR(ADC_vect, ISRTYPE_ADC) {
 ISR(WDT_vect, ISRTYPE_WDT) {
 	if (Configuration::enableInterrupt_WDT)
 		Interrupt::invoke<WDT_vect_num>();
+}
+#endif
+
+//___________________________________
+//EEPROM READY
+
+//ADC
+#ifdef ISRTYPE_EEPROM
+ISR(EE_READY_vect, ISRTYPE_EEPROM) {
+	if (Configuration::enableInterrupt_EEPROM)
+		Interrupt::invoke<EE_READY_vect_num>();
 }
 #endif
 

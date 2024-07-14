@@ -94,6 +94,9 @@ namespace Interrupts {
 
 	///Access the Wdt Interrupt object
 	inline Interrupt getWdtInterrupt() noexcept { return Interrupt::GetInstance<WDT_vect_num>(); }
+
+	///Access the Eeprom-Ready Interrupt object
+	inline Interrupt getEepromInterrupt() noexcept { return Interrupt::GetInstance<EE_READY_vect_num>(); }
 }
 
 

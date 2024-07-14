@@ -49,7 +49,7 @@ namespace Configuration {
 	static constexpr bool enableInterrupt_TIMER1_CAPT	= false;
 	static constexpr bool enableInterrupt_TIMER2_OC_A	= false;
 	static constexpr bool enableInterrupt_TIMER2_OC_B	= false;
-	static constexpr bool enableInterrupt_TIMER2_OVF	= false;
+	static constexpr bool enableInterrupt_TIMER2_OVF	= true;
 	static constexpr bool enableInterrupt_TIMER3_OC_A	= false;
 	static constexpr bool enableInterrupt_TIMER3_OC_B	= false;
 	static constexpr bool enableInterrupt_TIMER3_OC_C	= false;
@@ -68,6 +68,7 @@ namespace Configuration {
 	static constexpr bool enableInterrupt_TWI			= true;
 	static constexpr bool enableInterrupt_ADC			= true;
 	static constexpr bool enableInterrupt_WDT			= true;
+	static constexpr bool enableInterrupt_EEPROM		= true;
 }
 
 

@@ -17,6 +17,7 @@ class PinChangeInterrupt;
 class Twi;
 class Adc;
 class Watchdog;
+class Eeprom;
 
 
 namespace RuntimeAllocator {
@@ -33,6 +34,7 @@ namespace RuntimeAllocator {
 	bool allocate(const Twi* object) noexcept;
 	bool allocate(const Adc* object) noexcept;
 	bool allocate(const Watchdog* object) noexcept;
+	bool allocate(const Eeprom* object) noexcept;
 
 	void deallocate(const Port* object) noexcept;
 	void deallocate(const Port* object, uint8_t mask) noexcept;
@@ -46,6 +48,7 @@ namespace RuntimeAllocator {
 	void deallocate(const Twi* object) noexcept;
 	void deallocate(const Adc* object) noexcept;
 	void deallocate(const Watchdog* object) noexcept;
+	void deallocate(const Eeprom* object) noexcept;
 
 	bool isAllocated(const Port* object) noexcept;
 	bool isAllocated(const Port* object, uint8_t mask) noexcept;
@@ -59,6 +62,7 @@ namespace RuntimeAllocator {
 	bool isAllocated(const Twi* object) noexcept;
 	bool isAllocated(const Adc* object) noexcept;
 	bool isAllocated(const Watchdog* object) noexcept;
+	bool isAllocated(const Eeprom* object) noexcept;
 }
 
 
