@@ -10,6 +10,11 @@
 #include "../streaming/Stream.hpp"
 
 
+#ifndef EEMEM
+#define EEMEM __attribute__((section(".eeprom")))
+#endif
+
+
 class EepromController {
 
 private:
@@ -131,6 +136,11 @@ private:
 	}
 
 public:
+	inline static EepromController& GetInstance() noexcept {
+		static EepromController instance(Interrupts::getEepromInterrupt());
+		return instance;
+	}
+
 	inline EepromController(Interrupt eepromIrq) noexcept : status(Idle) {
 		eepromIrq.registerMethod<EepromController, &EepromController::eepromReadyCallback>(*this);
 		EECR = 0;
