@@ -15,7 +15,6 @@
 #include "../periphery/Twi.h"
 #include "../periphery/Adc.h"
 #include "../periphery/Watchdog.h"
-#include "../periphery/Eeprom.h"
 #include "../periphery/McuStatus.h"
 
 #include "../periphery/secondary/InterruptPin.h"
@@ -57,7 +56,6 @@ namespace Periphery {
 	static Twi& twi = *(reinterpret_cast<Twi*>(ADR_TWI));
 	static Adc& adc = *(reinterpret_cast<Adc*>(ADR_ADC));
 	static Watchdog& watchdog = *(reinterpret_cast<Watchdog*>(ADR_WATCHDOG));
-	static Eeprom& eeprom = *(reinterpret_cast<Eeprom*>(ADR_EEPROM));
 
 	//Device specific Constants
 	static constexpr uint8_t Timer16bitChannelCount = 3;
@@ -95,9 +93,6 @@ namespace Periphery {
 	}
 	inline Watchdog& getWatchdog() noexcept {
 		return *(reinterpret_cast<Watchdog*>(AddressMap::getWatchdogAddress()));
-	}
-	inline Eeprom& getEeprom() noexcept {
-		return *(reinterpret_cast<Eeprom*>(AddressMap::getEepromAddress()));
 	}
 	inline McuStatus& getMcuStatus() noexcept {
 		return *(reinterpret_cast<McuStatus*>(AddressMap::getMcuStatusAddress()));
