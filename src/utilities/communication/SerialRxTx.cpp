@@ -30,7 +30,7 @@ bool SerialRxTx::transmit(const char* s) noexcept {
 }
 
 bool SerialRxTx::transmitFromProgmem(PGM_P s) noexcept {
-	if (*s != 0) {
+	if (pgm_read_byte(s) != 0) {
 		if (this->txStatus == TxStatus::IDLE) {
 			this->txStatus = TxStatus::TX_PROGMEM_STRING;
 			this->txData.pgmString = s;
