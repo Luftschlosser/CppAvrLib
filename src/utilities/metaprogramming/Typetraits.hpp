@@ -15,6 +15,9 @@ namespace Typetraits {
 	template<class T> struct remove_volatile { typedef T type; };
 	template<class T> struct remove_volatile<volatile T> { typedef T type; };
 
+	template<bool B, class T, class F> struct conditional { using type = T; };
+	template<class T, class F> struct conditional<false, T, F> { using type = F; };
+
 	//Todo: Add more functions as needed, copy from <std::type_traits>
 }
 

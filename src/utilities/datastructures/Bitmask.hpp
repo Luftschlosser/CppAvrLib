@@ -3,6 +3,7 @@
 
 
 #include <stdint.h>
+#include "../metaprogramming/Typetraits.hpp"
 
 
 template<typename AddressType, AddressType Size> class Bitmask {
@@ -10,6 +11,8 @@ template<typename AddressType, AddressType Size> class Bitmask {
 private:
 
 	static constexpr AddressType arraySize = (Size+7)/8;
+	static constexpr bool arraySizeOver255 = arraySize > 0xFF;
+	typedef typename Typetraits::conditional<arraySizeOver255, uint16_t, uint8_t>::type ArrayType;
 
 	uint8_t mask[arraySize];
 
@@ -21,11 +24,11 @@ public:
 		}
 	}
 
-	inline uint8_t getByte(AddressType byteIndex) noexcept {
+	inline uint8_t getByte(ArrayType byteIndex) noexcept {
 		return this->mask[byteIndex];
 	}
 
-	inline void setByte(AddressType byteIndex, uint8_t byte) noexcept {
+	inline void setByte(ArrayType byteIndex, uint8_t byte) noexcept {
 		if (byteIndex < arraySize) {
 			this->mask[byteIndex] = byte;
 		}
@@ -44,7 +47,7 @@ public:
 	}
 
 	inline bool hasAnyBitSet() noexcept {
-		for (AddressType i = 0; i < arraySize; i++) {
+		for (ArrayType i = 0; i < arraySize; i++) {
 			if (this->mask[i] > 0) {
 				return true;
 			}
@@ -52,8 +55,17 @@ public:
 		return false;
 	}
 
+	inline bool hasAllBitsSet() noexcept {
+		for (ArrayType i = 0; i < arraySize; i++) {
+			if (this->mask[i] < 0xFF) {
+				return false;
+			}
+		}
+		return true;
+	}
+
 	inline void clearAllBits() noexcept {
-		for (AddressType i = 0; i < arraySize; i++) {
+		for (ArrayType i = 0; i < arraySize; i++) {
 			this->mask[i] = 0;
 		}
 	}
