@@ -108,24 +108,7 @@ private:
 		this->triggerEepromWrite();
 	}
 
-	inline bool write(uintptr_t adr, uint8_t* obj, uint8_t size) noexcept {
-		if (!this->isBusy()) {
-			ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
-			{
-				this->writeBuffer.object.pointer = obj;
-				this->writeBuffer.object.size = size;
-				this->status = WriteStatus::PlaneObject;
-				this->enableEepromInterrupt();
-				this->setEepromAddress(adr);
-				this->setEepromData(*obj);
-				this->triggerEepromWrite();
-			}
-			return true;
-		}
-		else {
-			return false;
-		}
-	}
+	bool write(uintptr_t adr, uint8_t* obj, uint8_t size) noexcept;
 
 	inline void read(uintptr_t adr, uint8_t* buf, uint8_t size) noexcept {
 		for (uint8_t i = 0; i < size; i++) {
@@ -135,15 +118,15 @@ private:
 		}
 	}
 
+	inline EepromController(Interrupt eepromIrq) noexcept : status(Idle) {
+		eepromIrq.registerMethod<EepromController, &EepromController::eepromReadyCallback>(*this);
+		EECR = 0;
+	}
+
 public:
 	inline static EepromController& GetInstance() noexcept {
 		static EepromController instance(Interrupts::getEepromInterrupt());
 		return instance;
-	}
-
-	inline EepromController(Interrupt eepromIrq) noexcept : status(Idle) {
-		eepromIrq.registerMethod<EepromController, &EepromController::eepromReadyCallback>(*this);
-		EECR = 0;
 	}
 
 	inline bool isBusy() noexcept {
