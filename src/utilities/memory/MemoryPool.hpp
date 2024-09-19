@@ -9,7 +9,7 @@ template <uint8_t ChunkSize, typename AddressType, AddressType NumberOfChunks> c
 
 private:
 	Bitmask<AddressType, NumberOfChunks> usageMask;
-	char pool[ChunkSize][NumberOfChunks];
+	char pool[NumberOfChunks][ChunkSize];
 
 	inline bool isMemoryLocationWithinPool(void* location) noexcept {
 		if ((location >= pool) && (location < (pool + sizeof(pool)))) {
@@ -21,7 +21,7 @@ private:
 	}
 
 	inline AddressType fromMemoryLocationToIndex(void* location) noexcept {
-		return (reinterpret_cast<intptr_t>(location) - this->pool) / ChunkSize;
+		return (reinterpret_cast<intptr_t>(location) - reinterpret_cast<intptr_t>(this->pool)) / ChunkSize;
 	}
 
 	inline void* fromIndexToMemoryLocation(AddressType index) noexcept {
