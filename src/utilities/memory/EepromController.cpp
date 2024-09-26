@@ -1,4 +1,5 @@
 #include "EepromController.hpp"
+#include <util/atomic.h>
 
 bool EepromController::write(uintptr_t adr, uint8_t* obj, uint8_t size) noexcept {
 	if (!this->isBusy()) {

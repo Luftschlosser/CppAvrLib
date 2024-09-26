@@ -4,7 +4,6 @@
 
 #include <stdint.h>
 #include <avr/io.h>
-#include <util/atomic.h>
 #include "../../resources/Periphery.h"
 #include "../../resources/Interrupts.h"
 #include "../streaming/Stream.hpp"

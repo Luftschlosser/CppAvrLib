@@ -34,6 +34,7 @@ public:
 	}
 
 	inline void* allocateChunk() noexcept {
+		//Todo: Optimize search by having an index always pointing to the lastly allocated cell (and start searching from there with wrapping)
 		AddressType chunkNumber = 0;
 		do {
 			if (!this->usageMask.isSet(chunkNumber)) {
@@ -46,6 +47,20 @@ public:
 
 	inline void freeChunk(void* chunk) noexcept {
 		this->usageMask.clearBit(this->fromMemoryLocationToIndex(chunk));
+	}
+
+	inline AddressType getNumberOfUsedChunks() noexcept {
+		AddressType cnt = 0;
+		for(AddressType i = 0; i < NumberOfChunks; i++) {
+			if (this->usageMask.isSet(i)) {
+				cnt++;
+			}
+		}
+		return cnt;
+	}
+
+	inline constexpr AddressType getTotalNumberOfChunks() noexcept {
+		return NumberOfChunks;
 	}
 };
 
