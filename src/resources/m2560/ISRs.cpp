@@ -482,7 +482,7 @@ ISR(TIMER5_CAPT_vect, ISRTYPE_TIMER5_CAPT) {
 //TWI
 #ifdef ISRTYPE_TWI
 ISR(TWI_vect, ISRTYPE_TWI) {
-	if (Configuration::enableInterrupt_TWI)
+	if (Configuration::enableInterrupt_TWI0)
 		Interrupt::invoke<TWI_vect_num>();
 }
 #endif

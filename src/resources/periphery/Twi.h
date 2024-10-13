@@ -9,8 +9,11 @@
 
 //Forward Declarations
 namespace Periphery {
-	inline Pin getTwiSclPin() noexcept;
-	inline Pin getTwiSdaPin() noexcept;
+	inline Pin getTwiSclPin(uint8_t twiIndex) noexcept;
+	inline Pin getTwiSdaPin(uint8_t twiIndex) noexcept;
+}
+namespace AddressMap {
+	inline constexpr uint8_t getIdentity(const Twi* periphery) noexcept;
 }
 
 
@@ -114,6 +117,11 @@ public:
 	} regTWAMR;
 
 
+	///Returns the Index of this particular TWI
+	inline uint8_t getIdentityIndex() noexcept {
+		return AddressMap::getIdentity(this);
+	}
+
 	///Initializes the TWI
 	inline void init() const {
 		if (Configuration::runtimeAllocationsEnabled) {
@@ -190,8 +198,8 @@ public:
 	inline void enable() noexcept {
 		this->regTWCR.fields.flagTWEN = 1;
 		if (Configuration::autoPinAllocationEnabled) {
-			Pin sda = Periphery::getTwiSdaPin();
-			Pin scl = Periphery::getTwiSclPin();
+			Pin sda = Periphery::getTwiSdaPin(getIdentityIndex());
+			Pin scl = Periphery::getTwiSclPin(getIdentityIndex());
 			sda.init(); //TODO: Deal with possible exception!
 			scl.init(); //TODO: Deal with possible exception!
 		}
@@ -201,8 +209,8 @@ public:
 	inline void disable() noexcept {
 		this->regTWCR.fields.flagTWEN = 0;
 		if (Configuration::autoPinAllocationEnabled) {
-			Pin sda = Periphery::getTwiSdaPin();
-			Pin scl = Periphery::getTwiSclPin();
+			Pin sda = Periphery::getTwiSdaPin(getIdentityIndex());
+			Pin scl = Periphery::getTwiSclPin(getIdentityIndex());
 			sda.close();
 			scl.close();
 		}

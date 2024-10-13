@@ -226,8 +226,8 @@ public:
 		}
 
 		if (internalPullup) {
-			Periphery::getTwiSclPin().setMode(Pin::Mode::INPUT_PULLUP);
-			Periphery::getTwiSdaPin().setMode(Pin::Mode::INPUT_PULLUP);
+			Periphery::getTwiSclPin(this->twi.getIdentityIndex()).setMode(Pin::Mode::INPUT_PULLUP);
+			Periphery::getTwiSdaPin(this->twi.getIdentityIndex()).setMode(Pin::Mode::INPUT_PULLUP);
 		}
 	}
 

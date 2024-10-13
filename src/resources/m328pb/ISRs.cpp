@@ -1,6 +1,7 @@
 #include <avr/interrupt.h>
 #include "../Configuration.h"
 #include "../interrupts/Interrupt.h"
+#include "m328pb_InterruptVectors.h"
 
 
 //ISR-Routine (enabled)	: 98B ROM + 4B RAM
@@ -19,9 +20,12 @@
 #define ISRTYPE_PCINT1		ISR_BLOCK
 #define ISRTYPE_PCINT2		ISR_BLOCK
 
-#define ISRTYPE_USART_RX 	ISR_BLOCK
-#define ISRTYPE_USART_TX 	ISR_BLOCK
-#define ISRTYPE_USART_UDRE	ISR_BLOCK
+#define ISRTYPE_USART0_RX 	ISR_BLOCK
+#define ISRTYPE_USART0_TX 	ISR_BLOCK
+#define ISRTYPE_USART0_UDRE	ISR_BLOCK
+#define ISRTYPE_USART1_RX 	ISR_BLOCK
+#define ISRTYPE_USART1_TX 	ISR_BLOCK
+#define ISRTYPE_USART1_UDRE	ISR_BLOCK
 
 #define ISRTYPE_TIMER0_OCA	ISR_BLOCK
 #define ISRTYPE_TIMER0_OCB	ISR_BLOCK
@@ -33,8 +37,18 @@
 #define ISRTYPE_TIMER2_OCA	ISR_BLOCK
 #define ISRTYPE_TIMER2_OCB	ISR_BLOCK
 #define ISRTYPE_TIMER2_OVF	ISR_BLOCK
+#define ISRTYPE_TIMER3_OCA	ISR_BLOCK
+#define ISRTYPE_TIMER3_OCB	ISR_BLOCK
+#define ISRTYPE_TIMER3_OVF	ISR_BLOCK
+#define ISRTYPE_TIMER3_CAPT	ISR_BLOCK
+#define ISRTYPE_TIMER4_OCA	ISR_BLOCK
+#define ISRTYPE_TIMER4_OCB	ISR_BLOCK
+#define ISRTYPE_TIMER4_OVF	ISR_BLOCK
+#define ISRTYPE_TIMER4_CAPT	ISR_BLOCK
 
-#define ISRTYPE_TWI			ISR_BLOCK
+#define ISRTYPE_TWI0		ISR_BLOCK
+#define ISRTYPE_TWI1		ISR_BLOCK
+
 #define ISRTYPE_ADC			ISR_BLOCK
 #define ISRTYPE_WDT			ISR_BLOCK
 #define ISRTYPE_EEPROM		ISR_BLOCK
@@ -84,10 +98,18 @@ ISR(PCINT2_vect, ISRTYPE_PCINT2) {
 //Usart RX
 
 //USART0_RX
-#ifdef ISRTYPE_USART_RX
-ISR(USART_RX_vect , ISRTYPE_USART_RX) {
+#ifdef ISRTYPE_USART0_RX
+ISR(USART_RX_vect , ISRTYPE_USART0_RX) {
 	if (Configuration::enableInterrupt_USART0_RX)
 		Interrupt::invoke<USART_RX_vect_num>();
+}
+#endif
+
+//USART1_RX
+#ifdef ISRTYPE_USART1_RX
+ISR(USART1_RX_vect , ISRTYPE_USART1_RX) {
+	if (Configuration::enableInterrupt_USART1_RX)
+		Interrupt::invoke<USART1_RX_vect_num>();
 }
 #endif
 
@@ -95,10 +117,18 @@ ISR(USART_RX_vect , ISRTYPE_USART_RX) {
 //Usart TX
 
 //USART0_TX
-#ifdef ISRTYPE_USART_TX
-ISR(USART_TX_vect, ISRTYPE_USART_TX) {
+#ifdef ISRTYPE_USART0_TX
+ISR(USART_TX_vect, ISRTYPE_USART0_TX) {
 	if (Configuration::enableInterrupt_USART0_TX)
 		Interrupt::invoke<USART_TX_vect_num>();
+}
+#endif
+
+//USART1_TX
+#ifdef ISRTYPE_USART1_TX
+ISR(USART1_TX_vect, ISRTYPE_USART1_TX) {
+	if (Configuration::enableInterrupt_USART1_TX)
+		Interrupt::invoke<USART1_TX_vect_num>();
 }
 #endif
 
@@ -106,10 +136,18 @@ ISR(USART_TX_vect, ISRTYPE_USART_TX) {
 //Usart UDRE
 
 //USART0_UDRE
-#ifdef ISRTYPE_USART_UDRE
-ISR(USART_UDRE_vect, ISRTYPE_USART_UDRE) {
+#ifdef ISRTYPE_USART0_UDRE
+ISR(USART_UDRE_vect, ISRTYPE_USART0_UDRE) {
 	if (Configuration::enableInterrupt_USART0_UDRE)
 		Interrupt::invoke<USART_UDRE_vect_num>();
+}
+#endif
+
+//USART1_UDRE
+#ifdef ISRTYPE_USART1_UDRE
+ISR(USART1_UDRE_vect, ISRTYPE_USART1_UDRE) {
+	if (Configuration::enableInterrupt_USART1_UDRE)
+		Interrupt::invoke<USART1_UDRE_vect_num>();
 }
 #endif
 
@@ -164,6 +202,38 @@ ISR(TIMER2_COMPB_vect, ISRTYPE_TIMER2_OCB) {
 }
 #endif
 
+//TIMER3 OCA
+#ifdef ISRTYPE_TIMER3_OCA
+ISR(TIMER3_COMPA_vect, ISRTYPE_TIMER3_OCA) {
+	if (Configuration::enableInterrupt_TIMER3_OC_A)
+		Interrupt::invoke<TIMER3_COMPA_vect_num>();
+}
+#endif
+
+//TIMER3 OCB
+#ifdef ISRTYPE_TIMER3_OCB
+ISR(TIMER3_COMPB_vect, ISRTYPE_TIMER3_OCB) {
+	if (Configuration::enableInterrupt_TIMER3_OC_B)
+		Interrupt::invoke<TIMER3_COMPB_vect_num>();
+}
+#endif
+
+//TIMER4 OCA
+#ifdef ISRTYPE_TIMER4_OCA
+ISR(TIMER4_COMPA_vect, ISRTYPE_TIMER4_OCA) {
+	if (Configuration::enableInterrupt_TIMER4_OC_A)
+		Interrupt::invoke<TIMER4_COMPA_vect_num>();
+}
+#endif
+
+//TIMER4 OCB
+#ifdef ISRTYPE_TIMER4_OCB
+ISR(TIMER4_COMPB_vect, ISRTYPE_TIMER4_OCB) {
+	if (Configuration::enableInterrupt_TIMER4_OC_B)
+		Interrupt::invoke<TIMER4_COMPB_vect_num>();
+}
+#endif
+
 //___________________________________
 //Timer	OVF
 
@@ -191,6 +261,22 @@ ISR(TIMER2_OVF_vect, ISRTYPE_TIMER2_OVF) {
 }
 #endif
 
+//TIMER3 OVF
+#ifdef ISRTYPE_TIMER3_OVF
+ISR(TIMER3_OVF_vect, ISRTYPE_TIMER3_OVF) {
+	if (Configuration::enableInterrupt_TIMER3_OVF)
+		Interrupt::invoke<TIMER3_OVF_vect_num>();
+}
+#endif
+
+//TIMER4 OVF
+#ifdef ISRTYPE_TIMER4_OVF
+ISR(TIMER4_OVF_vect, ISRTYPE_TIMER4_OVF) {
+	if (Configuration::enableInterrupt_TIMER4_OVF)
+		Interrupt::invoke<TIMER4_OVF_vect_num>();
+}
+#endif
+
 //___________________________________
 //Timer	CAPT
 
@@ -202,14 +288,38 @@ ISR(TIMER1_CAPT_vect, ISRTYPE_TIMER1_CAPT) {
 }
 #endif
 
+//TIMER3 CAPT
+#ifdef ISRTYPE_TIMER3_CAPT
+ISR(TIMER3_CAPT_vect, ISRTYPE_TIMER3_CAPT) {
+	if (Configuration::enableInterrupt_TIMER3_CAPT)
+		Interrupt::invoke<TIMER3_CAPT_vect_num>();
+}
+#endif
+
+//TIMER4 CAPT
+#ifdef ISRTYPE_TIMER4_CAPT
+ISR(TIMER4_CAPT_vect, ISRTYPE_TIMER4_CAPT) {
+	if (Configuration::enableInterrupt_TIMER4_CAPT)
+		Interrupt::invoke<TIMER4_CAPT_vect_num>();
+}
+#endif
+
 //___________________________________
 //TWI
 
-//TWI
-#ifdef ISRTYPE_TWI
-ISR(TWI_vect, ISRTYPE_TWI) {
+//TWI0
+#ifdef ISRTYPE_TWI0
+ISR(TWI_vect, ISRTYPE_TWI0) {
 	if (Configuration::enableInterrupt_TWI0)
 		Interrupt::invoke<TWI_vect_num>();
+}
+#endif
+
+//TWI1
+#ifdef ISRTYPE_TWI1
+ISR(TWI1_vect, ISRTYPE_TWI1) {
+	if (Configuration::enableInterrupt_TWI1)
+		Interrupt::invoke<TWI1_vect_num>();
 }
 #endif
 
