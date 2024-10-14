@@ -141,10 +141,10 @@ private:
 			}
 			else {
 				this->status = Status::Idle;
+				this->twiStop();
 				if (this->operation.completionCallback != nullptr) {
 					this->operation.completionCallback->execute<REPEATEDLY>();
 				}
-				this->twiStop();
 			}
 			break;
 		case Twi::TWSReg::FIELDS::Status::M_SLA_R_ACK:
@@ -170,10 +170,10 @@ private:
 			}
 			else {
 				this->status = Status::Idle;
+				this->twiStop();
 				if (this->operation.completionCallback != nullptr) {
 					this->operation.completionCallback->execute<REPEATEDLY>();
 				}
-				this->twiStop();
 			}
 			break;
 		case Twi::TWSReg::FIELDS::Status::Idle:
