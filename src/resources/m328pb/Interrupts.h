@@ -1,6 +1,5 @@
-#ifndef SRC_RESOURCES_M328P_INTERRUPTS_H_
-#define SRC_RESOURCES_M328P_INTERRUPTS_H_
-
+#ifndef SRC_RESOURCES_M328PB_INTERRUPTS_H_
+#define SRC_RESOURCES_M328PB_INTERRUPTS_H_
 
 #include <avr/interrupt.h>
 #include "../Configuration.h"
@@ -26,19 +25,19 @@ namespace Interrupts {
 	///Access the Usart RX-Interrupt object for the Usart device
 	///\return A reference to the Interrupt object
 	template <uint8_t Index> inline Interrupt getUsartRxInterrupt() noexcept;
-	template <> inline Interrupt getUsartRxInterrupt<0>() noexcept { return Interrupt::GetInstance<USART_RX_vect_num>(); }
+	template <> inline Interrupt getUsartRxInterrupt<0>() noexcept { return Interrupt::GetInstance<USART0_RX_vect_num>(); }
 	template <> inline Interrupt getUsartRxInterrupt<1>() noexcept { return Interrupt::GetInstance<USART1_RX_vect_num>(); }
 
 	///Access the Usart TX-Interrupt object for the Usart device
 	///\return A reference to the Interrupt object
 	template <uint8_t Index> inline Interrupt getUsartTxInterrupt() noexcept;
-	template <> inline Interrupt getUsartTxInterrupt<0>() noexcept { return Interrupt::GetInstance<USART_TX_vect_num>(); }
+	template <> inline Interrupt getUsartTxInterrupt<0>() noexcept { return Interrupt::GetInstance<USART0_TX_vect_num>(); }
 	template <> inline Interrupt getUsartTxInterrupt<1>() noexcept { return Interrupt::GetInstance<USART1_TX_vect_num>(); }
 
 	///Access the Usart UDRE-Interrupt object for the Usart device
 	///\return A reference to the Interrupt object
 	template <uint8_t Index> inline Interrupt getUsartUdreInterrupt() noexcept;
-	template <> inline Interrupt getUsartUdreInterrupt<0>() noexcept { return Interrupt::GetInstance<USART_UDRE_vect_num>(); }
+	template <> inline Interrupt getUsartUdreInterrupt<0>() noexcept { return Interrupt::GetInstance<USART0_UDRE_vect_num>(); }
 	template <> inline Interrupt getUsartUdreInterrupt<1>() noexcept { return Interrupt::GetInstance<USART1_UDRE_vect_num>(); }
 
 	///Access the Timer OC-Interrupt object for the template specified Timer device and compare-match channel
@@ -73,7 +72,7 @@ namespace Interrupts {
 
 	///Access the Twi Interrupt object
 	template <uint8_t Index> inline Interrupt getTwiInterrupt() noexcept;
-	template <> inline Interrupt getTwiInterrupt<0>() noexcept { return Interrupt::GetInstance<TWI_vect_num>(); }
+	template <> inline Interrupt getTwiInterrupt<0>() noexcept { return Interrupt::GetInstance<TWI0_vect_num>(); }
 	template <> inline Interrupt getTwiInterrupt<1>() noexcept { return Interrupt::GetInstance<TWI1_vect_num>(); }
 
 	///Access the Adc Interrupt object
@@ -87,4 +86,4 @@ namespace Interrupts {
 }
 
 
-#endif /* SRC_RESOURCES_M328P_INTERRUPTS_H_ */
+#endif /* SRC_RESOURCES_M328PB_INTERRUPTS_H_ */

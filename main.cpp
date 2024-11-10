@@ -7,9 +7,12 @@
 #if defined(__AVR_ATmega2560__)
 const Pin led = Periphery::getPin<'B', 6>();
 Timer16bit& timer = Periphery::getTimer16bit<5>();
-#elif defined(__AVR_ATmega328P__)
+#elif defined(__AVR_ATmega328PB__)
 const Pin led = Periphery::getPin<'B', 5>();
 Timer16bit& timer = Periphery::getTimer16bit<1>();
+#elif defined(__AVR_ATmega328P__)
+const Pin led = Periphery::getPin<'B', 5>();
+Timer16bit& timer = Periphery::getTimer16bit();
 #endif
 
 
@@ -88,8 +91,10 @@ int main (void) noexcept
 
 	#if defined(__AVR_ATmega2560__)
 	Log log(Periphery::getUsart<0>(), Interrupts::getUsartUdreInterrupt<0>());
-	#elif defined(__AVR_ATmega328P__)
+	#elif defined(__AVR_ATmega328PB__)
 	Log log(Periphery::getUsart<0>(), Interrupts::getUsartUdreInterrupt<0>());
+	#elif defined(__AVR_ATmega328P__)
+	Log log(Periphery::getUsart(), Interrupts::getUsartUdreInterrupt());
 	#endif
 
 	led.init();

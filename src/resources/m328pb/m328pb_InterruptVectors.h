@@ -1,7 +1,7 @@
 #ifndef SRC_RESOURCES_M328PB_M328PB_INTERRUPTVECTORS_H_
 #define SRC_RESOURCES_M328PB_M328PB_INTERRUPTVECTORS_H_
 
-
+/*
 //AtMega328pb specific vectors, Source: https://onlinedocs.microchip.com/oxy/GUID-0EC909F9-8FB7-46B2-BF4B-05290662B5C3-en-US-12.1.1/GUID-F3266720-5DBF-4EA7-876C-81574D15CD24.html
 #define USART1_RX_vect_num 29
 #define USART1_RX_vect _VECTOR(29)
@@ -38,6 +38,6 @@
 
 #define TWI1_vect_num 41
 #define TWI1_vect _VECTOR(41)
-
+*/
 
 #endif /* SRC_RESOURCES_M328PB_M328PB_INTERRUPTVECTORS_H_ */

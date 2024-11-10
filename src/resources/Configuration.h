@@ -30,9 +30,9 @@ namespace Configuration {
 	static constexpr bool enableInterrupt_USART0_RX 	= true;
 	static constexpr bool enableInterrupt_USART0_TX 	= true;
 	static constexpr bool enableInterrupt_USART0_UDRE 	= true;
-	static constexpr bool enableInterrupt_USART1_RX 	= false;
-	static constexpr bool enableInterrupt_USART1_TX 	= false;
-	static constexpr bool enableInterrupt_USART1_UDRE 	= false;
+	static constexpr bool enableInterrupt_USART1_RX 	= true;
+	static constexpr bool enableInterrupt_USART1_TX 	= true;
+	static constexpr bool enableInterrupt_USART1_UDRE 	= true;
 	static constexpr bool enableInterrupt_USART2_RX 	= false;
 	static constexpr bool enableInterrupt_USART2_TX 	= false;
 	static constexpr bool enableInterrupt_USART2_UDRE 	= false;

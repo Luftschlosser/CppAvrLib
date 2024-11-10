@@ -173,10 +173,10 @@ namespace Periphery {
 	inline Pin getTimer16bitInputCapturePin(uint8_t timerIndex) noexcept {
 		return Pin(getPort<'B'>(), 0);
 	}
-	inline Pin getTwiSclPin() noexcept {
+	inline Pin getTwiSclPin(uint8_t twiIndex) noexcept {
 		return Pin(getPort<'C'>(), 5);
 	}
-	inline Pin getTwiSdaPin() noexcept {
+	inline Pin getTwiSdaPin(uint8_t twiIndex) noexcept {
 		return Pin(getPort<'C'>(), 4);
 	}
 	inline constexpr uint8_t getAdcChannelCount() noexcept {

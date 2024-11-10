@@ -1,0 +1,9 @@
+eclipse.preferences.version=1
+environment/project/de.innot.avreclipse.configuration.app.debug.532474372.1708417426/AVRDUDEOPTIONS/delimiter=\:
+environment/project/de.innot.avreclipse.configuration.app.debug.532474372.1708417426/AVRDUDEOPTIONS/operation=replace
+environment/project/de.innot.avreclipse.configuration.app.debug.532474372.1708417426/AVRDUDEOPTIONS/value=-pm328pb -carduino -P/dev/ttyUSB0 -b115200 -v -D -F
+environment/project/de.innot.avreclipse.configuration.app.debug.532474372.1708417426/AVRTARGETMCU/delimiter=\:
+environment/project/de.innot.avreclipse.configuration.app.debug.532474372.1708417426/AVRTARGETMCU/operation=replace
+environment/project/de.innot.avreclipse.configuration.app.debug.532474372.1708417426/AVRTARGETMCU/value=atmega328pb
+environment/project/de.innot.avreclipse.configuration.app.debug.532474372.1708417426/append=true
+environment/project/de.innot.avreclipse.configuration.app.debug.532474372.1708417426/appendContributed=true

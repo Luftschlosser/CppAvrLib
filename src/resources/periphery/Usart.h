@@ -104,6 +104,22 @@ public:
 	volatile uint8_t regUDR; //data
 
 
+	static constexpr inline uint8_t compileUCSRC(UCSRC::FIELDS::ClockPolarityUCPOL clockPolarity,
+			UCSRC::FIELDS::StopBitsUSBS stopBits, UCSRC::FIELDS::ParityModeUPM parityMode,
+			UCSRC::FIELDS::UsartModeUMSEL usartMode, uint8_t characterSize) noexcept {
+		uint8_t buf = uint8_t(clockPolarity);
+		characterSize -= 5;
+		if (characterSize >= 4) {
+			characterSize = 3;
+		}
+		buf |= (characterSize << 1);
+		buf |= (stopBits << 3);
+		buf |= (parityMode << 4);
+		buf |= (usartMode << 6);
+		return buf;
+	}
+
+
 	///Initializes the Usart
 	inline void init() const {
 		if (Configuration::runtimeAllocationsEnabled) {

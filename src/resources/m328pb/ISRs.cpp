@@ -8,7 +8,7 @@
 //ISR-Routine (empty)	: 20B ROM + 0B RAM
 
 
-#if defined(__AVR_ATmega328P__)
+#if defined(__AVR_ATmega328PB__)
 //_____________________________________________
 //INTERRUPT-CONFIGURATION:2
 
@@ -99,9 +99,9 @@ ISR(PCINT2_vect, ISRTYPE_PCINT2) {
 
 //USART0_RX
 #ifdef ISRTYPE_USART0_RX
-ISR(USART_RX_vect , ISRTYPE_USART0_RX) {
+ISR(USART0_RX_vect , ISRTYPE_USART0_RX) {
 	if (Configuration::enableInterrupt_USART0_RX)
-		Interrupt::invoke<USART_RX_vect_num>();
+		Interrupt::invoke<USART0_RX_vect_num>();
 }
 #endif
 
@@ -118,9 +118,9 @@ ISR(USART1_RX_vect , ISRTYPE_USART1_RX) {
 
 //USART0_TX
 #ifdef ISRTYPE_USART0_TX
-ISR(USART_TX_vect, ISRTYPE_USART0_TX) {
+ISR(USART0_TX_vect, ISRTYPE_USART0_TX) {
 	if (Configuration::enableInterrupt_USART0_TX)
-		Interrupt::invoke<USART_TX_vect_num>();
+		Interrupt::invoke<USART0_TX_vect_num>();
 }
 #endif
 
@@ -137,9 +137,9 @@ ISR(USART1_TX_vect, ISRTYPE_USART1_TX) {
 
 //USART0_UDRE
 #ifdef ISRTYPE_USART0_UDRE
-ISR(USART_UDRE_vect, ISRTYPE_USART0_UDRE) {
+ISR(USART0_UDRE_vect, ISRTYPE_USART0_UDRE) {
 	if (Configuration::enableInterrupt_USART0_UDRE)
-		Interrupt::invoke<USART_UDRE_vect_num>();
+		Interrupt::invoke<USART0_UDRE_vect_num>();
 }
 #endif
 
@@ -309,9 +309,9 @@ ISR(TIMER4_CAPT_vect, ISRTYPE_TIMER4_CAPT) {
 
 //TWI0
 #ifdef ISRTYPE_TWI0
-ISR(TWI_vect, ISRTYPE_TWI0) {
+ISR(TWI0_vect, ISRTYPE_TWI0) {
 	if (Configuration::enableInterrupt_TWI0)
-		Interrupt::invoke<TWI_vect_num>();
+		Interrupt::invoke<TWI0_vect_num>();
 }
 #endif
 
