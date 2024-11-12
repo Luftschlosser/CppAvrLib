@@ -4,7 +4,6 @@
 #include <avr/interrupt.h>
 #include "../Configuration.h"
 #include "../interrupts/Interrupt.h"
-#include "m328pb_InterruptVectors.h"
 
 
 ///Interrupt declaration for the ATmega328p

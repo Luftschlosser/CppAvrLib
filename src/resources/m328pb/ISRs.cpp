@@ -1,7 +1,6 @@
 #include <avr/interrupt.h>
 #include "../Configuration.h"
 #include "../interrupts/Interrupt.h"
-#include "m328pb_InterruptVectors.h"
 
 
 //ISR-Routine (enabled)	: 98B ROM + 4B RAM
