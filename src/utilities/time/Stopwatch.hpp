@@ -43,7 +43,7 @@ public:
 	}
 
 	inline uint32_t getElapsedTicks() noexcept {
-		return (this->overflows * 0xFFFF) + this->timer.getCounterValue() - this->offset;
+		return (this->overflows * 0xFFFF) + (this->timer.getCounterValue() - this->offset);
 	}
 
 	inline uint32_t getElapsedMicroseconds() noexcept {

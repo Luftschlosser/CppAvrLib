@@ -58,7 +58,7 @@ namespace Configuration {
 	static constexpr bool enableInterrupt_TIMER4_OC_A	= false;
 	static constexpr bool enableInterrupt_TIMER4_OC_B	= false;
 	static constexpr bool enableInterrupt_TIMER4_OC_C	= false;
-	static constexpr bool enableInterrupt_TIMER4_OVF	= false;
+	static constexpr bool enableInterrupt_TIMER4_OVF	= true;
 	static constexpr bool enableInterrupt_TIMER4_CAPT	= false;
 	static constexpr bool enableInterrupt_TIMER5_OC_A	= false;
 	static constexpr bool enableInterrupt_TIMER5_OC_B	= false;

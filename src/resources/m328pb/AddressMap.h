@@ -84,6 +84,9 @@ namespace AddressMap {
 		intptr_t ptr = reinterpret_cast<intptr_t>(periphery);
 		ptr -= (ADR_TIMER1 - 0x10);
 		ptr /= 0x10;
+		if (ptr > 1) {
+			ptr++;
+		}
 		return ptr;
 	}
 	inline constexpr uint8_t getIdentity(const Twi* periphery) noexcept {

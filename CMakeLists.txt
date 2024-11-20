@@ -65,7 +65,7 @@ foreach(subdir ${LIBRARIES})
 endforeach()
 
 #message("Test1:")
-#cmake_print_variables(INC_PATH)
+#cmake_print_variables(SRC_FILES)
 
 # Compiler flags
 set(CSTANDARD "-std=c++17")
