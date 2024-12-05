@@ -79,3 +79,30 @@ bool SerialRxTx::transmitHex(uint8_t value) noexcept {
 		return false;
 	}
 }
+
+bool SerialRxTx::transmitDec(uint8_t value) noexcept {
+	if (this->txStatus == TxStatus::IDLE) {
+		this->txStatus = TxStatus::TX_8DEC;
+		char buf[3];
+		int8_t i;
+		for (i = 0; i < 3; i++) {
+			buf[i] = (value % 10) + '0';
+			value /= 10;
+		}
+		i = 2;
+		while (true) {
+			if (buf[i] > '0' || i == 0) {
+				this->usart.write(buf[i]);
+				break;
+			}
+			i--;
+		}
+		this->txData.decPt2[0] = i >= 2 ? buf[1] : 0;
+		this->txData.decPt2[1] = i >= 1 ? buf[0] : 0;
+		this->usart.enableDataRegisterEmptyInterrupt();
+		return true;
+	}
+	else {
+		return false;
+	}
+}

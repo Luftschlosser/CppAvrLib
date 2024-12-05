@@ -21,6 +21,7 @@ private:
 		PGM_P pgmString;
 		char hex8_pt2;
 		Stream<uint8_t>* stream;
+		char decPt2[2];
 		TxData() noexcept : string(nullptr) {}
 	} txData;
 
@@ -31,7 +32,8 @@ private:
 		TX_STREAM = 2,
 		TX_8HEX = 3,
 		TX_STRING = 4,
-		TX_PROGMEM_STRING = 5
+		TX_PROGMEM_STRING = 5,
+		TX_8DEC = 6
 	} volatile txStatus;
 
 
@@ -59,6 +61,15 @@ private:
 			if (pgm_read_byte(++(this->txData.pgmString)) != 0) {
 				usart.write(pgm_read_byte(this->txData.pgmString));
 				return;
+			}
+		}
+		else if (this->txStatus == TX_8DEC) {
+			for (uint8_t i = 0; i < 2; i++) {
+				if (this->txData.decPt2[i] > 0) {
+					usart.write(this->txData.decPt2[i]);
+					this->txData.decPt2[i] = 0;
+					return;
+				}
 			}
 		}
 		this->txStatus = TxStatus::COMPLETING;
@@ -158,6 +169,7 @@ public:
 	bool transmitFromProgmem(PGM_P s) noexcept;
 	bool transmit(Stream<uint8_t>* stream) noexcept;
 	bool transmitHex(uint8_t value) noexcept;
+	bool transmitDec(uint8_t value) noexcept;
 
 	inline bool syncTransmit(char character) noexcept {
 		if (!this->transmit(character)) {
@@ -193,6 +205,14 @@ public:
 
 	inline bool syncTransmitHex(uint8_t value) noexcept {
 		if (!this->transmitHex(value)) {
+			return false;
+		}
+		while(!this->isReadyToTransmit());
+		return true;
+	}
+
+	inline bool syncTransmitDec(uint8_t value) noexcept {
+		if (!this->transmitDec(value)) {
 			return false;
 		}
 		while(!this->isReadyToTransmit());
