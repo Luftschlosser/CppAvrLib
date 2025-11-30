@@ -1,12 +1,12 @@
 # CppAvrLib
 
-**CppAvrLib** is a minimalist object oriented C++ hardware abstraction layer for AVR ATmega microcontrollers. I've implemented features for my own uses as I needed them, so it's is not complete in any way and might be extended in the future.
+**CppAvrLib** is a minimalist object oriented C++ hardware abstraction layer for AVR ATmega microcontrollers. I needed a better way to program my Arduino-Nano and Arduino-Mega boards without relying on the horribly flawed Arduino library. The library aims to provide zero-overhead wrappers for common periphery, while not compromising code structure and cleanliness. I've implemented features for my own uses as I needed them, so it's is not complete in any way and might be extended in the future.
 
 It consists of memory-mapped IO abstractions, a very efficient delegate handler for hardware Interrupts, as well as various utilities for common protocols, memory management, time and scheduled tasks.
 
 ## Periphery
 
-The following peripheries have been implemented as memory-mapped objects
+The following periphery wrappers have been implemented as memory-mapped objects
 
 - GPIO Ports & Pins (including external Interrupt Pins and Pin change Interrupts)
 - USART
@@ -18,7 +18,9 @@ The following peripheries have been implemented as memory-mapped objects
 - Eeprom
 
 Peripheries can be accessed via `resources/Periphery.h`.
-Interrupt delegate handlers can be accessed via `resources/Interrupts.h`.
+Interrupt delegate handlers can be accessed via `resources/Interrupts.h` and enabled in `resources/Configuration.h`.
+
+All peripheries were intended to be allocated/deallocated at runtime, but that mechanism turned out to be unnecessary for most use-cases, so the implementation is incomplete (missing errorhandling) and I recommend disabling it in `resources/Configuration.h`.
 
 ## Supported Microcontrollers
 
